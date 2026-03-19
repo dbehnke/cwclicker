@@ -98,6 +98,9 @@ Three license tiers based on real amateur radio licensing:
 | Remote Station | 2,500,000 | 2,500.0 | "I'm operating from the Caribbean... remotely from Ohio." |
 
 #### Tier 6: Questionable Methods (Extra)
+
+**Requirements:** 100 DXCC entities OR 50 states worked (track via simple counters)
+
 | Factory | Cost | QSOs/sec | Satirical Description |
 |---------|------|----------|----------------------|
 | FT8 Bot | 5,000,000 | 5,000.0 | *Controversial* "Is it even ham radio if a computer does it?" |
@@ -117,8 +120,9 @@ Three license tiers based on real amateur radio licensing:
 
 Each additional factory of the same type costs slightly more (compounding):
 - Base cost increases by ~10% per purchase
-- Buying in bulk (×10, ×100) applies discount vs individual purchases
-- Formula: `cost = base_cost × (1.1 ^ owned)`
+- Formula for Nth factory: `cost = base_cost × (1.1 ^ (owned))`
+- Buying in bulk (×10, ×100) applies 5% discount vs individual purchases
+- Bulk formula: `total = sum(cost for i in 0..n-1) × 0.95`
 
 ---
 
@@ -191,7 +195,85 @@ After purchasing 10 of any factory type, unlock bulk purchase buttons:
 
 ---
 
-## Stretch Goals
+## Game Balance
+
+### Idle vs Active Play
+
+**Target Ratio:** Active clicking viable for first 10-15 minutes, then factories take over
+- Clicking (active): ~5-10 QSOs/sec at steady rhythm
+- Tier 1 factories combined: ~1 QSO/sec
+- Tier 3+ factories: Gradually surpass clicking
+
+**Progression curve:**
+- 0-10 min: Clicking is primary source
+- 10-60 min: Mix of clicking + early factories
+- 60+ min: Factories dominate
+
+### Offline Progress
+
+Calculate QSOs earned while away:
+- **Formula:** `offline_QSOs = (current_QSOs_per_sec) × (offline_hours) × 0.5`
+- **Cap:** Maximum 24 hours of offline progress (prevents infinite accumulation)
+- **Display:** Show "Welcome back! You earned X QSOs while away"
+
+### Prestige System
+
+**New Game+ mechanic:**
+- **Reset at:** 1 billion QSOs (arbitrary "I've conquered this band" milestone)
+- **Keep:** Audio preferences, theme selection
+- **Gain:** Permanent +10% QSO generation multiplier (compounds)
+- **Bonus:** Unique badge showing number of resets
+- **Optional:** Can be disabled for casual players
+
+## Save System
+
+### Save Data Schema
+
+```javascript
+{
+  version: 1,  // For migration
+  timestamp: 1234567890,
+  qsos: "12345678901234567890",  // String for BigInt
+  qsosPerSec: 1234,
+  license: "general",  // technician|general|extra
+  factories: {
+    elmer: { owned: 42, totalProduced: 999999 }
+    // ... each factory
+  },
+  stats: {
+    totalClicks: 9999,
+    totalTimePlayed: 3600,  // seconds
+    statesWorked: ["CA", "TX", "NY"],  // For WAS achievement
+    dxccCount: 47,  // For DXCC achievement
+    resets: 0
+  },
+  settings: {
+    volume: 0.7,
+    frequency: 600,
+    theme: "amber"
+  }
+}
+```
+
+### Error Handling
+
+**localStorage failures:**
+- Try/catch around all localStorage operations
+- On failure: Show warning toast "Save failed - progress may be lost"
+- Graceful degradation: Continue playing, retry save on next interval
+
+**Quota exceeded:**
+- Compress save data (JSON → minified)
+- If still failing: Warn user to export save manually
+
+**Data migration:**
+- Check `save.version` on load
+- If outdated: Run migration function to upgrade schema
+- Keep backup of old format until migration succeeds
+
+**Import/Export:**
+- Export: Copy save JSON to clipboard as base64-encoded string
+- Import: Paste base64 string, decode, validate schema, apply if valid
 
 ### Morse Code Decoder Display
 
@@ -239,21 +321,26 @@ After purchasing 10 of any factory type, unlock bulk purchase buttons:
 
 1. **Keyer Component:**
    - Mouse/touch event handlers
-   - Audio context management
+   - Audio context management (lazy init on first interaction)
    - Timing logic (dit/dah detection)
    - Visual feedback (animations)
+   - **Interface:** Emits `{ type: 'dit' | 'dah', count: 1 | 2 }` events
+   - **Note:** Audio context created on first click to avoid autoplay blocking
 
 2. **Game Loop:**
    - RequestAnimationFrame-based
    - Calculate QSO generation from factories
    - Update UI at 60fps
    - Auto-save every 30 seconds
+   - **Interface:** Exposes `getQSOs()` and `addQSOs(n)` methods
+   - **Event flow:** Factories calculate rate → Game Loop accumulates → UI displays
 
 3. **Factory Manager:**
    - Track owned factories
    - Calculate total QSO/sec
    - Handle purchase logic
    - Cost scaling calculations
+   - **Interface:** `getRate()`, `canAfford(factory)`, `purchase(factory, count)`
 
 4. **License System:**
    - Gate content based on achievements
@@ -298,10 +385,7 @@ After purchasing 10 of any factory type, unlock bulk purchase buttons:
 
 ## Open Questions
 
-1. **Idle vs Active Play Balance:** What ratio of QSOs should come from clicking vs factories?
-2. **Offline Progress:** Calculate QSOs earned while away, or pause?
-3. **Prestige System:** Reset for permanent bonuses? (Classic idle game mechanic)
-4. **Import/Export Save:** Allow players to backup/transfer saves?
+None - all decisions resolved in Game Balance section.
 
 ---
 
