@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, onUnmounted } from 'vue';
 
 /**
  * Emits events from the component.
@@ -17,6 +17,9 @@ const indicators = ref([]);
 
 const MAX_INDICATORS = 5;
 const FADE_DURATION_MS = 2000;
+
+// Track active animation frame IDs to prevent memory leaks
+const animationFrames = new Map();
 
 /**
  * Generate a unique ID for each indicator
@@ -56,29 +59,61 @@ function addIndicator(value) {
  */
 function fadeIndicator(id) {
   const startTime = Date.now();
-  
+
   const fadeStep = () => {
+    // Check if this indicator's animation has been cancelled
+    if (!animationFrames.has(id)) {
+      return;
+    }
+
     const elapsed = Date.now() - startTime;
     const progress = elapsed / FADE_DURATION_MS;
-    
+
     if (progress >= 1) {
       // Remove fully faded indicator
       indicators.value = indicators.value.filter(ind => ind.id !== id);
+      animationFrames.delete(id);
       emit('indicator-complete', id);
       return;
     }
-    
+
     // Update opacity
     const indicator = indicators.value.find(ind => ind.id === id);
     if (indicator) {
       indicator.opacity = 1 - progress;
     }
-    
-    requestAnimationFrame(fadeStep);
+
+    const frameId = requestAnimationFrame(fadeStep);
+    animationFrames.set(id, frameId);
   };
-  
-  requestAnimationFrame(fadeStep);
+
+  const frameId = requestAnimationFrame(fadeStep);
+  animationFrames.set(id, frameId);
 }
+
+/**
+ * Cancel animation for a specific indicator
+ * @param {string} id - The indicator ID
+ */
+function cancelAnimation(id) {
+  const frameId = animationFrames.get(id);
+  if (frameId) {
+    cancelAnimationFrame(frameId);
+    animationFrames.delete(id);
+  }
+}
+
+/**
+ * Cleanup all animations when component unmounts
+ */
+onUnmounted(() => {
+  // Cancel all pending animation frames to prevent memory leaks
+  for (const frameId of animationFrames.values()) {
+    cancelAnimationFrame(frameId);
+  }
+  animationFrames.clear();
+  indicators.value = [];
+});
 
 /**
  * Get the display value with sign
