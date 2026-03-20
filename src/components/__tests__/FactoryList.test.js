@@ -22,7 +22,8 @@ describe('FactoryList.vue', () => {
       factoryCounts: {},
       getFactoryCost: () => 10n,
       getTotalQSOsPerSecond: () => 0,
-      getBulkCost: () => 100n
+      getBulkCost: () => 100n,
+      getUpgradeMultiplier: () => 1
     })
 
     const wrapper = mount(FactoryList)
@@ -43,7 +44,8 @@ describe('FactoryList.vue', () => {
       factoryCounts: {},
       getFactoryCost: () => 10n,
       getTotalQSOsPerSecond: () => 0,
-      getBulkCost: () => 100n
+      getBulkCost: () => 100n,
+      getUpgradeMultiplier: () => 1
     })
 
     const wrapper = mount(FactoryList)
@@ -62,7 +64,8 @@ describe('FactoryList.vue', () => {
       factoryCounts: { 'elmer': 2, 'straight-key': 1 },
       getFactoryCost: () => 10n,
       getTotalQSOsPerSecond: () => 2.5,
-      getBulkCost: () => 100n
+      getBulkCost: () => 100n,
+      getUpgradeMultiplier: () => 1
     })
 
     const wrapper = mount(FactoryList)
@@ -77,7 +80,8 @@ describe('FactoryList.vue', () => {
       factoryCounts: { 'elmer': 5, 'straight-key': 5 },
       getFactoryCost: () => 10n,
       getTotalQSOsPerSecond: () => 4,
-      getBulkCost: () => 100n
+      getBulkCost: () => 100n,
+      getUpgradeMultiplier: () => 1
     })
 
     const wrapper = mount(FactoryList)
@@ -94,7 +98,8 @@ describe('FactoryList.vue', () => {
       factoryCounts: { 'elmer': 3, 'straight-key': 2 },
       getFactoryCost: () => 10n,
       getTotalQSOsPerSecond: () => 2,
-      getBulkCost: () => 100n
+      getBulkCost: () => 100n,
+      getUpgradeMultiplier: () => 1
     })
 
     const wrapper = mount(FactoryList)
@@ -111,7 +116,8 @@ describe('FactoryList.vue', () => {
       getFactoryCost: () => 10n,
       getTotalQSOsPerSecond: () => 0,
       getBulkCost: () => 100,
-      buyFactory: mockBuyFactory
+      buyFactory: mockBuyFactory,
+      getUpgradeMultiplier: () => 1
     })
 
     const wrapper = mount(FactoryList)
@@ -133,7 +139,8 @@ describe('FactoryList.vue', () => {
       factoryCounts: {},
       getFactoryCost: () => 10n,
       getTotalQSOsPerSecond: () => 0,
-      getBulkCost: () => 100n
+      getBulkCost: () => 100n,
+      getUpgradeMultiplier: () => 1
     })
 
     const wrapper = mount(FactoryList)

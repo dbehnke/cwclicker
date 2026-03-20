@@ -42,6 +42,16 @@ const ownedCount = computed(() => {
 })
 
 /**
+ * Calculates the actual production rate for this factory type.
+ */
+const actualOutput = computed(() => {
+  const count = ownedCount.value
+  if (count === 0) return 0
+  const upgradeMultiplier = store.getUpgradeMultiplier(props.factory.id)
+  return props.factory.qsosPerSecond * count * upgradeMultiplier
+})
+
+/**
  * Handles the buy button click.
  */
 const handleBuy = () => {
@@ -62,11 +72,14 @@ const handleBuy = () => {
     
     <div class="flex justify-between items-center">
       <div class="text-terminal-green">
-        <span class="mr-4">{{ factory.qsosPerSecond }}/sec</span>
-        <span>Cost: {{ currentCost.toString() }}</span>
+        <span v-if="ownedCount > 0" class="text-terminal-amber font-semibold mr-4">
+          {{ actualOutput.toFixed(1) }}/sec
+        </span>
+        <span class="text-sm text-gray-500">({{ factory.qsosPerSecond }}/sec each)</span>
       </div>
       
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-3">
+        <span class="text-terminal-green">Cost: {{ currentCost.toString() }}</span>
         <span v-if="ownedCount > 0" class="text-terminal-amber text-sm">
           Owned: {{ ownedCount }}
         </span>
