@@ -80,33 +80,179 @@ function exportSave() {
 }
 
 /**
- * Import save data
+ * Validate save data structure
+ * @param {Object} data - Parsed save data
+ * @returns {boolean} True if valid
+ */
+function isValidSaveData(data) {
+  if (!data || typeof data !== 'object') {
+    return false;
+  }
+
+  // Required fields with type checking
+  const requiredFields = {
+    qsos: (v) => typeof v === 'string' && /^\d+$/.test(v),
+    licenseLevel: (v) => typeof v === 'number' && v >= 1 && v <= 3,
+    factoryCounts: (v) => typeof v === 'object' && v !== null && !Array.isArray(v),
+    fractionalQSOs: (v) => typeof v === 'number' && v >= 0,
+    audioSettings: (v) => typeof v === 'object' && v !== null,
+    lotteryState: (v) => typeof v === 'object' && v !== null
+  };
+
+  for (const [field, validator] of Object.entries(requiredFields)) {
+    if (!(field in data) || !validator(data[field])) {
+      console.warn(`Invalid or missing field: ${field}`);
+      return false;
+    }
+  }
+
+  // Validate audioSettings sub-fields
+  const audio = data.audioSettings;
+  if (typeof audio.volume !== 'number' || audio.volume < 0 || audio.volume > 1) {
+    return false;
+  }
+  if (typeof audio.frequency !== 'number' || audio.frequency < 400 || audio.frequency > 1000) {
+    return false;
+  }
+  if (typeof audio.isMuted !== 'boolean') {
+    return false;
+  }
+
+  // Validate lotteryState sub-fields
+  const lottery = data.lotteryState;
+  if (typeof lottery.lastTriggerTime !== 'number') return false;
+  if (typeof lottery.isBonusAvailable !== 'boolean') return false;
+  if (lottery.bonusFactoryId !== null && typeof lottery.bonusFactoryId !== 'string') return false;
+  if (typeof lottery.bonusEndTime !== 'number') return false;
+  if (typeof lottery.bonusAvailableEndTime !== 'number') return false;
+  if (typeof lottery.phenomenonTitle !== 'string') return false;
+  if (typeof lottery.isSolarStorm !== 'boolean') return false;
+  if (typeof lottery.solarStormEndTime !== 'number') return false;
+
+  // Validate factoryCounts - ensure keys are valid factory IDs and values are positive integers
+  const validFactoryIds = ['qrq-protocol', 'elmer', 'straight-key', 'paddle-key', 
+                          'code-practice-oscillator', 'dipole-antenna'];
+  for (const [key, value] of Object.entries(data.factoryCounts)) {
+    if (!validFactoryIds.includes(key)) {
+      console.warn(`Invalid factory ID: ${key}`);
+      return false;
+    }
+    if (!Number.isInteger(value) || value < 0) {
+      console.warn(`Invalid factory count for ${key}: ${value}`);
+      return false;
+    }
+  }
+
+  return true;
+}
+
+/**
+ * Sanitize save data to prevent XSS
+ * @param {Object} data - Raw parsed data
+ * @returns {Object} Sanitized data
+ */
+function sanitizeSaveData(data) {
+  const sanitized = {};
+
+  // Sanitize qsos - ensure it's a valid numeric string
+  const qsosStr = String(data.qsos).replace(/[^\d]/g, '');
+  sanitized.qsos = qsosStr || '0';
+
+  // Sanitize licenseLevel
+  sanitized.licenseLevel = Math.max(1, Math.min(3, Number(data.licenseLevel) || 1));
+
+  // Sanitize factoryCounts
+  sanitized.factoryCounts = {};
+  for (const [key, value] of Object.entries(data.factoryCounts || {})) {
+    // Only allow valid factory IDs
+    const validFactoryIds = ['qrq-protocol', 'elmer', 'straight-key', 'paddle-key',
+                            'code-practice-oscillator', 'dipole-antenna'];
+    if (validFactoryIds.includes(key)) {
+      sanitized.factoryCounts[key] = Math.max(0, Math.floor(Number(value) || 0));
+    }
+  }
+
+  // Sanitize fractionalQSOs
+  sanitized.fractionalQSOs = Math.max(0, Number(data.fractionalQSOs) || 0);
+
+  // Sanitize purchasedUpgrades
+  sanitized.purchasedUpgrades = [];
+  if (Array.isArray(data.purchasedUpgrades)) {
+    for (const upgrade of data.purchasedUpgrades) {
+      if (typeof upgrade === 'string' && upgrade.match(/^[a-z0-9-]+$/)) {
+        sanitized.purchasedUpgrades.push(upgrade);
+      }
+    }
+  }
+
+  // Sanitize audioSettings
+  const audio = data.audioSettings || {};
+  sanitized.audioSettings = {
+    volume: Math.max(0, Math.min(1, Number(audio.volume) || 0.5)),
+    frequency: Math.max(400, Math.min(1000, Number(audio.frequency) || 600)),
+    isMuted: Boolean(audio.isMuted)
+  };
+
+  // Sanitize lotteryState
+  const lottery = data.lotteryState || {};
+  sanitized.lotteryState = {
+    lastTriggerTime: Math.max(0, Number(lottery.lastTriggerTime) || 0),
+    isBonusAvailable: Boolean(lottery.isBonusAvailable),
+    bonusFactoryId: lottery.bonusFactoryId && typeof lottery.bonusFactoryId === 'string'
+      ? lottery.bonusFactoryId.replace(/[^a-z0-9-]/g, '')
+      : null,
+    bonusEndTime: Math.max(0, Number(lottery.bonusEndTime) || 0),
+    bonusAvailableEndTime: Math.max(0, Number(lottery.bonusAvailableEndTime) || 0),
+    phenomenonTitle: String(lottery.phenomenonTitle || '').substring(0, 100),
+    isSolarStorm: Boolean(lottery.isSolarStorm),
+    solarStormEndTime: Math.max(0, Number(lottery.solarStormEndTime) || 0)
+  };
+
+  return sanitized;
+}
+
+/**
+ * Import save data with validation and sanitization
  */
 function importSave() {
   importError.value = '';
-  
+
   if (!exportData.value.trim()) {
     importError.value = 'Please paste save data';
     return;
   }
-  
+
   try {
-    // Base64 decode
-    const decoded = atob(exportData.value.trim());
-    const parsed = JSON.parse(decoded);
-    
-    // Validate minimum required fields
-    if (!parsed || typeof parsed !== 'object') {
-      throw new Error('Invalid save data format');
+    // Base64 decode with size limit (prevent DoS with huge payloads)
+    const trimmed = exportData.value.trim();
+    if (trimmed.length > 100000) {
+      throw new Error('Save data too large');
     }
-    
-    // Save to localStorage
-    localStorage.setItem('cw-keyer-game', decoded);
-    
+
+    const decoded = atob(trimmed);
+    if (decoded.length > 50000) {
+      throw new Error('Decoded data too large');
+    }
+
+    // Parse JSON
+    const parsed = JSON.parse(decoded);
+
+    // Validate structure
+    if (!isValidSaveData(parsed)) {
+      throw new Error('Invalid save data structure');
+    }
+
+    // Sanitize all data
+    const sanitized = sanitizeSaveData(parsed);
+
+    // Save sanitized data to localStorage
+    localStorage.setItem('cw-keyer-game', JSON.stringify(sanitized));
+
     // Reload to apply
     window.location.reload();
   } catch (error) {
-    importError.value = 'Invalid save data. Please check and try again.';
+    console.error('Import error:', error);
+    importError.value = `Import failed: ${error.message || 'Invalid save data. Please check and try again.'}`;
   }
 }
 
