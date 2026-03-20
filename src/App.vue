@@ -122,8 +122,13 @@ const multiBuyAvailable = computed(() => totalFactoryCount.value >= 10)
         <!-- Store Tab -->
         <div v-if="activeTab === 'store'" class="space-y-4">
           <div class="flex justify-between items-center px-2">
-            <h2 class="text-xl font-bold text-terminal-green">Factory Store</h2>
-            <span class="text-terminal-green">QSOs: {{ store.qsos }}</span>
+            <div>
+              <h2 class="text-xl font-bold text-terminal-green">Factory Store</h2>
+              <p class="text-sm text-terminal-amber mt-1">
+                Producing: {{ store.getTotalQSOsPerSecond().toFixed(1) }} QSOs/sec
+              </p>
+            </div>
+            <span class="text-terminal-green text-lg">{{ store.qsos.toLocaleString() }} QSOs</span>
           </div>
           
           <div class="space-y-4">
