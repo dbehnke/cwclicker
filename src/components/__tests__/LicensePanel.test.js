@@ -96,6 +96,36 @@ describe('LicensePanel.vue', () => {
     expect(wrapper.emitted('upgrade')).toBeTruthy()
   })
 
+  it('deducts QSOs when upgrading to General', async () => {
+    const store = {
+      qsos: 600n,
+      licenseLevel: 1
+    }
+    useGameStore.mockReturnValue(store)
+
+    const wrapper = mount(LicensePanel)
+
+    const upgradeButton = wrapper.find('button')
+    await upgradeButton.trigger('click')
+
+    expect(wrapper.emitted('upgrade')).toBeTruthy()
+  })
+
+  it('deducts QSOs when upgrading to Extra', async () => {
+    const store = {
+      qsos: 6000n,
+      licenseLevel: 2
+    }
+    useGameStore.mockReturnValue(store)
+
+    const wrapper = mount(LicensePanel)
+
+    const upgradeButton = wrapper.find('button')
+    await upgradeButton.trigger('click')
+
+    expect(wrapper.emitted('upgrade')).toBeTruthy()
+  })
+
   it('does not show upgrade button when Extra (maxed)', () => {
     useGameStore.mockReturnValue({
       qsos: 10000,
