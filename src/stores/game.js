@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { FACTORIES } from '../constants/factories'
 import { UPGRADES } from '../constants/upgrades'
 
@@ -344,21 +344,37 @@ export const useGameStore = defineStore('game', () => {
   }
 
   /**
+   * Pre-computed upgrade multipliers for all factories.
+   * This is a computed property that only recalculates when purchasedUpgrades changes.
+   * Much more efficient than scanning all upgrades on every call.
+   */
+  const upgradeMultipliers = computed(() => {
+    const multipliers = {}
+
+    // Initialize all factories with multiplier of 1
+    for (const factory of FACTORIES) {
+      multipliers[factory.id] = 1
+    }
+
+    // Apply purchased upgrades
+    for (const upgradeId of purchasedUpgrades.value) {
+      const upgrade = UPGRADES.find(u => u.id === upgradeId)
+      if (upgrade) {
+        multipliers[upgrade.factoryId] = (multipliers[upgrade.factoryId] || 1) * upgrade.multiplier
+      }
+    }
+
+    return multipliers
+  })
+
+  /**
    * Gets the total upgrade multiplier for a factory.
+   * Uses cached computed property for O(1) lookup instead of O(n) scan.
    * @param {string} factoryId - The factory ID.
    * @returns {number} The multiplier (1.0 if no upgrades, 2.0, 4.0, 8.0, etc. with upgrades).
    */
   function getUpgradeMultiplier(factoryId) {
-    let multiplier = 1
-
-    for (const upgradeId of purchasedUpgrades.value) {
-      const upgrade = UPGRADES.find(u => u.id === upgradeId)
-      if (upgrade && upgrade.factoryId === factoryId) {
-        multiplier *= upgrade.multiplier
-      }
-    }
-
-    return multiplier
+    return upgradeMultipliers.value[factoryId] || 1
   }
 
   /**
