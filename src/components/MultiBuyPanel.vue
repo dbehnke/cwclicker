@@ -70,8 +70,10 @@ const formatCost = (cost) => {
 </script>
 
 <template>
-  <div v-if="multiBuyAvailable" class="border-2 border-terminal-green bg-terminal-bg p-3 rounded">
-    <div class="text-sm text-gray-400 mb-2">Bulk Purchase</div>
+  <div v-if="multiBuyAvailable && factory" class="border-2 border-terminal-green bg-terminal-bg p-3 rounded">
+    <div class="text-sm text-gray-400 mb-2">
+      Bulk Purchase: <span class="text-terminal-green font-semibold">{{ factory.name }}</span>
+    </div>
     <div class="flex gap-2">
       <button
         @click="handleBuy(1)"
