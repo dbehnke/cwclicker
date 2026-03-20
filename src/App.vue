@@ -6,33 +6,32 @@ import StatHeader from './components/StatHeader.vue'
 import LicensePanel from './components/LicensePanel.vue'
 import KeyerArea from './components/KeyerArea.vue'
 import ClickIndicator from './components/ClickIndicator.vue'
-import AudioPanel from './components/AudioPanel.vue'
 import RareDxBonus from './components/RareDxBonus.vue'
 import UpgradePanel from './components/UpgradePanel.vue'
-import FactoryList from './components/FactoryList.vue'
 import FactoryCard from './components/FactoryCard.vue'
 import MultiBuyPanel from './components/MultiBuyPanel.vue'
+import SettingsPanel from './components/SettingsPanel.vue'
 import { FACTORIES } from './constants/factories'
 import GameLoop from './components/GameLoop.vue'
 
 const store = useGameStore()
 const clickIndicatorRef = ref(null)
-const audioPanelRef = ref(null)
 const activeTab = ref('factories')
 
 const tabs = [
   { id: 'factories', label: 'Factories' },
   { id: 'store', label: 'Store' },
   { id: 'bulk', label: 'Bulk Buy' },
-  { id: 'upgrades', label: 'Upgrades' }
+  { id: 'upgrades', label: 'Upgrades' },
+  { id: 'settings', label: 'Settings' }
 ]
 
 onMounted(() => {
-  // Load audio settings from store after game is loaded
+  // Load game state
   store.load()
-  if (audioPanelRef.value && store.audioSettings) {
-    audioPanelRef.value.loadSettings(store.audioSettings)
-    // Also apply to audio service directly
+  
+  // Apply audio settings from store
+  if (store.audioSettings) {
     audioService.setVolume(store.audioSettings.volume)
     audioService.setFrequency(store.audioSettings.frequency)
     if (store.audioSettings.isMuted) {
@@ -59,10 +58,6 @@ const handleKeyerTap = (value) => {
   if (clickIndicatorRef.value) {
     clickIndicatorRef.value.addIndicator(value)
   }
-}
-
-const handleAudioSettingsChange = (settings) => {
-  store.updateAudioSettings(settings)
 }
 
 const handleLotteryActivated = (factory) => {
@@ -107,11 +102,6 @@ const multiBuyAvailable = computed(() => totalFactoryCount.value >= 10)
         </div>
         <ClickIndicator ref="clickIndicatorRef" />
       </div>
-      
-      <AudioPanel 
-        ref="audioPanelRef" 
-        @settings-change="handleAudioSettingsChange" 
-      />
       
       <RareDxBonus 
         @lottery-activated="handleLotteryActivated"
@@ -203,6 +193,11 @@ const multiBuyAvailable = computed(() => totalFactoryCount.value >= 10)
         <!-- Upgrades Tab -->
         <div v-if="activeTab === 'upgrades'">
           <UpgradePanel />
+        </div>
+        
+        <!-- Settings Tab -->
+        <div v-if="activeTab === 'settings'">
+          <SettingsPanel />
         </div>
       </div>
     </main>
