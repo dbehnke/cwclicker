@@ -60,6 +60,14 @@ const effectivePerFactoryRate = computed(() => {
 })
 
 /**
+ * Calculates how many more QSOs are needed to afford this factory.
+ */
+const qsosNeeded = computed(() => {
+  if (canAfford.value) return 0n
+  return currentCost.value - store.qsos
+})
+
+/**
  * Handles the buy button click.
  */
 const handleBuy = () => {
@@ -100,6 +108,7 @@ const handleBuy = () => {
         <button
           @click="handleBuy"
           :disabled="!canAfford"
+          :aria-describedby="!canAfford ? `reason-${factory.id}` : undefined"
           class="px-4 py-1 rounded font-bold transition-colors"
           :class="{
             'bg-terminal-green text-terminal-bg hover:bg-green-600': canAfford,
@@ -108,6 +117,13 @@ const handleBuy = () => {
         >
           Buy
         </button>
+        <span
+          v-if="!canAfford"
+          :id="`reason-${factory.id}`"
+          class="sr-only"
+        >
+          Cannot afford. Need {{ qsosNeeded.toString() }} more QSOs.
+        </span>
       </div>
     </div>
   </div>
