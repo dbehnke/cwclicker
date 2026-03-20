@@ -21,6 +21,21 @@ export const useGameStore = defineStore('game', () => {
     isMuted: false
   })
 
+  // Lottery system
+  const LOTTERY_COOLDOWN_MS = 90000 // 90 seconds
+  const LOTTERY_CHANCE = 0.05 // 5%
+  const LOTTERY_BOOST_MULTIPLIER = 7 // 7x
+  const LOTTERY_BOOST_DURATION_MS = 77000 // 77 seconds
+  const LOTTERY_BUTTON_DURATION_MS = 10000 // 10 seconds to click
+
+  const lotteryState = ref({
+    lastTriggerTime: 0,
+    isBonusAvailable: false,
+    bonusFactoryId: null,
+    bonusEndTime: 0,
+    bonusAvailableEndTime: 0
+  })
+
   /**
    * Processes a keyer tap to add QSOs.
    * @param {('dit'|'dah')} type - The type of keyer tap.
@@ -33,6 +48,106 @@ export const useGameStore = defineStore('game', () => {
     } else {
       console.warn(`Invalid keyer tap type: ${type}`)
     }
+
+    // Check for lottery trigger
+    checkLotteryTrigger()
+  }
+
+  /**
+   * Checks if lottery should trigger on this click.
+   */
+  function checkLotteryTrigger() {
+    const now = Date.now()
+
+    // Check if cooldown has passed and no bonus is currently available
+    if (lotteryState.value.isBonusAvailable) {
+      return
+    }
+
+    if (now - lotteryState.value.lastTriggerTime < LOTTERY_COOLDOWN_MS) {
+      return
+    }
+
+    // Check if user has any factories
+    const totalFactories = Object.values(factoryCounts.value).reduce((sum, count) => sum + count, 0)
+    if (totalFactories === 0) {
+      return
+    }
+
+    // Roll for lottery
+    if (Math.random() < LOTTERY_CHANCE) {
+      triggerLottery()
+    }
+  }
+
+  /**
+   * Triggers the lottery bonus.
+   */
+  function triggerLottery() {
+    const now = Date.now()
+    const ownedFactoryIds = Object.entries(factoryCounts.value)
+      .filter(([_, count]) => count > 0)
+      .map(([id, _]) => id)
+
+    if (ownedFactoryIds.length === 0) {
+      return
+    }
+
+    // Pick random factory
+    const randomFactoryId = ownedFactoryIds[Math.floor(Math.random() * ownedFactoryIds.length)]
+
+    lotteryState.value = {
+      lastTriggerTime: now,
+      isBonusAvailable: true,
+      bonusFactoryId: randomFactoryId,
+      bonusEndTime: 0,
+      bonusAvailableEndTime: now + LOTTERY_BUTTON_DURATION_MS
+    }
+  }
+
+  /**
+   * Activates the lottery bonus (called when user clicks the bonus button).
+   * @returns {boolean} True if activation succeeded.
+   */
+  function activateLotteryBonus() {
+    if (!lotteryState.value.isBonusAvailable) {
+      return false
+    }
+
+    const now = Date.now()
+
+    // Check if button is still available
+    if (now > lotteryState.value.bonusAvailableEndTime) {
+      lotteryState.value.isBonusAvailable = false
+      return false
+    }
+
+    // Activate the bonus
+    lotteryState.value.isBonusAvailable = false
+    lotteryState.value.bonusEndTime = now + LOTTERY_BOOST_DURATION_MS
+
+    return true
+  }
+
+  /**
+   * Gets the current lottery bonus multiplier for a factory.
+   * @param {string} factoryId - The factory ID.
+   * @returns {number} The multiplier (1 if no bonus, 7 if bonus active).
+   */
+  function getLotteryMultiplier(factoryId) {
+    const now = Date.now()
+
+    // Check if bonus has expired
+    if (now > lotteryState.value.bonusEndTime) {
+      return 1
+    }
+
+    // Check if this is the boosted factory
+    if (lotteryState.value.bonusFactoryId === factoryId) {
+      return LOTTERY_BOOST_MULTIPLIER
+    }
+
+    return 1
   }
 
   /**
@@ -141,7 +256,8 @@ export const useGameStore = defineStore('game', () => {
         licenseLevel: licenseLevel.value,
         factoryCounts: factoryCounts.value,
         fractionalQSOs: fractionalQSOs.value,
-        audioSettings: audioSettings.value
+        audioSettings: audioSettings.value,
+        lotteryState: lotteryState.value
       }
       localStorage.setItem('cw-keyer-game', JSON.stringify(state))
     } catch (e) {
@@ -169,6 +285,18 @@ export const useGameStore = defineStore('game', () => {
             isMuted: state.audioSettings.isMuted ?? false
           }
         }
+
+        // Restore lottery state (check if bonus has expired)
+        if (state.lotteryState) {
+          const now = Date.now()
+          lotteryState.value = {
+            lastTriggerTime: state.lotteryState.lastTriggerTime || 0,
+            isBonusAvailable: state.lotteryState.isBonusAvailable && now < state.lotteryState.bonusAvailableEndTime,
+            bonusFactoryId: state.lotteryState.bonusFactoryId || null,
+            bonusEndTime: state.lotteryState.bonusEndTime || 0,
+            bonusAvailableEndTime: state.lotteryState.bonusAvailableEndTime || 0
+          }
+        }
       }
     } catch (e) {
       console.warn('Failed to load game state:', e)
@@ -177,18 +305,20 @@ export const useGameStore = defineStore('game', () => {
 
   /**
    * Calculates the total QSOs per second from all owned factories.
+   * Applies lottery bonus multipliers.
    * @returns {number} The total QSOs per second.
    */
   function getTotalQSOsPerSecond() {
     let total = 0
-    
+
     for (const [factoryId, count] of Object.entries(factoryCounts.value)) {
       const factory = FACTORIES.find(f => f.id === factoryId)
       if (factory) {
-        total += factory.qsosPerSecond * count
+        const multiplier = getLotteryMultiplier(factoryId)
+        total += factory.qsosPerSecond * count * multiplier
       }
     }
-    
+
     return total
   }
 
@@ -207,6 +337,7 @@ export const useGameStore = defineStore('game', () => {
     factoryCounts,
     fractionalQSOs,
     audioSettings,
+    lotteryState,
     tapKeyer,
     addPassiveQSOs,
     getFactoryCost,
@@ -214,6 +345,8 @@ export const useGameStore = defineStore('game', () => {
     buyFactory,
     getTotalQSOsPerSecond,
     updateAudioSettings,
+    activateLotteryBonus,
+    getLotteryMultiplier,
     save,
     load
   }

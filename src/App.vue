@@ -7,6 +7,7 @@ import LicensePanel from './components/LicensePanel.vue'
 import KeyerArea from './components/KeyerArea.vue'
 import ClickIndicator from './components/ClickIndicator.vue'
 import AudioPanel from './components/AudioPanel.vue'
+import LotteryBonus from './components/LotteryBonus.vue'
 import FactoryList from './components/FactoryList.vue'
 import GameLoop from './components/GameLoop.vue'
 
@@ -51,6 +52,12 @@ const handleKeyerTap = (value) => {
 const handleAudioSettingsChange = (settings) => {
   store.updateAudioSettings(settings)
 }
+
+const handleBonusActivated = (factory) => {
+  // Bonus is already activated in the store
+  // This is just for any additional UI feedback if needed
+  console.log(`Lottery bonus activated for ${factory.name}!`)
+}
 </script>
 
 <template>
@@ -69,6 +76,8 @@ const handleAudioSettingsChange = (settings) => {
         ref="audioPanelRef" 
         @settings-change="handleAudioSettingsChange" 
       />
+      
+      <LotteryBonus @bonus-activated="handleBonusActivated" />
       
       <FactoryList @buy="handleFactoryBuy" />
     </main>
