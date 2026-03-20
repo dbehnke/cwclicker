@@ -1,0 +1,116 @@
+<script setup>
+import { computed } from 'vue'
+import { useGameStore } from '../stores/game'
+
+const props = defineProps({
+  multiBuyAvailable: {
+    type: Boolean,
+    required: true
+  },
+  factory: {
+    type: Object,
+    default: null
+  }
+})
+
+const emit = defineEmits(['buy'])
+
+const store = useGameStore()
+
+const cost1 = computed(() => {
+  if (!props.factory) return 0
+  const owned = store.factoryCounts[props.factory.id] || 0
+  return store.getFactoryCost(props.factory.id, owned)
+})
+
+const cost10 = computed(() => {
+  if (!props.factory) return 0
+  return store.getBulkCost(props.factory.id, 10)
+})
+
+const cost100 = computed(() => {
+  if (!props.factory) return 0
+  return store.getBulkCost(props.factory.id, 100)
+})
+
+const maxCount = computed(() => {
+  if (!props.factory) return 0
+  let count = 0
+  let totalCost = 0
+  const currentOwned = store.factoryCounts[props.factory.id] || 0
+  
+  while (true) {
+    const nextCost = store.getFactoryCost(props.factory.id, currentOwned + count)
+    if (store.qsos < totalCost + nextCost) break
+    totalCost += nextCost
+    count++
+  }
+  
+  return count
+})
+
+const canAfford1 = computed(() => store.qsos >= cost1.value)
+const canAfford10 = computed(() => store.qsos >= cost10.value)
+const canAfford100 = computed(() => store.qsos >= cost100.value)
+const canAffordMax = computed(() => maxCount.value > 0)
+
+const handleBuy = (count) => {
+  emit('buy', { factory: props.factory, count })
+}
+
+const formatCost = (cost) => {
+  return Math.floor(cost).toString()
+}
+</script>
+
+<template>
+  <div v-if="multiBuyAvailable" class="border-2 border-terminal-green bg-terminal-bg p-3 rounded">
+    <div class="text-sm text-gray-400 mb-2">Bulk Purchase</div>
+    <div class="flex gap-2">
+      <button
+        @click="handleBuy(1)"
+        :disabled="!canAfford1"
+        class="flex-1 px-2 py-1 rounded text-sm font-bold transition-colors"
+        :class="{
+          'bg-terminal-green text-terminal-bg hover:bg-green-600': canAfford1,
+          'bg-gray-700 text-gray-400 opacity-50 cursor-not-allowed': !canAfford1
+        }"
+      >
+        ×1: {{ formatCost(cost1) }}
+      </button>
+      <button
+        @click="handleBuy(10)"
+        :disabled="!canAfford10"
+        class="flex-1 px-2 py-1 rounded text-sm font-bold transition-colors"
+        :class="{
+          'bg-terminal-green text-terminal-bg hover:bg-green-600': canAfford10,
+          'bg-gray-700 text-gray-400 opacity-50 cursor-not-allowed': !canAfford10
+        }"
+      >
+        ×10: {{ formatCost(cost10) }}
+      </button>
+      <button
+        @click="handleBuy(100)"
+        :disabled="!canAfford100"
+        class="flex-1 px-2 py-1 rounded text-sm font-bold transition-colors"
+        :class="{
+          'bg-terminal-green text-terminal-bg hover:bg-green-600': canAfford100,
+          'bg-gray-700 text-gray-400 opacity-50 cursor-not-allowed': !canAfford100
+        }"
+      >
+        ×100: {{ formatCost(cost100) }}
+      </button>
+      <button
+        @click="handleBuy(maxCount)"
+        :disabled="!canAffordMax"
+        class="flex-1 px-2 py-1 rounded text-sm font-bold transition-colors"
+        :class="{
+          'bg-terminal-green text-terminal-bg hover:bg-green-600': canAffordMax,
+          'bg-gray-700 text-gray-400 opacity-50 cursor-not-allowed': !canAffordMax
+        }"
+      >
+        MAX: {{ maxCount }}
+      </button>
+    </div>
+  </div>
+</template>
