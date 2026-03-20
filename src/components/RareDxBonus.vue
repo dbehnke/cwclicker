@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref, onMounted, onUnmounted } from 'vue';
+import { computed, ref, onMounted, onUnmounted, watch } from 'vue';
 import { useGameStore } from '../stores/game';
 import { FACTORIES } from '../constants/factories';
 
@@ -26,6 +26,20 @@ onUnmounted(() => {
     clearInterval(timerInterval);
   }
 });
+
+/**
+ * Watch for bonus expiration and clean up state
+ * This replaces the side effect that was in the computed property
+ */
+watch(now, (currentTime) => {
+  const bonusExpired = currentTime >= store.lotteryState.bonusEndTime;
+  const hasActiveBonus = store.lotteryState.bonusFactoryId && store.lotteryState.bonusEndTime > 0;
+  
+  if (bonusExpired && hasActiveBonus) {
+    // Call store action to clear expired bonus
+    store.clearExpiredBonus();
+  }
+}, { immediate: true });
 
 /**
  * Whether a bonus button is currently available
@@ -80,15 +94,10 @@ const boostedOutput = computed(() => {
 
 /**
  * Whether a positive bonus is currently active
+ * Pure computed - no side effects
  */
 const isBonusActive = computed(() => {
-  const active = now.value < store.lotteryState.bonusEndTime;
-  // If bonus just expired, clear the factory ID to reset the display
-  if (!active && store.lotteryState.bonusFactoryId && store.lotteryState.bonusEndTime > 0) {
-    store.lotteryState.bonusFactoryId = null;
-    store.lotteryState.bonusEndTime = 0;
-  }
-  return active;
+  return now.value < store.lotteryState.bonusEndTime;
 });
 
 /**

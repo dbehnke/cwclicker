@@ -362,6 +362,16 @@ export const useGameStore = defineStore('game', () => {
   }
 
   /**
+   * Clears expired bonus state when a bonus ends.
+   * Called by RareDxBonus component when timer detects expiration.
+   */
+  function clearExpiredBonus() {
+    lotteryState.value.bonusFactoryId = null
+    lotteryState.value.bonusEndTime = 0
+    save()
+  }
+
+  /**
    * Saves the current game state to localStorage.
    */
   function save() {
@@ -476,6 +486,7 @@ export const useGameStore = defineStore('game', () => {
     getAvailableUpgrades,
     buyUpgrade,
     getUpgradeMultiplier,
+    clearExpiredBonus,
     save,
     load
   }
