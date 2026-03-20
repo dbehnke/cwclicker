@@ -52,6 +52,33 @@ const boostedFactory = computed(() => {
 });
 
 /**
+ * Number of boosted factories owned
+ */
+const boostedFactoryCount = computed(() => {
+  if (!store.lotteryState.bonusFactoryId) {
+    return 0;
+  }
+  return store.factoryCounts[store.lotteryState.bonusFactoryId] || 0;
+});
+
+/**
+ * Base output of the boosted factory (rate × count)
+ */
+const baseOutput = computed(() => {
+  if (!boostedFactory.value) {
+    return 0;
+  }
+  return boostedFactory.value.qsosPerSecond * boostedFactoryCount.value;
+});
+
+/**
+ * Boosted output (base × 7)
+ */
+const boostedOutput = computed(() => {
+  return baseOutput.value * 7;
+});
+
+/**
  * Whether a positive bonus is currently active
  */
 const isBonusActive = computed(() => {
@@ -163,7 +190,7 @@ function handleBonusClick() {
               {{ phenomenonTitle }}: {{ boostedFactory.name }} 7x Boost!
             </p>
             <p class="text-sm text-gray-400">
-              Output increased from {{ boostedFactory.qsosPerSecond }}/sec to {{ (boostedFactory.qsosPerSecond * 7).toFixed(1) }}/sec
+              Output increased from {{ baseOutput.toFixed(1) }}/sec to {{ boostedOutput.toFixed(1) }}/sec ({{ boostedFactoryCount }} × {{ boostedFactory.qsosPerSecond }}/sec)
             </p>
           </div>
         </div>
