@@ -67,14 +67,16 @@ describe('AudioService', () => {
       expect(mockGainNode.gain.setTargetAtTime).toHaveBeenCalledWith(0.15, 0, 0.01);
     });
 
-    it('does not create a new oscillator if one is already playing', () => {
+    it('stops existing oscillator before creating new one to prevent orphaned oscillators', () => {
       const audio = new AudioService();
       audio.playTone();
       expect(mockContext.createOscillator).toHaveBeenCalledTimes(1);
+      expect(mockOscillator.stop).not.toHaveBeenCalled();
       
-      // Call playTone again - should not create another oscillator
+      // Call playTone again - should stop old oscillator and create new one
       audio.playTone();
-      expect(mockContext.createOscillator).toHaveBeenCalledTimes(1);
+      expect(mockOscillator.stop).toHaveBeenCalled();
+      expect(mockContext.createOscillator).toHaveBeenCalledTimes(2);
     });
 
     it('initializes audio context if not already initialized', () => {
@@ -98,17 +100,14 @@ describe('AudioService', () => {
       expect(mockGainNode.gain.setTargetAtTime).toHaveBeenCalledWith(0, 0, 0.01);
     });
 
-    it('stops and disconnects oscillator after fade out', () => {
+    it('stops and disconnects oscillator immediately', () => {
       const audio = new AudioService();
       audio.playTone();
       
       audio.stopTone();
       
+      // Oscillator should be stopped immediately (synchronous)
       expect(audio.oscillator).toBeNull();
-      
-      // Fast-forward past the setTimeout
-      vi.advanceTimersByTime(50);
-      
       expect(mockOscillator.stop).toHaveBeenCalled();
       expect(mockOscillator.disconnect).toHaveBeenCalled();
     });

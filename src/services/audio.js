@@ -38,41 +38,66 @@ export class AudioService {
 
   /**
    * Plays a constant morse code tone.
+   * Stops any existing oscillator first to prevent orphaned oscillators.
    */
   playTone() {
     if (!this.isInitialized) this.init();
     if (!this.context) return;
-    if (this.oscillator) return;
     if (this.isMuted) return;
-    
-    this.oscillator = this.context.createOscillator();
-    this.oscillator.type = 'sine';
-    this.oscillator.frequency.setValueAtTime(this.frequency, this.context.currentTime);
-    
-    this.oscillator.connect(this.gainNode);
-    this.oscillator.start();
-    
-    // Quick fade in to prevent clicks
-    const targetVolume = this.volume * 0.3; // Max 0.3 to prevent clipping
-    this.gainNode.gain.setTargetAtTime(targetVolume, this.context.currentTime, 0.01);
+
+    // Stop any existing oscillator first to prevent race conditions
+    // This ensures we don't create orphaned oscillators
+    if (this.oscillator) {
+      this.stopTone();
+    }
+
+    // Ensure we have a clean state before creating new oscillator
+    if (this.oscillator) {
+      console.warn('AudioService: Could not stop existing oscillator');
+      return;
+    }
+
+    try {
+      this.oscillator = this.context.createOscillator();
+      this.oscillator.type = 'sine';
+      this.oscillator.frequency.setValueAtTime(this.frequency, this.context.currentTime);
+
+      this.oscillator.connect(this.gainNode);
+      this.oscillator.start();
+
+      // Quick fade in to prevent clicks
+      const targetVolume = this.volume * 0.3; // Max 0.3 to prevent clipping
+      this.gainNode.gain.setTargetAtTime(targetVolume, this.context.currentTime, 0.01);
+    } catch (e) {
+      console.error('Failed to play tone:', e);
+      this.oscillator = null;
+    }
   }
 
   /**
-   * Stops the morse code tone.
+   * Stops the morse code tone immediately.
+   * Ensures oscillator is fully cleaned up to prevent memory leaks.
    */
   stopTone() {
-    if (!this.oscillator) return
+    if (!this.oscillator) return;
 
-    // Quick fade out
-    this.gainNode.gain.setTargetAtTime(0, this.context.currentTime, 0.01)
+    const osc = this.oscillator;
+    this.oscillator = null;
 
-    const osc = this.oscillator
-    this.oscillator = null
+    try {
+      // Fade out quickly to avoid clicks
+      if (this.gainNode && this.context) {
+        this.gainNode.gain.setTargetAtTime(0, this.context.currentTime, 0.01);
+      }
 
-    setTimeout(() => {
-      osc.stop()
-      osc.disconnect()
-    }, 50)
+      // Stop and disconnect immediately to prevent race conditions
+      // The fade out happens over 10ms, so stopping now is safe
+      osc.stop();
+      osc.disconnect();
+    } catch (e) {
+      // Oscillator might already be stopped, ignore error
+      console.debug('AudioService: Error stopping oscillator:', e);
+    }
   }
 
   /**
