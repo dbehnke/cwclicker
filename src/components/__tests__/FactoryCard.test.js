@@ -22,7 +22,8 @@ describe('FactoryCard.vue', () => {
     useGameStore.mockReturnValue({
       qsos: 100,
       factoryCounts: {},
-      getFactoryCost: () => 10
+      getFactoryCost: () => 10,
+      getUpgradeMultiplier: () => 1
     })
 
     const wrapper = mount(FactoryCard, {
@@ -38,7 +39,8 @@ describe('FactoryCard.vue', () => {
     useGameStore.mockReturnValue({
       qsos: 100,
       factoryCounts: {},
-      getFactoryCost: () => 10
+      getFactoryCost: () => 10,
+      getUpgradeMultiplier: () => 1
     })
 
     const wrapper = mount(FactoryCard, {
@@ -54,7 +56,8 @@ describe('FactoryCard.vue', () => {
     useGameStore.mockReturnValue({
       qsos: 100,
       factoryCounts: {},
-      getFactoryCost: () => 15
+      getFactoryCost: () => 15,
+      getUpgradeMultiplier: () => 1
     })
 
     const wrapper = mount(FactoryCard, {
@@ -70,7 +73,8 @@ describe('FactoryCard.vue', () => {
     useGameStore.mockReturnValue({
       qsos: 5,
       factoryCounts: {},
-      getFactoryCost: () => 10
+      getFactoryCost: () => 10,
+      getUpgradeMultiplier: () => 1
     })
 
     const wrapper = mount(FactoryCard, {
@@ -87,7 +91,8 @@ describe('FactoryCard.vue', () => {
     useGameStore.mockReturnValue({
       qsos: 100,
       factoryCounts: {},
-      getFactoryCost: () => 10
+      getFactoryCost: () => 10,
+      getUpgradeMultiplier: () => 1
     })
 
     const wrapper = mount(FactoryCard, {

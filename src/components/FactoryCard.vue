@@ -52,6 +52,14 @@ const actualOutput = computed(() => {
 })
 
 /**
+ * Calculates the effective per-factory rate including upgrades.
+ */
+const effectivePerFactoryRate = computed(() => {
+  const upgradeMultiplier = store.getUpgradeMultiplier(props.factory.id)
+  return props.factory.qsosPerSecond * upgradeMultiplier
+})
+
+/**
  * Handles the buy button click.
  */
 const handleBuy = () => {
@@ -75,7 +83,13 @@ const handleBuy = () => {
         <span v-if="ownedCount > 0" class="text-terminal-amber font-semibold mr-4">
           {{ actualOutput.toFixed(1) }}/sec
         </span>
-        <span class="text-sm text-gray-500">({{ factory.qsosPerSecond }}/sec each)</span>
+        <span class="text-sm text-gray-500">
+          ({{ effectivePerFactoryRate.toFixed(1) }}/sec each
+          <span v-if="effectivePerFactoryRate > factory.qsosPerSecond" class="text-terminal-amber ml-1">
+            ×{{ (effectivePerFactoryRate / factory.qsosPerSecond).toFixed(0) }}
+          </span>
+          )
+        </span>
       </div>
       
       <div class="flex items-center gap-3">
