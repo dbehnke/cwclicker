@@ -337,3 +337,77 @@ ECC provides **language-specific patterns** and fills gaps in superpowers. Reque
 
 - Superpowers `verification-before-completion` → Final checks
 - Superpowers `finishing-a-development-branch` → Merge decision
+
+---
+
+## 9. Optimized Fork Workflow
+
+This repository uses the **fork method** for all contributions. To streamline the workflow, use the helper script at `scripts/git-fork-workflow.sh`.
+
+### Setup
+
+```bash
+# Load helper functions (add to your shell profile for persistence)
+source scripts/git-fork-workflow.sh
+```
+
+### Quick Start
+
+```bash
+# One command to start new work - syncs fork, creates branch
+git-fork-workflow feature-branch-name
+
+# Make changes, commit, then push and create PR
+git add . && git commit -m "Add feature"
+git-push-feature && git-pr
+```
+
+### Available Commands
+
+| Command                      | Description                                |
+| ---------------------------- | ------------------------------------------ |
+| `git-fork-workflow <branch>` | Complete setup: sync fork → create branch  |
+| `git-sync-upstream`          | Sync your fork with dbehnke/cwclicker main |
+| `git-feature <name>`         | Create a new feature branch                |
+| `git-push-feature`           | Push current branch to your fork           |
+| `git-pr`                     | Create PR with auto-filled title/body      |
+| `git-fork-status`            | Check branch status and pending commits    |
+
+### Why Fork Method?
+
+- **Safety** - Can't accidentally push to main
+- **Review required** - All changes go through PR review
+- **Clean history** - Maintains linear commit history
+- **Works everywhere** - Standard open-source workflow
+
+### Typical Session
+
+```bash
+# 1. Start fresh work
+git-fork-workflow add-dark-mode
+
+# 2. Make changes, test, commit
+git add . && git commit -m "feat: add dark mode toggle"
+
+# 3. Push and create PR
+git-push-feature && git-pr
+
+# 4. Browser opens - review and submit PR
+```
+
+### Troubleshooting
+
+**"Permission denied" on push:**
+
+- Ensure fork remote is set: `git remote add fork https://github.com/trinity-ai-agent/cwclicker.git`
+- Check auth: `gh auth status`
+
+**Out of sync with upstream:**
+
+- Run `git-sync-upstream` before creating new branches
+- Rebases your local main onto upstream/main
+
+**PR already exists:**
+
+- Push additional commits to same branch
+- PR updates automatically
