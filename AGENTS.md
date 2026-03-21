@@ -144,7 +144,7 @@ You have context-mode MCP tools available. These rules are NOT optional.
 
 1. **GATHER**: `context-mode_ctx_batch_execute(commands, queries)` — Primary tool
 2. **FOLLOW-UP**: `context-mode_ctx_search(queries: [...])` — Query indexed content
-3. **PROCESSING**: `context-mode_ctx_execute` or `ctx_execute_file` — Sandbox execution
+3. **PROCESSING**: `context-mode_ctx_execute` or `context-mode_ctx_execute_file` — Sandbox execution
 4. **WEB**: `context-mode_ctx_fetch_and_index` then `ctx_search` — Web content
 5. **INDEX**: `context-mode_ctx_index(content, source)` — Store for later search
 
