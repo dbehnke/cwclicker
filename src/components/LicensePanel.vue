@@ -15,15 +15,15 @@ const store = useGameStore()
 const LICENSE_NAMES = {
   1: 'Technician',
   2: 'General',
-  3: 'Extra'
+  3: 'Extra',
 }
 
 /**
  * QSO requirements for each license upgrade.
  */
 const LICENSE_COSTS = {
-  1: 500n,
-  2: 5000n
+  1: 10000n,
+  2: 100000n,
 }
 
 /**
@@ -94,13 +94,13 @@ const handleUpgrade = () => {
         class="px-4 py-1 rounded font-bold transition-colors"
         :class="{
           'bg-terminal-green text-terminal-bg hover:bg-green-600': canUpgrade,
-          'bg-gray-700 text-gray-400 opacity-50 cursor-not-allowed': !canUpgrade
+          'bg-gray-700 text-gray-400 opacity-50 cursor-not-allowed': !canUpgrade,
         }"
       >
         Upgrade to {{ nextLicense }}
       </button>
     </div>
-    
+
     <div v-if="nextLicense" class="mt-3">
       <p class="text-sm text-gray-400 mb-2">Progress to {{ nextLicense }}</p>
       <div class="w-full bg-gray-700 rounded h-4 mb-2">

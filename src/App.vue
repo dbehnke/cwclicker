@@ -18,7 +18,10 @@ import GameLoop from './components/GameLoop.vue'
 
 const store = useGameStore()
 const clickIndicatorRef = ref(null)
-const activeTab = ref('factories')
+const activeTab = ref('store')
+
+// App version from build-time injection (format: vX.Y.Z-N-SHA)
+const appVersion = __APP_VERSION__ || 'v0.0.0-0-unknown'
 
 const tabs = [
   { id: 'store', label: 'Store' },
@@ -42,17 +45,20 @@ onMounted(() => {
 })
 
 const handleLicenseUpgrade = () => {
-  if (store.licenseLevel === 1 && store.qsos >= 500n) {
+  if (store.licenseLevel === 1 && store.qsos >= 10000n) {
     store.licenseLevel = 2
-    store.qsos -= 500n
-  } else if (store.licenseLevel === 2 && store.qsos >= 5000n) {
+    store.qsos -= 10000n
+  } else if (store.licenseLevel === 2 && store.qsos >= 100000n) {
     store.licenseLevel = 3
-    store.qsos -= 5000n
+    store.qsos -= 100000n
   }
 }
 
 const handleFactoryBuy = ({ factory, count }) => {
-  store.buyFactory(factory.id, count)
+  const success = store.buyFactory(factory.id, count)
+  if (success) {
+    store.save()
+  }
 }
 
 const handleKeyerTap = value => {
@@ -64,12 +70,10 @@ const handleKeyerTap = value => {
 const handleLotteryActivated = factory => {
   // Bonus is already activated in the store
   // This is just for any additional UI feedback if needed
-  console.log(`Lottery boost activated for ${factory.name}!`)
 }
 
 const handleSolarStormStarted = () => {
   // Solar storm is already activated in the store
-  console.log('Solar Storm started! All factories output reduced by 50%')
 }
 
 const availableFactories = computed(() => {
@@ -253,7 +257,9 @@ function handleTabKeydown(event, tabId) {
         </div>
       </main>
 
-      <footer class="mt-12 pt-6 border-t border-terminal-green text-center text-sm text-gray-500">
+      <footer
+        class="mt-12 pt-6 border-t border-terminal-green text-center text-sm text-gray-500 space-y-2"
+      >
         <p>
           Made with ❤️ in Macomb, MI - Inspired by
           <a
@@ -263,6 +269,17 @@ function handleTabKeydown(event, tabId) {
             class="text-terminal-green hover:text-terminal-amber transition-colors underline"
           >
             Cookie Clicker
+          </a>
+        </p>
+        <p>
+          <span class="text-terminal-green">{{ appVersion }}</span> -
+          <a
+            href="https://github.com/dbehnke/cwclicker"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-terminal-green hover:text-terminal-amber transition-colors underline"
+          >
+            GitHub
           </a>
         </p>
       </footer>

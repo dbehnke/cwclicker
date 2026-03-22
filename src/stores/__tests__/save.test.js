@@ -26,8 +26,8 @@ describe('Game Store - Save/Load', () => {
 
       const saved = JSON.parse(localStorage.getItem(STORAGE_KEY))
       expect(saved.factoryCounts).toEqual({
-        'elmer': 3,
-        'straight-key': 2
+        elmer: 3,
+        'straight-key': 2,
       })
     })
 
@@ -55,7 +55,7 @@ describe('Game Store - Save/Load', () => {
     it('handles save failure gracefully', () => {
       const store = useGameStore()
       const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
-      
+
       // Mock localStorage.setItem to throw
       vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
         throw new Error('Storage quota exceeded')
@@ -72,8 +72,8 @@ describe('Game Store - Save/Load', () => {
     it('restores factory counts from localStorage', () => {
       const saveData = {
         qsos: '5000',
-        factoryCounts: { 'elmer': 5, 'straight-key': 2 },
-        licenseLevel: 2
+        factoryCounts: { elmer: 5, 'straight-key': 2 },
+        licenseLevel: 2,
       }
       localStorage.setItem(STORAGE_KEY, JSON.stringify(saveData))
 
@@ -88,7 +88,7 @@ describe('Game Store - Save/Load', () => {
       const saveData = {
         qsos: '54321',
         factoryCounts: {},
-        licenseLevel: 1
+        licenseLevel: 1,
       }
       localStorage.setItem(STORAGE_KEY, JSON.stringify(saveData))
 
@@ -102,7 +102,7 @@ describe('Game Store - Save/Load', () => {
       const saveData = {
         qsos: '0',
         factoryCounts: {},
-        licenseLevel: 3
+        licenseLevel: 3,
       }
       localStorage.setItem(STORAGE_KEY, JSON.stringify(saveData))
 
@@ -114,7 +114,7 @@ describe('Game Store - Save/Load', () => {
 
     it('handles missing save gracefully', () => {
       const store = useGameStore()
-      
+
       // Ensure localStorage is empty
       localStorage.clear()
 
@@ -142,7 +142,7 @@ describe('Game Store - Save/Load', () => {
 
     it('uses default values for missing fields', () => {
       const saveData = {
-        qsos: '1000'
+        qsos: '1000',
         // missing factoryCounts and licenseLevel
       }
       localStorage.setItem(STORAGE_KEY, JSON.stringify(saveData))
@@ -159,7 +159,7 @@ describe('Game Store - Save/Load', () => {
       const store = useGameStore()
       store.qsos = 500n
       store.licenseLevel = 2
-      store.factoryCounts = { 'elmer': 1 }
+      store.factoryCounts = { elmer: 1 }
 
       localStorage.clear()
       store.load()
@@ -167,7 +167,7 @@ describe('Game Store - Save/Load', () => {
       // State should remain unchanged
       expect(store.qsos).toBe(500n)
       expect(store.licenseLevel).toBe(2)
-      expect(store.factoryCounts).toEqual({ 'elmer': 1 })
+      expect(store.factoryCounts).toEqual({ elmer: 1 })
     })
   })
 
@@ -184,21 +184,67 @@ describe('Game Store - Save/Load', () => {
       const store = useGameStore()
       store.qsos = 12345n
       store.licenseLevel = 2
-      store.factoryCounts = { 'elmer': 5, 'paddle-key': 2 }
+      store.factoryCounts = { elmer: 5, 'paddle-key': 2 }
 
       store.save()
 
       const saved = JSON.parse(localStorage.getItem(STORAGE_KEY))
-      
+
       // Verify schema structure
       expect(saved).toHaveProperty('qsos')
       expect(saved).toHaveProperty('factoryCounts')
       expect(saved).toHaveProperty('licenseLevel')
-      
+      expect(saved).toHaveProperty('purchasedUpgrades')
+
       // Verify types (qsos is stored as string for BigInt compatibility)
       expect(typeof saved.qsos).toBe('string')
       expect(typeof saved.factoryCounts).toBe('object')
       expect(typeof saved.licenseLevel).toBe('number')
+      expect(Array.isArray(saved.purchasedUpgrades)).toBe(true)
+    })
+
+    it('persists purchased upgrades to localStorage', () => {
+      const store = useGameStore()
+      store.qsos = 10000n
+      store.factoryCounts = { elmer: 10 }
+      store.purchasedUpgrades = new Set(['upgrade-elmer-10'])
+
+      store.save()
+
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY))
+      expect(saved.purchasedUpgrades).toEqual(['upgrade-elmer-10'])
+    })
+
+    it('restores purchased upgrades from localStorage', () => {
+      const saveData = {
+        qsos: '5000',
+        factoryCounts: { elmer: 10 },
+        licenseLevel: 1,
+        purchasedUpgrades: ['upgrade-elmer-10', 'upgrade-elmer-25'],
+      }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(saveData))
+
+      const store = useGameStore()
+      store.load()
+
+      expect(store.purchasedUpgrades.has('upgrade-elmer-10')).toBe(true)
+      expect(store.purchasedUpgrades.has('upgrade-elmer-25')).toBe(true)
+      expect(store.purchasedUpgrades.has('upgrade-straight-key-10')).toBe(false)
+    })
+
+    it('initializes empty purchasedUpgrades when not in save', () => {
+      const saveData = {
+        qsos: '5000',
+        factoryCounts: { elmer: 5 },
+        licenseLevel: 1,
+        // No purchasedUpgrades field
+      }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(saveData))
+
+      const store = useGameStore()
+      store.load()
+
+      expect(store.purchasedUpgrades.size).toBe(0)
     })
   })
 })
