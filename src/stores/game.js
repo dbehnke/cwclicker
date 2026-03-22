@@ -8,6 +8,8 @@ import { UPGRADES } from '../constants/upgrades'
  * @type {string}
  */
 const GAME_VERSION = '1.1.2'
+const MAX_BULK_PURCHASE_COUNT = 1000
+const OVERFLOW_FACTORY_COST = 10n ** 100n
 
 /**
  * Manages the game's core state and progression.
@@ -263,7 +265,12 @@ export const useGameStore = defineStore('game', () => {
     }
 
     const multiplier = getTierMultiplier(factory.tier)
-    return BigInt(Math.floor(factory.baseCost * Math.pow(multiplier, owned)))
+    const cost = factory.baseCost * Math.pow(multiplier, owned)
+    if (!Number.isFinite(cost)) {
+      return OVERFLOW_FACTORY_COST
+    }
+
+    return BigInt(Math.floor(cost))
   }
 
   /**
@@ -279,10 +286,11 @@ export const useGameStore = defineStore('game', () => {
       return 0n
     }
 
+    const purchaseCount = Math.max(0, Math.min(MAX_BULK_PURCHASE_COUNT, Math.floor(count)))
     const currentOwned = factoryCounts.value[factoryId] || 0
     let totalCost = 0n
 
-    for (let i = 0; i < count; i++) {
+    for (let i = 0; i < purchaseCount; i++) {
       totalCost += getFactoryCost(factoryId, currentOwned + i)
     }
 

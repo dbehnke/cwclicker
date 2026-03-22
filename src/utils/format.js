@@ -36,14 +36,14 @@ export function formatNumber(value) {
     }
 
     const parsed = parseFloat(trimmed)
-    if (isNaN(parsed)) {
+    if (!Number.isFinite(parsed)) {
       return '0'
     }
     return formatNumberInternal(parsed)
   }
 
   if (typeof value === 'number') {
-    if (isNaN(value)) {
+    if (!Number.isFinite(value)) {
       return '0'
     }
     return formatNumberInternal(value)
@@ -109,24 +109,43 @@ function formatBigInt(value) {
       const quotient = absValue / divisor
       const remainder = absValue % divisor
 
-      const scaled = Number(quotient) + Number(remainder) / Number(divisor)
-      const rounded = Math.round(scaled)
-
-      if (rounded >= 1000 && i < SUFFIXES.length - 1) {
-        return formatBigInt(BigInt(rounded) * divisor)
+      const roundedInteger = (absValue + divisor / 2n) / divisor
+      if (roundedInteger >= 1000n && i < SUFFIXES.length - 1) {
+        return formatBigInt(1000n * divisor)
       }
 
       let formatted
-      if (scaled >= 100) {
-        if (scaled === Math.round(scaled)) {
-          formatted = Math.round(scaled) + SUFFIXES[i]
+      if (quotient >= 100n) {
+        if (remainder === 0n) {
+          formatted = quotient.toString() + SUFFIXES[i]
         } else {
-          formatted = scaled.toFixed(1) + SUFFIXES[i]
+          const roundedTenths = (absValue * 10n + divisor / 2n) / divisor
+          if (roundedTenths >= 10000n && i < SUFFIXES.length - 1) {
+            return formatBigInt(1000n * divisor)
+          }
+
+          const intPart = roundedTenths / 10n
+          const fracPart = roundedTenths % 10n
+          formatted = `${intPart}.${fracPart}${SUFFIXES[i]}`
         }
       } else if (quotient >= 10n) {
-        formatted = scaled.toFixed(1) + SUFFIXES[i]
+        const roundedTenths = (absValue * 10n + divisor / 2n) / divisor
+        if (roundedTenths >= 10000n && i < SUFFIXES.length - 1) {
+          return formatBigInt(1000n * divisor)
+        }
+
+        const intPart = roundedTenths / 10n
+        const fracPart = roundedTenths % 10n
+        formatted = `${intPart}.${fracPart}${SUFFIXES[i]}`
       } else {
-        formatted = scaled.toFixed(2) + SUFFIXES[i]
+        const roundedHundredths = (absValue * 100n + divisor / 2n) / divisor
+        if (roundedHundredths >= 100000n && i < SUFFIXES.length - 1) {
+          return formatBigInt(1000n * divisor)
+        }
+
+        const intPart = roundedHundredths / 100n
+        const fracPart = (roundedHundredths % 100n).toString().padStart(2, '0')
+        formatted = `${intPart}.${fracPart}${SUFFIXES[i]}`
       }
 
       return isNegative ? '-' + formatted : formatted

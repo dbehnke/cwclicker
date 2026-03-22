@@ -86,4 +86,14 @@ describe('formatNumber', () => {
     expect(formatNumber('   ')).toBe('0')
     expect(formatNumber('abc')).toBe('0')
   })
+
+  test('handles non-finite number input', () => {
+    expect(formatNumber(Infinity)).toBe('0')
+    expect(formatNumber(-Infinity)).toBe('0')
+    expect(formatNumber(NaN)).toBe('0')
+  })
+
+  test('preserves huge BigInt digits without Number precision loss', () => {
+    expect(formatNumber(123456789012345678901500000000000000000n)).toBe('123456789012345678901.5Qi')
+  })
 })
