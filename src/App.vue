@@ -55,7 +55,10 @@ const handleLicenseUpgrade = () => {
 }
 
 const handleFactoryBuy = ({ factory, count }) => {
-  store.buyFactory(factory.id, count)
+  const success = store.buyFactory(factory.id, count)
+  if (success) {
+    store.save()
+  }
 }
 
 const handleKeyerTap = value => {

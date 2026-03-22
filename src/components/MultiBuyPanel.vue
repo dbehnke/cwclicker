@@ -5,12 +5,12 @@ import { useGameStore } from '../stores/game'
 const props = defineProps({
   multiBuyAvailable: {
     type: Boolean,
-    required: true
+    required: true,
   },
   factory: {
     type: Object,
-    default: null
-  }
+    default: null,
+  },
 })
 
 const emit = defineEmits(['buy'])
@@ -35,29 +35,45 @@ const cost100 = computed(() => {
 
 const maxCount = computed(() => {
   if (!props.factory) return 0
-  
-  const availableQsos = store.qsos
-  const currentOwned = store.factoryCounts[props.factory.id] || 0
-  
-  // Binary search for maximum affordable count
-  // This is O(log n) instead of O(n) for the iterative approach
-  let low = 0
-  let high = 100000 // Reasonable upper bound
-  let best = 0
-  
-  while (low <= high) {
-    const mid = Math.floor((low + high) / 2)
-    const cost = store.getBulkCost(props.factory.id, mid)
-    
-    if (cost <= availableQsos) {
-      best = mid
-      low = mid + 1
-    } else {
-      high = mid - 1
+
+  try {
+    const availableQsos = store.qsos
+
+    // Validate QSOs is a BigInt
+    if (typeof availableQsos !== 'bigint') {
+      console.warn('Invalid QSOs type in maxCount:', typeof availableQsos)
+      return 0
     }
+
+    // Binary search for maximum affordable count
+    // This is O(log n) instead of O(n) for the iterative approach
+    let low = 0
+    let high = 100000 // Reasonable upper bound
+    let best = 0
+
+    while (low <= high) {
+      const mid = Math.floor((low + high) / 2)
+      const cost = store.getBulkCost(props.factory.id, mid)
+
+      // Validate cost is a BigInt
+      if (typeof cost !== 'bigint') {
+        console.warn('Invalid cost type from getBulkCost:', typeof cost)
+        return best
+      }
+
+      if (cost <= availableQsos) {
+        best = mid
+        low = mid + 1
+      } else {
+        high = mid - 1
+      }
+    }
+
+    return best
+  } catch (error) {
+    console.error('Error calculating maxCount:', error)
+    return 0
   }
-  
-  return best
 })
 
 const canAfford1 = computed(() => store.qsos >= cost1.value)
@@ -65,11 +81,11 @@ const canAfford10 = computed(() => store.qsos >= cost10.value)
 const canAfford100 = computed(() => store.qsos >= cost100.value)
 const canAffordMax = computed(() => maxCount.value > 0)
 
-const handleBuy = (count) => {
+const handleBuy = count => {
   emit('buy', { factory: props.factory, count })
 }
 
-const formatCost = (cost) => {
+const formatCost = cost => {
   if (typeof cost === 'bigint') {
     return cost.toString()
   }
@@ -78,7 +94,10 @@ const formatCost = (cost) => {
 </script>
 
 <template>
-  <div v-if="multiBuyAvailable && factory" class="border-2 border-terminal-green bg-terminal-bg p-3 rounded">
+  <div
+    v-if="multiBuyAvailable && factory"
+    class="border-2 border-terminal-green bg-terminal-bg p-3 rounded"
+  >
     <div class="text-sm text-gray-400 mb-2">
       Bulk Purchase: <span class="text-terminal-green font-semibold">{{ factory.name }}</span>
     </div>
@@ -89,7 +108,7 @@ const formatCost = (cost) => {
         class="flex-1 px-2 py-1 rounded text-sm font-bold transition-colors"
         :class="{
           'bg-terminal-green text-terminal-bg hover:bg-green-600': canAfford1,
-          'bg-gray-700 text-gray-400 opacity-50 cursor-not-allowed': !canAfford1
+          'bg-gray-700 text-gray-400 opacity-50 cursor-not-allowed': !canAfford1,
         }"
       >
         ×1: {{ formatCost(cost1) }}
@@ -100,7 +119,7 @@ const formatCost = (cost) => {
         class="flex-1 px-2 py-1 rounded text-sm font-bold transition-colors"
         :class="{
           'bg-terminal-green text-terminal-bg hover:bg-green-600': canAfford10,
-          'bg-gray-700 text-gray-400 opacity-50 cursor-not-allowed': !canAfford10
+          'bg-gray-700 text-gray-400 opacity-50 cursor-not-allowed': !canAfford10,
         }"
       >
         ×10: {{ formatCost(cost10) }}
@@ -111,7 +130,7 @@ const formatCost = (cost) => {
         class="flex-1 px-2 py-1 rounded text-sm font-bold transition-colors"
         :class="{
           'bg-terminal-green text-terminal-bg hover:bg-green-600': canAfford100,
-          'bg-gray-700 text-gray-400 opacity-50 cursor-not-allowed': !canAfford100
+          'bg-gray-700 text-gray-400 opacity-50 cursor-not-allowed': !canAfford100,
         }"
       >
         ×100: {{ formatCost(cost100) }}
@@ -122,7 +141,7 @@ const formatCost = (cost) => {
         class="flex-1 px-2 py-1 rounded text-sm font-bold transition-colors"
         :class="{
           'bg-terminal-green text-terminal-bg hover:bg-green-600': canAffordMax,
-          'bg-gray-700 text-gray-400 opacity-50 cursor-not-allowed': !canAffordMax
+          'bg-gray-700 text-gray-400 opacity-50 cursor-not-allowed': !canAffordMax,
         }"
       >
         MAX: {{ maxCount }}
