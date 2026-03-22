@@ -20,6 +20,9 @@ const store = useGameStore()
 const clickIndicatorRef = ref(null)
 const activeTab = ref('factories')
 
+// App version from build-time injection (format: vX.Y.Z-N-SHA)
+const appVersion = __APP_VERSION__ || 'v0.0.0-0-unknown'
+
 const tabs = [
   { id: 'store', label: 'Store' },
   { id: 'bulk', label: 'Bulk Buy' },
@@ -268,7 +271,7 @@ function handleTabKeydown(event, tabId) {
           </a>
         </p>
         <p>
-          <span class="text-terminal-green">v1.0.0</span> -
+          <span class="text-terminal-green">{{ appVersion }}</span> -
           <a
             href="https://github.com/dbehnke/cwclicker"
             target="_blank"
