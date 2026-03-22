@@ -13,6 +13,7 @@ import MultiBuyPanel from './components/MultiBuyPanel.vue'
 import SettingsPanel from './components/SettingsPanel.vue'
 import ErrorBoundary from './components/ErrorBoundary.vue'
 import OfflineProgressNotification from './components/OfflineProgressNotification.vue'
+import MigrationNotification from './components/MigrationNotification.vue'
 import { FACTORIES, getMaxTierForLicense } from './constants/factories'
 import GameLoop from './components/GameLoop.vue'
 
@@ -126,6 +127,9 @@ function handleTabKeydown(event, tabId) {
 
 <template>
   <ErrorBoundary>
+    <!-- Migration Notification Modal -->
+    <MigrationNotification />
+
     <div class="min-h-screen p-8 max-w-4xl mx-auto">
       <StatHeader />
       <LicensePanel @upgrade="handleLicenseUpgrade" />

@@ -10,6 +10,18 @@ const emit = defineEmits(['upgrade'])
 const store = useGameStore()
 
 /**
+ * Format BigInt number with commas for display.
+ * @param {bigint} num - Number to format
+ * @returns {string} Formatted number string
+ */
+function formatBigInt(num) {
+  if (typeof num === 'bigint') {
+    return num.toLocaleString('en-US')
+  }
+  return String(num)
+}
+
+/**
  * License names by level.
  */
 const LICENSE_NAMES = {
@@ -23,8 +35,8 @@ const LICENSE_NAMES = {
  * Based on total QSOs earned (like experience points).
  */
 const LICENSE_COSTS = {
-  1: 50_000_000n,   // General: 50 million total QSOs earned
-  2: 500_000_000n,  // Extra: 500 million total QSOs earned
+  1: 50_000_000n, // General: 50 million total QSOs earned
+  2: 500_000_000n, // Extra: 500 million total QSOs earned
 }
 
 /**
@@ -59,7 +71,8 @@ const progressPercentage = computed(() => {
     return 100
   }
   // Convert BigInt to Number for percentage calculation (safe for reasonable values)
-  const qsosNum = Number(store.qsos)
+  // Use totalQsosEarned (lifetime XP) not qsos (spendable balance)
+  const qsosNum = Number(store.totalQsosEarned)
   const costNum = Number(nextLicenseCost.value)
   return Math.min((qsosNum / costNum) * 100, 100)
 })
@@ -71,7 +84,8 @@ const canUpgrade = computed(() => {
   if (!nextLicenseCost.value) {
     return false
   }
-  return store.qsos >= nextLicenseCost.value
+  // Check lifetime earned QSOs (not spendable balance) for license eligibility
+  return store.totalQsosEarned >= nextLicenseCost.value
 })
 
 /**
@@ -110,7 +124,9 @@ const handleUpgrade = () => {
           :style="{ width: progressPercentage + '%' }"
         ></div>
       </div>
-      <p class="text-sm text-terminal-green">{{ store.qsos }}/{{ nextLicenseCost }} QSOs</p>
+      <p class="text-sm text-terminal-green">
+        {{ formatBigInt(store.totalQsosEarned) }}/{{ formatBigInt(nextLicenseCost) }} QSOs
+      </p>
     </div>
   </div>
 </template>
