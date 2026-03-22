@@ -67,9 +67,19 @@ function formatNumberInternal(num) {
     const divisor = Number(BIGINT_DIVISORS[i])
     if (absNum >= divisor) {
       const scaled = absNum / divisor
+      const rounded = Math.round(scaled)
+
+      if (rounded >= 1000 && i < SUFFIXES.length - 1) {
+        return formatNumberInternal(rounded * divisor)
+      }
+
       let formatted
       if (scaled >= 100) {
-        formatted = Math.round(scaled) + SUFFIXES[i]
+        if (scaled === Math.round(scaled)) {
+          formatted = Math.round(scaled) + SUFFIXES[i]
+        } else {
+          formatted = scaled.toFixed(1) + SUFFIXES[i]
+        }
       } else if (scaled >= 10) {
         formatted = scaled.toFixed(1) + SUFFIXES[i]
       } else {
@@ -83,8 +93,7 @@ function formatNumberInternal(num) {
 }
 
 /**
- * Formats a bigint using bigint math to avoid precision loss
- * Handles rounding to match Number path behavior.
+ * Formats a bigint using pure bigint math to avoid precision loss
  */
 function formatBigInt(value) {
   const isNegative = value < 0n
@@ -101,10 +110,19 @@ function formatBigInt(value) {
       const remainder = absValue % divisor
 
       const scaled = Number(quotient) + Number(remainder) / Number(divisor)
-      let formatted
+      const rounded = Math.round(scaled)
 
-      if (quotient >= 100n) {
-        formatted = Math.round(scaled) + SUFFIXES[i]
+      if (rounded >= 1000 && i < SUFFIXES.length - 1) {
+        return formatBigInt(BigInt(rounded) * divisor)
+      }
+
+      let formatted
+      if (scaled >= 100) {
+        if (scaled === Math.round(scaled)) {
+          formatted = Math.round(scaled) + SUFFIXES[i]
+        } else {
+          formatted = scaled.toFixed(1) + SUFFIXES[i]
+        }
       } else if (quotient >= 10n) {
         formatted = scaled.toFixed(1) + SUFFIXES[i]
       } else {

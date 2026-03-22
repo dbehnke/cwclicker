@@ -28,6 +28,15 @@ describe('formatNumber', () => {
     expect(formatNumber(1995000)).toBe('2.00M')
   })
 
+  test('rounds boundary values to next suffix', () => {
+    expect(formatNumber(999500)).toBe('1.00M')
+    expect(formatNumber(999499)).toBe('999.5K')
+    expect(formatNumber(999499n)).toBe('999.5K')
+    expect(formatNumber(999500n)).toBe('1.00M')
+    expect(formatNumber(999950000)).toBe('1.00B')
+    expect(formatNumber(999499999)).toBe('999.5M')
+  })
+
   test('handles negative values with compact formatting', () => {
     expect(formatNumber(-500)).toBe('-500')
     expect(formatNumber(-1500)).toBe('-1.50K')
