@@ -7,7 +7,7 @@ import { UPGRADES } from '../constants/upgrades'
  * Current game version for save data migration
  * @type {string}
  */
-const GAME_VERSION = '1.1.1'
+const GAME_VERSION = '1.1.2'
 
 /**
  * Manages the game's core state and progression.
