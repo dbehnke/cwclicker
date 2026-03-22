@@ -5,7 +5,7 @@ import LicensePanel from '../LicensePanel.vue'
 import { useGameStore } from '../../stores/game'
 
 vi.mock('../../stores/game', () => ({
-  useGameStore: vi.fn()
+  useGameStore: vi.fn(),
 }))
 
 describe('LicensePanel.vue', () => {
@@ -17,7 +17,7 @@ describe('LicensePanel.vue', () => {
   it('shows current license name', () => {
     useGameStore.mockReturnValue({
       qsos: 100,
-      licenseLevel: 1
+      licenseLevel: 1,
     })
 
     const wrapper = mount(LicensePanel)
@@ -28,7 +28,7 @@ describe('LicensePanel.vue', () => {
   it('shows progress to next license', () => {
     useGameStore.mockReturnValue({
       qsos: 250,
-      licenseLevel: 1
+      licenseLevel: 1,
     })
 
     const wrapper = mount(LicensePanel)
@@ -38,19 +38,19 @@ describe('LicensePanel.vue', () => {
 
   it('shows correct QSO count and requirement', () => {
     useGameStore.mockReturnValue({
-      qsos: 250,
-      licenseLevel: 1
+      qsos: 2500,
+      licenseLevel: 1,
     })
 
     const wrapper = mount(LicensePanel)
 
-    expect(wrapper.text()).toContain('250/500 QSOs')
+    expect(wrapper.text()).toContain('2500/10000 QSOs')
   })
 
   it('shows upgrade button when not maxed', () => {
     useGameStore.mockReturnValue({
       qsos: 100,
-      licenseLevel: 1
+      licenseLevel: 1,
     })
 
     const wrapper = mount(LicensePanel)
@@ -61,7 +61,7 @@ describe('LicensePanel.vue', () => {
   it('disables upgrade button when cannot afford', () => {
     useGameStore.mockReturnValue({
       qsos: 100,
-      licenseLevel: 1
+      licenseLevel: 1,
     })
 
     const wrapper = mount(LicensePanel)
@@ -72,8 +72,8 @@ describe('LicensePanel.vue', () => {
 
   it('enables upgrade button when can afford', () => {
     useGameStore.mockReturnValue({
-      qsos: 500,
-      licenseLevel: 1
+      qsos: 10000,
+      licenseLevel: 1,
     })
 
     const wrapper = mount(LicensePanel)
@@ -84,8 +84,8 @@ describe('LicensePanel.vue', () => {
 
   it('emits upgrade event on button click', async () => {
     useGameStore.mockReturnValue({
-      qsos: 500,
-      licenseLevel: 1
+      qsos: 10000,
+      licenseLevel: 1,
     })
 
     const wrapper = mount(LicensePanel)
@@ -98,8 +98,8 @@ describe('LicensePanel.vue', () => {
 
   it('deducts QSOs when upgrading to General', async () => {
     const store = {
-      qsos: 600n,
-      licenseLevel: 1
+      qsos: 10000n,
+      licenseLevel: 1,
     }
     useGameStore.mockReturnValue(store)
 
@@ -113,8 +113,8 @@ describe('LicensePanel.vue', () => {
 
   it('deducts QSOs when upgrading to Extra', async () => {
     const store = {
-      qsos: 6000n,
-      licenseLevel: 2
+      qsos: 100000n,
+      licenseLevel: 2,
     }
     useGameStore.mockReturnValue(store)
 
@@ -129,7 +129,7 @@ describe('LicensePanel.vue', () => {
   it('does not show upgrade button when Extra (maxed)', () => {
     useGameStore.mockReturnValue({
       qsos: 10000,
-      licenseLevel: 3
+      licenseLevel: 3,
     })
 
     const wrapper = mount(LicensePanel)
@@ -142,13 +142,13 @@ describe('LicensePanel.vue', () => {
     const testCases = [
       { level: 1, expected: 'Technician' },
       { level: 2, expected: 'General' },
-      { level: 3, expected: 'Extra' }
+      { level: 3, expected: 'Extra' },
     ]
 
     testCases.forEach(({ level, expected }) => {
       useGameStore.mockReturnValue({
         qsos: 100,
-        licenseLevel: level
+        licenseLevel: level,
       })
 
       const wrapper = mount(LicensePanel)
@@ -158,13 +158,13 @@ describe('LicensePanel.vue', () => {
 
   it('shows correct requirements for General upgrade', () => {
     useGameStore.mockReturnValue({
-      qsos: 2500,
-      licenseLevel: 2
+      qsos: 25000,
+      licenseLevel: 2,
     })
 
     const wrapper = mount(LicensePanel)
 
     expect(wrapper.text()).toContain('Progress to Extra')
-    expect(wrapper.text()).toContain('2500/5000 QSOs')
+    expect(wrapper.text()).toContain('25000/100000 QSOs')
   })
 })

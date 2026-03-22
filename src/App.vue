@@ -42,12 +42,12 @@ onMounted(() => {
 })
 
 const handleLicenseUpgrade = () => {
-  if (store.licenseLevel === 1 && store.qsos >= 500n) {
+  if (store.licenseLevel === 1 && store.qsos >= 10000n) {
     store.licenseLevel = 2
-    store.qsos -= 500n
-  } else if (store.licenseLevel === 2 && store.qsos >= 5000n) {
+    store.qsos -= 10000n
+  } else if (store.licenseLevel === 2 && store.qsos >= 100000n) {
     store.licenseLevel = 3
-    store.qsos -= 5000n
+    store.qsos -= 100000n
   }
 }
 
@@ -253,7 +253,9 @@ function handleTabKeydown(event, tabId) {
         </div>
       </main>
 
-      <footer class="mt-12 pt-6 border-t border-terminal-green text-center text-sm text-gray-500">
+      <footer
+        class="mt-12 pt-6 border-t border-terminal-green text-center text-sm text-gray-500 space-y-2"
+      >
         <p>
           Made with ❤️ in Macomb, MI - Inspired by
           <a
@@ -263,6 +265,17 @@ function handleTabKeydown(event, tabId) {
             class="text-terminal-green hover:text-terminal-amber transition-colors underline"
           >
             Cookie Clicker
+          </a>
+        </p>
+        <p>
+          <span class="text-terminal-green">v1.0.0</span> -
+          <a
+            href="https://github.com/dbehnke/cwclicker"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-terminal-green hover:text-terminal-amber transition-colors underline"
+          >
+            GitHub
           </a>
         </p>
       </footer>
