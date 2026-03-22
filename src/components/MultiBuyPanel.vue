@@ -23,63 +23,19 @@ const cost1 = computed(() => {
   return store.getFactoryCost(props.factory.id, owned)
 })
 
+const cost5 = computed(() => {
+  if (!props.factory) return 0n
+  return store.getBulkCost(props.factory.id, 5)
+})
+
 const cost10 = computed(() => {
   if (!props.factory) return 0n
   return store.getBulkCost(props.factory.id, 10)
 })
 
-const cost100 = computed(() => {
-  if (!props.factory) return 0n
-  return store.getBulkCost(props.factory.id, 100)
-})
-
-const maxCount = computed(() => {
-  if (!props.factory) return 0
-
-  try {
-    const availableQsos = store.qsos
-
-    // Validate QSOs is a BigInt
-    if (typeof availableQsos !== 'bigint') {
-      console.warn('Invalid QSOs type in maxCount:', typeof availableQsos)
-      return 0
-    }
-
-    // Binary search for maximum affordable count
-    // This is O(log n) instead of O(n) for the iterative approach
-    let low = 0
-    let high = 100000 // Reasonable upper bound
-    let best = 0
-
-    while (low <= high) {
-      const mid = Math.floor((low + high) / 2)
-      const cost = store.getBulkCost(props.factory.id, mid)
-
-      // Validate cost is a BigInt
-      if (typeof cost !== 'bigint') {
-        console.warn('Invalid cost type from getBulkCost:', typeof cost)
-        return best
-      }
-
-      if (cost <= availableQsos) {
-        best = mid
-        low = mid + 1
-      } else {
-        high = mid - 1
-      }
-    }
-
-    return best
-  } catch (error) {
-    console.error('Error calculating maxCount:', error)
-    return 0
-  }
-})
-
 const canAfford1 = computed(() => store.qsos >= cost1.value)
+const canAfford5 = computed(() => store.qsos >= cost5.value)
 const canAfford10 = computed(() => store.qsos >= cost10.value)
-const canAfford100 = computed(() => store.qsos >= cost100.value)
-const canAffordMax = computed(() => maxCount.value > 0)
 
 const handleBuy = count => {
   emit('buy', { factory: props.factory, count })
@@ -114,6 +70,17 @@ const formatCost = cost => {
         ×1: {{ formatCost(cost1) }}
       </button>
       <button
+        @click="handleBuy(5)"
+        :disabled="!canAfford5"
+        class="flex-1 px-2 py-1 rounded text-sm font-bold transition-colors"
+        :class="{
+          'bg-terminal-green text-terminal-bg hover:bg-green-600': canAfford5,
+          'bg-gray-700 text-gray-400 opacity-50 cursor-not-allowed': !canAfford5,
+        }"
+      >
+        ×5: {{ formatCost(cost5) }}
+      </button>
+      <button
         @click="handleBuy(10)"
         :disabled="!canAfford10"
         class="flex-1 px-2 py-1 rounded text-sm font-bold transition-colors"
@@ -123,28 +90,6 @@ const formatCost = cost => {
         }"
       >
         ×10: {{ formatCost(cost10) }}
-      </button>
-      <button
-        @click="handleBuy(100)"
-        :disabled="!canAfford100"
-        class="flex-1 px-2 py-1 rounded text-sm font-bold transition-colors"
-        :class="{
-          'bg-terminal-green text-terminal-bg hover:bg-green-600': canAfford100,
-          'bg-gray-700 text-gray-400 opacity-50 cursor-not-allowed': !canAfford100,
-        }"
-      >
-        ×100: {{ formatCost(cost100) }}
-      </button>
-      <button
-        @click="handleBuy(maxCount)"
-        :disabled="!canAffordMax"
-        class="flex-1 px-2 py-1 rounded text-sm font-bold transition-colors"
-        :class="{
-          'bg-terminal-green text-terminal-bg hover:bg-green-600': canAffordMax,
-          'bg-gray-700 text-gray-400 opacity-50 cursor-not-allowed': !canAffordMax,
-        }"
-      >
-        MAX: {{ maxCount }}
       </button>
     </div>
   </div>

@@ -171,11 +171,21 @@ describe('Game Store - Factory Logic', () => {
       expect(bulkCost).toBe(57n)
     })
 
-    it('caps excessively large bulk counts at 1000', () => {
+    it('caps excessively large bulk counts at 10', () => {
       const store = useGameStore()
-      const cappedCost = store.getBulkCost('elmer', 1000)
+      const cappedCost = store.getBulkCost('elmer', 10)
       const largeCost = store.getBulkCost('elmer', 5000)
       expect(largeCost).toBe(cappedCost)
+    })
+
+    it('caps purchase count at 10 when buying factories', () => {
+      const store = useGameStore()
+      store.qsos = 100000n
+
+      const result = store.buyFactory('elmer', 5000)
+
+      expect(result).toBe(true)
+      expect(store.factoryCounts['elmer']).toBe(10)
     })
   })
 })

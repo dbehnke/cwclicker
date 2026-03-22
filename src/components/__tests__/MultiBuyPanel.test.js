@@ -7,7 +7,7 @@ import { FACTORIES } from '../../constants/factories'
 
 // Mock the game store to control the state
 vi.mock('../../stores/game', () => ({
-  useGameStore: vi.fn()
+  useGameStore: vi.fn(),
 }))
 
 describe('MultiBuyPanel.vue', () => {
@@ -18,23 +18,23 @@ describe('MultiBuyPanel.vue', () => {
     vi.clearAllMocks()
   })
 
-  it('shows 4 buttons when multiBuyAvailable is true', () => {
+  it('shows 3 buttons when multiBuyAvailable is true', () => {
     useGameStore.mockReturnValue({
       qsos: 1000n,
       factoryCounts: {},
       getFactoryCost: () => 10n,
-      getBulkCost: (id, count) => BigInt(Math.floor(count * 10 * 0.95))
+      getBulkCost: (id, count) => BigInt(Math.floor(count * 10 * 0.95)),
     })
 
     const wrapper = mount(MultiBuyPanel, {
       props: {
         multiBuyAvailable: true,
-        factory: elmerFactory
-      }
+        factory: elmerFactory,
+      },
     })
 
     const buttons = wrapper.findAll('button')
-    expect(buttons.length).toBe(4)
+    expect(buttons.length).toBe(3)
   })
 
   it('hidden when multiBuyAvailable is false', () => {
@@ -42,14 +42,14 @@ describe('MultiBuyPanel.vue', () => {
       qsos: 1000n,
       factoryCounts: {},
       getFactoryCost: () => 10n,
-      getBulkCost: () => 95n
+      getBulkCost: () => 95n,
     })
 
     const wrapper = mount(MultiBuyPanel, {
       props: {
         multiBuyAvailable: false,
-        factory: elmerFactory
-      }
+        factory: elmerFactory,
+      },
     })
 
     expect(wrapper.isVisible()).toBe(false)
@@ -60,20 +60,20 @@ describe('MultiBuyPanel.vue', () => {
       qsos: 1000n,
       factoryCounts: {},
       getFactoryCost: () => 10n,
-      getBulkCost: (id, count) => BigInt(Math.floor(count * 10 * 0.95))
+      getBulkCost: (id, count) => BigInt(Math.floor(count * 10 * 0.95)),
     })
 
     const wrapper = mount(MultiBuyPanel, {
       props: {
         multiBuyAvailable: true,
-        factory: elmerFactory
-      }
+        factory: elmerFactory,
+      },
     })
 
     const buttons = wrapper.findAll('button')
-    expect(buttons[0].text()).toContain('10')  // x1
-    expect(buttons[1].text()).toContain('95')  // x10 with discount
-    expect(buttons[2].text()).toContain('950') // x100 with discount
+    expect(buttons[0].text()).toContain('10') // x1
+    expect(buttons[1].text()).toContain('47') // x5 with discount
+    expect(buttons[2].text()).toContain('95') // x10 with discount
   })
 
   it('emits buy event with count 1 on x1 button click', async () => {
@@ -81,14 +81,14 @@ describe('MultiBuyPanel.vue', () => {
       qsos: 1000n,
       factoryCounts: {},
       getFactoryCost: () => 10n,
-      getBulkCost: () => 95n
+      getBulkCost: () => 95n,
     })
 
     const wrapper = mount(MultiBuyPanel, {
       props: {
         multiBuyAvailable: true,
-        factory: elmerFactory
-      }
+        factory: elmerFactory,
+      },
     })
 
     const buttons = wrapper.findAll('button')
@@ -98,71 +98,48 @@ describe('MultiBuyPanel.vue', () => {
     expect(wrapper.emitted('buy')[0]).toEqual([{ factory: elmerFactory, count: 1 }])
   })
 
-  it('emits buy event with count 10 on x10 button click', async () => {
+  it('emits buy event with count 5 on x5 button click', async () => {
     useGameStore.mockReturnValue({
       qsos: 1000n,
       factoryCounts: {},
       getFactoryCost: () => 10n,
-      getBulkCost: () => 95n
+      getBulkCost: () => 95n,
     })
 
     const wrapper = mount(MultiBuyPanel, {
       props: {
         multiBuyAvailable: true,
-        factory: elmerFactory
-      }
+        factory: elmerFactory,
+      },
     })
 
     const buttons = wrapper.findAll('button')
     await buttons[1].trigger('click')
 
     expect(wrapper.emitted('buy')).toBeTruthy()
-    expect(wrapper.emitted('buy')[0]).toEqual([{ factory: elmerFactory, count: 10 }])
+    expect(wrapper.emitted('buy')[0]).toEqual([{ factory: elmerFactory, count: 5 }])
   })
 
-  it('emits buy event with count 100 on x100 button click', async () => {
+  it('emits buy event with count 10 on x10 button click', async () => {
     useGameStore.mockReturnValue({
       qsos: 1000n,
       factoryCounts: {},
       getFactoryCost: () => 10n,
-      getBulkCost: () => 95n
+      getBulkCost: () => 95n,
     })
 
     const wrapper = mount(MultiBuyPanel, {
       props: {
         multiBuyAvailable: true,
-        factory: elmerFactory
-      }
+        factory: elmerFactory,
+      },
     })
 
     const buttons = wrapper.findAll('button')
     await buttons[2].trigger('click')
 
     expect(wrapper.emitted('buy')).toBeTruthy()
-    expect(wrapper.emitted('buy')[0]).toEqual([{ factory: elmerFactory, count: 100 }])
-  })
-
-  it('MAX button calculates correctly and emits buy event', async () => {
-    // With 1000 QSOs and cost of 10 each with 5% discount, can afford 105
-    useGameStore.mockReturnValue({
-      qsos: 1000n,
-      factoryCounts: {},
-      getFactoryCost: () => 10n,
-      getBulkCost: (id, count) => BigInt(Math.floor(count * 10 * 0.95))
-    })
-
-    const wrapper = mount(MultiBuyPanel, {
-      props: {
-        multiBuyAvailable: true,
-        factory: elmerFactory
-      }
-    })
-
-    const buttons = wrapper.findAll('button')
-    await buttons[3].trigger('click')
-
-    expect(wrapper.emitted('buy')).toBeTruthy()
-    expect(wrapper.emitted('buy')[0]).toEqual([{ factory: elmerFactory, count: 105 }])
+    expect(wrapper.emitted('buy')[0]).toEqual([{ factory: elmerFactory, count: 10 }])
   })
 
   it('disables buttons when cannot afford', () => {
@@ -170,14 +147,14 @@ describe('MultiBuyPanel.vue', () => {
       qsos: 5n, // Can't afford any
       factoryCounts: {},
       getFactoryCost: () => 10n,
-      getBulkCost: () => 95n
+      getBulkCost: (id, count) => BigInt(Math.floor(count * 10 * 0.95)),
     })
 
     const wrapper = mount(MultiBuyPanel, {
       props: {
         multiBuyAvailable: true,
-        factory: elmerFactory
-      }
+        factory: elmerFactory,
+      },
     })
 
     const buttons = wrapper.findAll('button')
@@ -186,65 +163,24 @@ describe('MultiBuyPanel.vue', () => {
     })
   })
 
-  it('MAX button shows correct max count', () => {
+  it('disables only bulk buttons above available QSO amount', () => {
     useGameStore.mockReturnValue({
-      qsos: 500n,
+      qsos: 50n,
       factoryCounts: {},
       getFactoryCost: () => 10n,
-      getBulkCost: (id, count) => BigInt(Math.floor(count * 10 * 0.95))
+      getBulkCost: (id, count) => BigInt(Math.floor(count * 10 * 0.95)),
     })
 
     const wrapper = mount(MultiBuyPanel, {
       props: {
         multiBuyAvailable: true,
-        factory: elmerFactory
-      }
+        factory: elmerFactory,
+      },
     })
 
     const buttons = wrapper.findAll('button')
-    // With 500 QSOs and cost of 10 each with 5% discount, can afford 52
-    expect(buttons[3].text()).toContain('52')
-  })
-
-  it('MAX button stops at reasonable limit when cost is invalid', () => {
-    // If getFactoryCost returns 0 or negative, loop should stop immediately
-    useGameStore.mockReturnValue({
-      qsos: 1000000n,
-      factoryCounts: {},
-      getFactoryCost: () => 0n, // Invalid cost
-      getBulkCost: () => 0n
-    })
-
-    const wrapper = mount(MultiBuyPanel, {
-      props: {
-        multiBuyAvailable: true,
-        factory: elmerFactory
-      }
-    })
-
-    const buttons = wrapper.findAll('button')
-    // Should show MAX: 0 since cost is invalid
-    expect(buttons[3].text()).toContain('0')
-  })
-
-  it('MAX button stops at reasonable limit when cost is negative', () => {
-    // If getFactoryCost returns negative, loop should stop immediately
-    useGameStore.mockReturnValue({
-      qsos: 1000000n,
-      factoryCounts: {},
-      getFactoryCost: () => -10n, // Invalid negative cost
-      getBulkCost: () => 0n
-    })
-
-    const wrapper = mount(MultiBuyPanel, {
-      props: {
-        multiBuyAvailable: true,
-        factory: elmerFactory
-      }
-    })
-
-    const buttons = wrapper.findAll('button')
-    // Should show MAX: 0 since cost is invalid
-    expect(buttons[3].text()).toContain('0')
+    expect(buttons[0].attributes('disabled')).toBeUndefined()
+    expect(buttons[1].attributes('disabled')).toBeUndefined()
+    expect(buttons[2].attributes('disabled')).toBeDefined()
   })
 })
