@@ -78,6 +78,14 @@ const TIER_2_FACTORIES = [
  */
 const TIER_3_FACTORIES = [
   {
+    id: 'bug-catcher',
+    name: 'Bug Catcher',
+    baseCost: 3500,
+    qsosPerSecond: 6.0,
+    tier: 3,
+    description: "Homemade transmitter that barely works. 'It puts out 5 watts on a good day, but hey, it's mine!'"
+  },
+  {
     id: 'vertical-antenna',
     name: 'Vertical Antenna',
     baseCost: 5000,
@@ -93,7 +101,6 @@ const TIER_3_FACTORIES = [
     tier: 3,
     description: "When your signal just isn't strong enough to interfere with your neighbor's TV."
   }
-  // NOTE: 3rd factory will be added in Phase 3 (Bug Catcher)
 ];
 
 /**
@@ -110,6 +117,14 @@ const TIER_4_FACTORIES = [
     description: "Point it that way and talk to the other side of the world. Ignore the wife's complaints."
   },
   {
+    id: 'ragchew-net',
+    name: 'Ragchew Net',
+    baseCost: 35000,
+    qsosPerSecond: 45.0,
+    tier: 4,
+    description: "Daily check-ins with the same 5 people talking about their medical procedures. 73 and see you tomorrow!"
+  },
+  {
     id: 'tower-installation',
     name: 'Tower Installation',
     baseCost: 50000,
@@ -117,7 +132,6 @@ const TIER_4_FACTORIES = [
     tier: 4,
     description: "Because the best antenna is the one that's 200 feet in the air. Good luck with permits!"
   }
-  // NOTE: 3rd factory will be added in Phase 3 (Ragchew Net)
 ];
 
 /**
@@ -134,6 +148,14 @@ const TIER_5_FACTORIES = [
     description: "Five radios, six computers, and a complete inability to have normal conversations."
   },
   {
+    id: 'paper-logbook',
+    name: 'Paper Logbook',
+    baseCost: 175000,
+    qsosPerSecond: 180.0,
+    tier: 5,
+    description: "Because nothing says 'authentic ham' like hand-writing QSOs and then typing them into QRZ later."
+  },
+  {
     id: 'dx-cluster',
     name: 'DX Cluster',
     baseCost: 250000,
@@ -141,7 +163,6 @@ const TIER_5_FACTORIES = [
     tier: 5,
     description: "Real-time spots of rare stations you'll never actually hear yourself."
   }
-  // NOTE: 3rd factory will be added in Phase 3 (Paper Logbook)
 ];
 
 /**
@@ -189,6 +210,14 @@ const TIER_7_FACTORIES = [
     description: "'Is it even ham radio if a computer does it?' But it works when propagation is dead!"
   },
   {
+    id: 'digital-interface',
+    name: 'Digital Interface',
+    baseCost: 7500000,
+    qsosPerSecond: 7500.0,
+    tier: 7,
+    description: "Sound card modes: where you make contacts without actually talking to anyone. Perfect for introverts!"
+  },
+  {
     id: 'cluster-spotting-network',
     name: 'Cluster Spotting Network',
     baseCost: 10000000,
@@ -196,7 +225,6 @@ const TIER_7_FACTORIES = [
     tier: 7,
     description: "A global network of hams who never actually listen to the bands, just wait for spots."
   }
-  // NOTE: 3rd factory will be added in Phase 3 (Digital Interface)
 ];
 
 /**
@@ -213,6 +241,14 @@ const TIER_8_FACTORIES = [
     description: "Bounce signals off the moon. Requires 1500W and a 40-foot dish. Good for one QSO per hour."
   },
   {
+    id: 'lunar-repeater',
+    name: 'Lunar Repeater',
+    baseCost: 37500000,
+    qsosPerSecond: 37500.0,
+    tier: 8,
+    description: "Like EME but with 90% less frustration and only 50% less dignity. The moon is just a big passive repeater, right?"
+  },
+  {
     id: 'satellite-constellation',
     name: 'Satellite Constellation',
     baseCost: 50000000,
@@ -220,7 +256,6 @@ const TIER_8_FACTORIES = [
     tier: 8,
     description: "Launch your own satellites because the ISS repeater is always busy."
   }
-  // NOTE: 3rd factory will be added in Phase 3 (Lunar Repeater)
 ];
 
 /**
@@ -237,6 +272,14 @@ const TIER_9_FACTORIES = [
     description: "HAARP called. They want their conspiracy theories back. 73 from Alaska!"
   },
   {
+    id: 'time-travel-dx',
+    name: 'Time Travel DX',
+    baseCost: 250000000,
+    qsosPerSecond: 250000.0,
+    tier: 9,
+    description: "Work stations from the past and future. Warning: Don't mention the 11-year solar cycle to hams from the Maunder Minimum."
+  },
+  {
     id: 'alternate-dimension-dxcc',
     name: 'Alternate Dimension DXCC',
     baseCost: 500000000,
@@ -244,7 +287,6 @@ const TIER_9_FACTORIES = [
     tier: 9,
     description: "Work all entities, including those that don't exist in this reality. CQ parallel universe!"
   }
-  // NOTE: 3rd factory will be added in Phase 3 (Time Travel DX)
 ];
 
 /**
