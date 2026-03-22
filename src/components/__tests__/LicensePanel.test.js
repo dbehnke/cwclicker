@@ -16,7 +16,8 @@ describe('LicensePanel.vue', () => {
 
   it('shows current license name', () => {
     useGameStore.mockReturnValue({
-      qsos: 100,
+      qsos: 100n,
+      totalQsosEarned: 100n,
       licenseLevel: 1,
     })
 
@@ -27,7 +28,8 @@ describe('LicensePanel.vue', () => {
 
   it('shows progress to next license', () => {
     useGameStore.mockReturnValue({
-      qsos: 250,
+      qsos: 250n,
+      totalQsosEarned: 250n,
       licenseLevel: 1,
     })
 
@@ -38,18 +40,20 @@ describe('LicensePanel.vue', () => {
 
   it('shows correct QSO count and requirement', () => {
     useGameStore.mockReturnValue({
-      qsos: 2500000,
+      qsos: 2500000n,
+      totalQsosEarned: 2500000n,
       licenseLevel: 1,
     })
 
     const wrapper = mount(LicensePanel)
 
-    expect(wrapper.text()).toContain('2500000/50000000 QSOs')
+    expect(wrapper.text()).toContain('2,500,000/50,000,000 QSOs')
   })
 
   it('shows upgrade button when not maxed', () => {
     useGameStore.mockReturnValue({
-      qsos: 100,
+      qsos: 100n,
+      totalQsosEarned: 100n,
       licenseLevel: 1,
     })
 
@@ -60,7 +64,8 @@ describe('LicensePanel.vue', () => {
 
   it('disables upgrade button when cannot afford', () => {
     useGameStore.mockReturnValue({
-      qsos: 100,
+      qsos: 100n,
+      totalQsosEarned: 100n,
       licenseLevel: 1,
     })
 
@@ -70,9 +75,10 @@ describe('LicensePanel.vue', () => {
     expect(upgradeButton.attributes('disabled')).toBeDefined()
   })
 
-  it('enables upgrade button when can afford', () => {
+  it('enables upgrade button when total earned meets requirement', () => {
     useGameStore.mockReturnValue({
-      qsos: 50000000,
+      qsos: 0n, // Spent all QSOs on factories
+      totalQsosEarned: 50000000n, // But earned enough lifetime
       licenseLevel: 1,
     })
 
@@ -84,7 +90,8 @@ describe('LicensePanel.vue', () => {
 
   it('emits upgrade event on button click', async () => {
     useGameStore.mockReturnValue({
-      qsos: 50000000,
+      qsos: 0n,
+      totalQsosEarned: 50000000n,
       licenseLevel: 1,
     })
 
@@ -96,9 +103,10 @@ describe('LicensePanel.vue', () => {
     expect(wrapper.emitted('upgrade')).toBeTruthy()
   })
 
-  it('allows upgrade to General with sufficient QSOs', async () => {
+  it('allows upgrade to General with sufficient total QSOs earned', async () => {
     const store = {
-      qsos: 50000000n,
+      qsos: 1000000n, // Current balance
+      totalQsosEarned: 50000000n, // Lifetime earned (meets requirement)
       licenseLevel: 1,
     }
     useGameStore.mockReturnValue(store)
@@ -111,9 +119,10 @@ describe('LicensePanel.vue', () => {
     expect(wrapper.emitted('upgrade')).toBeTruthy()
   })
 
-  it('allows upgrade to Extra with sufficient QSOs', async () => {
+  it('allows upgrade to Extra with sufficient total QSOs earned', async () => {
     const store = {
-      qsos: 500000000n,
+      qsos: 10000000n,
+      totalQsosEarned: 500000000n,
       licenseLevel: 2,
     }
     useGameStore.mockReturnValue(store)
@@ -128,7 +137,8 @@ describe('LicensePanel.vue', () => {
 
   it('does not show upgrade button when Extra (maxed)', () => {
     useGameStore.mockReturnValue({
-      qsos: 10000,
+      qsos: 10000n,
+      totalQsosEarned: 1000000000n,
       licenseLevel: 3,
     })
 
@@ -147,7 +157,8 @@ describe('LicensePanel.vue', () => {
 
     testCases.forEach(({ level, expected }) => {
       useGameStore.mockReturnValue({
-        qsos: 100,
+        qsos: 100n,
+        totalQsosEarned: 100n,
         licenseLevel: level,
       })
 
@@ -158,13 +169,14 @@ describe('LicensePanel.vue', () => {
 
   it('shows correct requirements for Extra upgrade', () => {
     useGameStore.mockReturnValue({
-      qsos: 250000000,
+      qsos: 10000000n,
+      totalQsosEarned: 250000000n,
       licenseLevel: 2,
     })
 
     const wrapper = mount(LicensePanel)
 
     expect(wrapper.text()).toContain('Progress to Extra')
-    expect(wrapper.text()).toContain('250000000/500000000 QSOs')
+    expect(wrapper.text()).toContain('250,000,000/500,000,000 QSOs')
   })
 })
