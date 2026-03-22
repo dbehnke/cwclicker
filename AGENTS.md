@@ -6,35 +6,61 @@ This file provides instructions for any agentic AI system working on this projec
 
 **CW Keyer Idle Game** is a browser-based single-player idle game featuring a ham radio theme. Players tap a Morse code keyer to earn QSOs, which they spend on factories and licenses.
 
-- **Tech Stack**: Vanilla JavaScript (ES6+), HTML5, CSS3, Web Audio API, `localStorage`.
-- **Architecture**: No build step, no framework (React/Vue/Svelte are out of scope), no backend.
-- **Key Modules**: Game Loop (`requestAnimationFrame`), Audio Context (lazy init), State/Storage Manager, UI/DOM Updater.
+- **Tech Stack**: Vue 3, Vite, Pinia, ES6+, HTML5, CSS3/Tailwind, Web Audio API, `localStorage`.
+- **Architecture**: Vue 3 SPA with Pinia for state management, Vite for build tooling, no backend.
+- **Key Modules**: Game Loop (`requestAnimationFrame`), Audio Context (lazy init), Pinia Store, Vue Components, UI/DOM Updater.
 
 ## 2. Build, Run, and Test Commands
 
-Since this is a zero-build vanilla project, there is no standard `package.json` setup out of the box. Follow these practices:
+This project uses Vue 3 with Vite build tooling. Follow these practices:
 
 ### Running the Application
 
-Serve the root directory using any local web server:
+```bash
+# Development server (hot reload)
+npm run dev
 
-- Python: `python3 -m http.server 8000`
-- Node/npx: `npx serve .` or `npx live-server`
-- Avoid accessing `index.html` via `file://` protocol to prevent CORS issues with ES6 modules or Web Audio API.
+# Production build
+npm run build
 
-### Linting & Formatting
-
-No automated linters are currently installed. You must act as the linter:
-
-- Ensure there are no unused variables.
-- Ensure strict formatting according to the guidelines below.
+# Preview production build locally
+npm run preview
+```
 
 ### Testing
 
-There is no automated test suite by default.
+```bash
+# Run all tests
+npm test
 
-- If you are tasked with verifying pure logic (e.g., cost scaling math or factory generation), write a temporary pure Node.js script to log assertions, run it via `node temp-test.js`, and remove it once verified.
-- For UI or Audio testing, you must rely on careful DOM construction and mock `window` APIs if attempting to run logic headlessly.
+# Run tests with coverage
+npm run test:coverage
+
+# Run tests in watch mode
+npm run test:watch
+```
+
+All tests must pass before committing. Current test count: 165 tests across 14 test files.
+
+### Linting & Formatting
+
+```bash
+# Run linter with auto-fix
+npm run lint
+
+# Check linting without fixing
+npm run lint:check
+
+# Format code with Prettier
+npm run format
+
+# Check formatting
+npm run format:check
+```
+
+### Manual Verification
+
+For logic that isn't covered by tests, you may write temporary Node.js scripts to verify behavior, but prefer adding proper unit tests instead.
 
 ## 3. Code Style Guidelines
 

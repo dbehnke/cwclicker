@@ -18,7 +18,7 @@ import GameLoop from './components/GameLoop.vue'
 
 const store = useGameStore()
 const clickIndicatorRef = ref(null)
-const activeTab = ref('factories')
+const activeTab = ref('store')
 
 // App version from build-time injection (format: vX.Y.Z-N-SHA)
 const appVersion = __APP_VERSION__ || 'v0.0.0-0-unknown'
@@ -70,12 +70,10 @@ const handleKeyerTap = value => {
 const handleLotteryActivated = factory => {
   // Bonus is already activated in the store
   // This is just for any additional UI feedback if needed
-  console.log(`Lottery boost activated for ${factory.name}!`)
 }
 
 const handleSolarStormStarted = () => {
   // Solar storm is already activated in the store
-  console.log('Solar Storm started! All factories output reduced by 50%')
 }
 
 const availableFactories = computed(() => {
