@@ -411,3 +411,52 @@ git-push-feature && git-pr
 
 - Push additional commits to same branch
 - PR updates automatically
+
+---
+
+## 10. Usage Examples
+
+### Context-Mode Examples
+
+```
+"Fetch the React documentation and summarize it"
+→ Use ctx_fetch_and_index + ctx_search
+
+"Analyze this 500-line log file"
+→ Use ctx_execute_file
+
+"Run these 5 commands and summarize results"
+→ Use ctx_batch_execute
+```
+
+### Superpowers Examples
+
+```
+"Help me plan a user authentication feature"
+→ Triggers: brainstorming → writing-plans
+
+"Let's implement the login system"
+→ Triggers: test-driven-development
+
+"Debug why this test is failing"
+→ Triggers: systematic-debugging
+
+"Review this code before I commit"
+→ Triggers: requesting-code-review
+```
+
+### ECC Examples
+
+```
+"Use golang-patterns to refactor this HTTP handler"
+→ Applies Go idioms and patterns
+
+"Apply security-review to the authentication module"
+→ Runs security audit checklist
+
+"Use api-design principles for this new endpoint"
+→ REST API best practices
+
+"Research the Stripe API documentation"
+→ Uses documentation-lookup + search-first
+```
