@@ -4,6 +4,12 @@ import { FACTORIES } from '../constants/factories'
 import { UPGRADES } from '../constants/upgrades'
 
 /**
+ * Current game version for save data migration
+ * @type {string}
+ */
+const GAME_VERSION = '1.1.0'
+
+/**
  * Manages the game's core state and progression.
  */
 export const useGameStore = defineStore('game', () => {
@@ -16,6 +22,9 @@ export const useGameStore = defineStore('game', () => {
   const factoryCounts = ref({})
   const fractionalQSOs = ref(0) // Accumulate fractional QSOs between frames
   const purchasedUpgrades = ref(new Set()) // Set of upgrade IDs that have been purchased
+  
+  // Migration tracking
+  const migrationInfo = ref(null) // Stores info about migration for UI display
 
   // Audio settings
   const audioSettings = ref({
@@ -412,6 +421,7 @@ export const useGameStore = defineStore('game', () => {
   function save() {
     try {
       const state = {
+        version: GAME_VERSION,
         qsos: qsos.value.toString(),
         totalQsosEarned: totalQsosEarned.value.toString(),
         licenseLevel: licenseLevel.value,
@@ -431,12 +441,35 @@ export const useGameStore = defineStore('game', () => {
 
   /**
    * Loads the game state from localStorage.
+   * Handles migration from older versions.
    */
   function load() {
     try {
       const saved = localStorage.getItem('cw-keyer-game')
       if (saved) {
         const state = JSON.parse(saved)
+        
+        // Check for old save data (v1.0.0 or earlier - no version field)
+        if (!state.version) {
+          console.log('Detected v1.0.0 save data - migrating to v1.1.0 with clean slate')
+          
+          // Store migration info for UI to display
+          migrationInfo.value = {
+            fromVersion: '1.0.0',
+            toVersion: GAME_VERSION,
+            reason: 'Major update requires fresh start',
+            oldFactories: Object.values(state.factoryCounts || {}).reduce((a, b) => a + b, 0),
+            oldQsos: state.qsos || '0',
+            oldLicense: state.licenseLevel || 1,
+          }
+          
+          // Clear the old save - start fresh
+          localStorage.removeItem('cw-keyer-game')
+          
+          // Don't load old data - return with defaults
+          return
+        }
+        
         qsos.value = BigInt(state.qsos || '0')
         totalQsosEarned.value = BigInt(state.totalQsosEarned || state.qsos || '0')
         licenseLevel.value = state.licenseLevel || 1
@@ -582,6 +615,7 @@ export const useGameStore = defineStore('game', () => {
     audioSettings,
     lotteryState,
     purchasedUpgrades,
+    migrationInfo, // For UI to display migration message
     tapKeyer,
     addPassiveQSOs,
     addQSOs,

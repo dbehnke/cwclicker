@@ -222,6 +222,7 @@ describe('Game Store - Comprehensive Tests', () => {
 
     it('loads game state from localStorage', () => {
       const saveData = {
+        version: '1.1.0',
         qsos: '99999',
         licenseLevel: 3,
         factoryCounts: { 'elmer': 100 },

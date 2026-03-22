@@ -71,6 +71,7 @@ describe('Game Store - Save/Load', () => {
   describe('load()', () => {
     it('restores factory counts from localStorage', () => {
       const saveData = {
+        version: '1.1.0',
         qsos: '5000',
         factoryCounts: { elmer: 5, 'straight-key': 2 },
         licenseLevel: 2,
@@ -86,6 +87,7 @@ describe('Game Store - Save/Load', () => {
 
     it('restores QSOs from localStorage', () => {
       const saveData = {
+        version: '1.1.0',
         qsos: '54321',
         factoryCounts: {},
         licenseLevel: 1,
@@ -100,6 +102,7 @@ describe('Game Store - Save/Load', () => {
 
     it('restores license level from localStorage', () => {
       const saveData = {
+        version: '1.1.0',
         qsos: '0',
         factoryCounts: {},
         licenseLevel: 3,
@@ -142,6 +145,7 @@ describe('Game Store - Save/Load', () => {
 
     it('uses default values for missing fields', () => {
       const saveData = {
+        version: '1.1.0',
         qsos: '1000',
         // missing factoryCounts and licenseLevel
       }
@@ -217,6 +221,7 @@ describe('Game Store - Save/Load', () => {
 
     it('restores purchased upgrades from localStorage', () => {
       const saveData = {
+        version: '1.1.0',
         qsos: '5000',
         factoryCounts: { elmer: 10 },
         licenseLevel: 1,
@@ -234,6 +239,7 @@ describe('Game Store - Save/Load', () => {
 
     it('initializes empty purchasedUpgrades when not in save', () => {
       const saveData = {
+        version: '1.1.0',
         qsos: '5000',
         factoryCounts: { elmer: 5 },
         licenseLevel: 1,
