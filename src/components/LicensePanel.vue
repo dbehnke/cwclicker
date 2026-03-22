@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from 'vue'
 import { useGameStore } from '../stores/game'
+import { formatNumber } from '../utils/format'
 
 /**
  * Emits events from the component.
@@ -8,18 +9,6 @@ import { useGameStore } from '../stores/game'
 const emit = defineEmits(['upgrade'])
 
 const store = useGameStore()
-
-/**
- * Format BigInt number with commas for display.
- * @param {bigint} num - Number to format
- * @returns {string} Formatted number string
- */
-function formatBigInt(num) {
-  if (typeof num === 'bigint') {
-    return num.toLocaleString('en-US')
-  }
-  return String(num)
-}
 
 /**
  * License names by level.
@@ -125,7 +114,7 @@ const handleUpgrade = () => {
         ></div>
       </div>
       <p class="text-sm text-terminal-green">
-        {{ formatBigInt(store.totalQsosEarned) }}/{{ formatBigInt(nextLicenseCost) }} QSOs
+        {{ formatNumber(store.totalQsosEarned) }}/{{ formatNumber(nextLicenseCost) }} QSOs
       </p>
     </div>
   </div>

@@ -1,17 +1,9 @@
 <script setup>
 import { computed } from 'vue'
 import { useGameStore } from '../stores/game'
+import { formatNumber } from '../utils/format'
 
 const store = useGameStore()
-
-/**
- * Formats a number with commas for display.
- * @param {number} num - Number to format
- * @returns {string} Formatted number
- */
-function formatNumber(num) {
-  return num.toLocaleString('en-US')
-}
 
 /**
  * Dismisses the notification.

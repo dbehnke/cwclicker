@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from 'vue'
 import { useGameStore } from '../stores/game'
+import { formatNumber } from '../utils/format'
 
 const store = useGameStore()
 
@@ -44,7 +45,7 @@ function handleBuyUpgrade(upgrade) {
  * Format cost for display
  */
 function formatCost(cost) {
-  return cost.toLocaleString()
+  return formatNumber(cost)
 }
 </script>
 

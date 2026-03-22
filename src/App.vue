@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted, computed } from 'vue'
 import { useGameStore } from './stores/game'
+import { formatNumber } from './utils/format'
 import { audioService } from './services/audio'
 import StatHeader from './components/StatHeader.vue'
 import LicensePanel from './components/LicensePanel.vue'
@@ -189,9 +190,7 @@ function handleTabKeydown(event, tabId) {
                     Producing: {{ store.getTotalQSOsPerSecond().toFixed(1) }} QSOs/sec
                   </p>
                 </div>
-                <span class="text-terminal-green text-lg"
-                  >{{ store.qsos.toLocaleString() }} QSOs</span
-                >
+                <span class="text-terminal-green text-lg">{{ formatNumber(store.qsos) }} QSOs</span>
               </div>
 
               <div class="space-y-4">
