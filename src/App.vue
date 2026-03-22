@@ -13,7 +13,7 @@ import MultiBuyPanel from './components/MultiBuyPanel.vue'
 import SettingsPanel from './components/SettingsPanel.vue'
 import ErrorBoundary from './components/ErrorBoundary.vue'
 import OfflineProgressNotification from './components/OfflineProgressNotification.vue'
-import { FACTORIES } from './constants/factories'
+import { FACTORIES, getMaxTierForLicense } from './constants/factories'
 import GameLoop from './components/GameLoop.vue'
 
 const store = useGameStore()
@@ -77,7 +77,8 @@ const handleSolarStormStarted = () => {
 }
 
 const availableFactories = computed(() => {
-  return FACTORIES.filter(f => f.tier <= store.licenseLevel)
+  const maxTier = getMaxTierForLicense(store.licenseLevel)
+  return FACTORIES.filter(f => f.tier <= maxTier)
 })
 
 const totalFactoryCount = computed(() => {

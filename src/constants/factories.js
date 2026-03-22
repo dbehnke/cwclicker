@@ -218,3 +218,25 @@ export const TIER_SCALING = {
   GENERAL: 0.07,
   EXTRA: 0.05
 };
+
+/**
+ * License level to tier range mapping for 9-tier system
+ * Technician: Tiers 1-3 (9 factories)
+ * General: Tiers 1-6 (18 factories)
+ * Extra: Tiers 1-9 (27 factories)
+ * @type {Object}
+ */
+export const LICENSE_TIER_RANGES = {
+  1: { min: 1, max: 3 },    // Technician
+  2: { min: 1, max: 6 },    // General
+  3: { min: 1, max: 9 }     // Extra
+};
+
+/**
+ * Gets the maximum tier visible for a given license level
+ * @param {number} licenseLevel - Current license level (1-3)
+ * @returns {number} Maximum tier visible
+ */
+export function getMaxTierForLicense(licenseLevel) {
+  return LICENSE_TIER_RANGES[licenseLevel]?.max || 3;
+}

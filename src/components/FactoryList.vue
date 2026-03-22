@@ -1,14 +1,15 @@
 <script setup>
 import { computed } from 'vue'
 import { useGameStore } from '../stores/game'
-import { FACTORIES } from '../constants/factories'
+import { FACTORIES, getMaxTierForLicense } from '../constants/factories'
 import FactoryCard from './FactoryCard.vue'
 import MultiBuyPanel from './MultiBuyPanel.vue'
 
 const store = useGameStore()
 
 const availableFactories = computed(() => {
-  return FACTORIES.filter(f => f.tier <= store.licenseLevel)
+  const maxTier = getMaxTierForLicense(store.licenseLevel)
+  return FACTORIES.filter(f => f.tier <= maxTier)
 })
 
 const totalFactoryCount = computed(() => {

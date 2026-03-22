@@ -40,7 +40,7 @@ describe('FactoryList.vue', () => {
   it('filters out factories above license tier', () => {
     useGameStore.mockReturnValue({
       qsos: 10000n,
-      licenseLevel: 1,
+      licenseLevel: 2,
       factoryCounts: {},
       getFactoryCost: () => 10n,
       getTotalQSOsPerSecond: () => 0,
@@ -50,11 +50,13 @@ describe('FactoryList.vue', () => {
 
     const wrapper = mount(FactoryList)
 
-    // Should show tier 1 only
-    expect(wrapper.text()).toContain('Elmer')
-    expect(wrapper.text()).toContain('Straight Key')
-    expect(wrapper.text()).not.toContain('Paddle Key')
-    expect(wrapper.text()).not.toContain('Vertical Antenna')
+    // License level 2 (General) shows tiers 1-6, filters out tier 7+
+    expect(wrapper.text()).toContain('Elmer')  // tier 1
+    expect(wrapper.text()).toContain('Straight Key')  // tier 1
+    expect(wrapper.text()).toContain('Paddle Key')  // tier 2
+    expect(wrapper.text()).toContain('Vertical Antenna')  // tier 3
+    expect(wrapper.text()).toContain('FT8 Bot')  // tier 6 is visible
+    expect(wrapper.text()).not.toContain('Satellite Constellation')  // tier 7 is filtered
   })
 
   it('shows total QSOs per second', () => {
@@ -132,10 +134,10 @@ describe('FactoryList.vue', () => {
     expect(mockBuyFactory).toHaveBeenCalled()
   })
 
-  it('shows "No factories" message when license tier blocks all', () => {
+  it('shows factories for invalid license level using fallback tier 3', () => {
     useGameStore.mockReturnValue({
       qsos: 0n,
-      licenseLevel: 0,
+      licenseLevel: 0,  // Invalid level, falls back to tier 3 max
       factoryCounts: {},
       getFactoryCost: () => 10n,
       getTotalQSOsPerSecond: () => 0,
@@ -145,6 +147,11 @@ describe('FactoryList.vue', () => {
 
     const wrapper = mount(FactoryList)
 
-    expect(wrapper.text()).toContain('No factories available')
+    // Fallback shows tiers 1-3, so factories should be visible
+    expect(wrapper.text()).toContain('Elmer')  // tier 1
+    expect(wrapper.text()).toContain('Straight Key')  // tier 1
+    expect(wrapper.text()).toContain('Vertical Antenna')  // tier 3
+    // Tier 4+ should be filtered
+    expect(wrapper.text()).not.toContain('Tower Installation')  // tier 4
   })
 })
