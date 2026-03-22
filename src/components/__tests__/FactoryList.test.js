@@ -6,7 +6,7 @@ import { useGameStore } from '../../stores/game'
 import { FACTORIES } from '../../constants/factories'
 
 vi.mock('../../stores/game', () => ({
-  useGameStore: vi.fn()
+  useGameStore: vi.fn(),
 }))
 
 describe('FactoryList.vue', () => {
@@ -23,7 +23,11 @@ describe('FactoryList.vue', () => {
       getFactoryCost: () => 10n,
       getTotalQSOsPerSecond: () => 0,
       getBulkCost: () => 100n,
-      getUpgradeMultiplier: () => 1
+      getUpgradeMultiplier: () => 1,
+      getAvailableUpgrades: () => [],
+      purchasedUpgrades: new Set(),
+      buyUpgrade: () => {},
+      save: () => {},
     })
 
     const wrapper = mount(FactoryList)
@@ -31,7 +35,7 @@ describe('FactoryList.vue', () => {
     // Should show tier 1 and tier 2 factories (6 total)
     const availableFactories = FACTORIES.filter(f => f.tier <= 2)
     expect(availableFactories.length).toBe(6)
-    
+
     availableFactories.forEach(factory => {
       expect(wrapper.text()).toContain(factory.name)
     })
@@ -45,29 +49,37 @@ describe('FactoryList.vue', () => {
       getFactoryCost: () => 10n,
       getTotalQSOsPerSecond: () => 0,
       getBulkCost: () => 100n,
-      getUpgradeMultiplier: () => 1
+      getUpgradeMultiplier: () => 1,
+      getAvailableUpgrades: () => [],
+      purchasedUpgrades: new Set(),
+      buyUpgrade: () => {},
+      save: () => {},
     })
 
     const wrapper = mount(FactoryList)
 
     // License level 2 (General) shows tiers 1-6, filters out tier 7+
-    expect(wrapper.text()).toContain('Elmer')  // tier 1
-    expect(wrapper.text()).toContain('Straight Key')  // tier 1
-    expect(wrapper.text()).toContain('Paddle Key')  // tier 2
-    expect(wrapper.text()).toContain('Vertical Antenna')  // tier 3
-    expect(wrapper.text()).toContain('Hamfest')  // tier 6 is visible
-    expect(wrapper.text()).not.toContain('FT8 Bot')  // tier 7 is filtered
+    expect(wrapper.text()).toContain('Elmer') // tier 1
+    expect(wrapper.text()).toContain('Straight Key') // tier 1
+    expect(wrapper.text()).toContain('Paddle Key') // tier 2
+    expect(wrapper.text()).toContain('Vertical Antenna') // tier 3
+    expect(wrapper.text()).toContain('Hamfest') // tier 6 is visible
+    expect(wrapper.text()).not.toContain('FT8 Bot') // tier 7 is filtered
   })
 
   it('shows total QSOs per second', () => {
     useGameStore.mockReturnValue({
       qsos: 1000n,
       licenseLevel: 1,
-      factoryCounts: { 'elmer': 2, 'straight-key': 1 },
+      factoryCounts: { elmer: 2, 'straight-key': 1 },
       getFactoryCost: () => 10n,
       getTotalQSOsPerSecond: () => 2.5,
       getBulkCost: () => 100n,
-      getUpgradeMultiplier: () => 1
+      getUpgradeMultiplier: () => 1,
+      getAvailableUpgrades: () => [],
+      purchasedUpgrades: new Set(),
+      buyUpgrade: () => {},
+      save: () => {},
     })
 
     const wrapper = mount(FactoryList)
@@ -79,11 +91,15 @@ describe('FactoryList.vue', () => {
     useGameStore.mockReturnValue({
       qsos: 10000n,
       licenseLevel: 2,
-      factoryCounts: { 'elmer': 5, 'straight-key': 5 },
+      factoryCounts: { elmer: 5, 'straight-key': 5 },
       getFactoryCost: () => 10n,
       getTotalQSOsPerSecond: () => 4,
       getBulkCost: () => 100n,
-      getUpgradeMultiplier: () => 1
+      getUpgradeMultiplier: () => 1,
+      getAvailableUpgrades: () => [],
+      purchasedUpgrades: new Set(),
+      buyUpgrade: () => {},
+      save: () => {},
     })
 
     const wrapper = mount(FactoryList)
@@ -97,11 +113,15 @@ describe('FactoryList.vue', () => {
     useGameStore.mockReturnValue({
       qsos: 1000n,
       licenseLevel: 2,
-      factoryCounts: { 'elmer': 3, 'straight-key': 2 },
+      factoryCounts: { elmer: 3, 'straight-key': 2 },
       getFactoryCost: () => 10n,
       getTotalQSOsPerSecond: () => 2,
       getBulkCost: () => 100n,
-      getUpgradeMultiplier: () => 1
+      getUpgradeMultiplier: () => 1,
+      getAvailableUpgrades: () => [],
+      purchasedUpgrades: new Set(),
+      buyUpgrade: () => {},
+      save: () => {},
     })
 
     const wrapper = mount(FactoryList)
@@ -119,7 +139,11 @@ describe('FactoryList.vue', () => {
       getTotalQSOsPerSecond: () => 0,
       getBulkCost: () => 100,
       buyFactory: mockBuyFactory,
-      getUpgradeMultiplier: () => 1
+      getUpgradeMultiplier: () => 1,
+      getAvailableUpgrades: () => [],
+      purchasedUpgrades: new Set(),
+      buyUpgrade: () => {},
+      save: () => {},
     })
 
     const wrapper = mount(FactoryList)
@@ -127,7 +151,7 @@ describe('FactoryList.vue', () => {
     // Find and click the first buy button
     const buyButtons = wrapper.findAll('button')
     const firstBuyButton = buyButtons.find(btn => btn.text() === 'Buy')
-    
+
     expect(firstBuyButton).toBeDefined()
     await firstBuyButton.trigger('click')
 
@@ -137,21 +161,25 @@ describe('FactoryList.vue', () => {
   it('shows factories for invalid license level using fallback tier 3', () => {
     useGameStore.mockReturnValue({
       qsos: 0n,
-      licenseLevel: 0,  // Invalid level, falls back to tier 3 max
+      licenseLevel: 0, // Invalid level, falls back to tier 3 max
       factoryCounts: {},
       getFactoryCost: () => 10n,
       getTotalQSOsPerSecond: () => 0,
       getBulkCost: () => 100n,
-      getUpgradeMultiplier: () => 1
+      getUpgradeMultiplier: () => 1,
+      getAvailableUpgrades: () => [],
+      purchasedUpgrades: new Set(),
+      buyUpgrade: () => {},
+      save: () => {},
     })
 
     const wrapper = mount(FactoryList)
 
     // Fallback shows tiers 1-3, so factories should be visible
-    expect(wrapper.text()).toContain('Elmer')  // tier 1
-    expect(wrapper.text()).toContain('Straight Key')  // tier 1
-    expect(wrapper.text()).toContain('Vertical Antenna')  // tier 3
+    expect(wrapper.text()).toContain('Elmer') // tier 1
+    expect(wrapper.text()).toContain('Straight Key') // tier 1
+    expect(wrapper.text()).toContain('Vertical Antenna') // tier 3
     // Tier 4+ should be filtered
-    expect(wrapper.text()).not.toContain('Tower Installation')  // tier 4
+    expect(wrapper.text()).not.toContain('Tower Installation') // tier 4
   })
 })

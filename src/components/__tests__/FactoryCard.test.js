@@ -7,7 +7,7 @@ import { FACTORIES } from '../../constants/factories'
 
 // Mock the game store to control the state
 vi.mock('../../stores/game', () => ({
-  useGameStore: vi.fn()
+  useGameStore: vi.fn(),
 }))
 
 describe('FactoryCard.vue', () => {
@@ -23,13 +23,17 @@ describe('FactoryCard.vue', () => {
       qsos: 100,
       factoryCounts: {},
       getFactoryCost: () => 10,
-      getUpgradeMultiplier: () => 1
+      getUpgradeMultiplier: () => 1,
+      getAvailableUpgrades: () => [],
+      purchasedUpgrades: new Set(),
+      buyUpgrade: () => {},
+      save: () => {},
     })
 
     const wrapper = mount(FactoryCard, {
       props: {
-        factory: elmerFactory
-      }
+        factory: elmerFactory,
+      },
     })
 
     expect(wrapper.text()).toContain('Elmer')
@@ -40,13 +44,17 @@ describe('FactoryCard.vue', () => {
       qsos: 100,
       factoryCounts: {},
       getFactoryCost: () => 10,
-      getUpgradeMultiplier: () => 1
+      getUpgradeMultiplier: () => 1,
+      getAvailableUpgrades: () => [],
+      purchasedUpgrades: new Set(),
+      buyUpgrade: () => {},
+      save: () => {},
     })
 
     const wrapper = mount(FactoryCard, {
       props: {
-        factory: elmerFactory
-      }
+        factory: elmerFactory,
+      },
     })
 
     expect(wrapper.text()).toContain('0.1/sec')
@@ -57,13 +65,17 @@ describe('FactoryCard.vue', () => {
       qsos: 100,
       factoryCounts: {},
       getFactoryCost: () => 15,
-      getUpgradeMultiplier: () => 1
+      getUpgradeMultiplier: () => 1,
+      getAvailableUpgrades: () => [],
+      purchasedUpgrades: new Set(),
+      buyUpgrade: () => {},
+      save: () => {},
     })
 
     const wrapper = mount(FactoryCard, {
       props: {
-        factory: elmerFactory
-      }
+        factory: elmerFactory,
+      },
     })
 
     expect(wrapper.text()).toContain('15')
@@ -74,13 +86,17 @@ describe('FactoryCard.vue', () => {
       qsos: 5,
       factoryCounts: {},
       getFactoryCost: () => 10,
-      getUpgradeMultiplier: () => 1
+      getUpgradeMultiplier: () => 1,
+      getAvailableUpgrades: () => [],
+      purchasedUpgrades: new Set(),
+      buyUpgrade: () => {},
+      save: () => {},
     })
 
     const wrapper = mount(FactoryCard, {
       props: {
-        factory: elmerFactory
-      }
+        factory: elmerFactory,
+      },
     })
 
     const buyButton = wrapper.find('button')
@@ -92,13 +108,17 @@ describe('FactoryCard.vue', () => {
       qsos: 100,
       factoryCounts: {},
       getFactoryCost: () => 10,
-      getUpgradeMultiplier: () => 1
+      getUpgradeMultiplier: () => 1,
+      getAvailableUpgrades: () => [],
+      purchasedUpgrades: new Set(),
+      buyUpgrade: () => {},
+      save: () => {},
     })
 
     const wrapper = mount(FactoryCard, {
       props: {
-        factory: elmerFactory
-      }
+        factory: elmerFactory,
+      },
     })
 
     const buyButton = wrapper.find('button')
