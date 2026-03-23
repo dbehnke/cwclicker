@@ -103,7 +103,7 @@ const currentMultiplier = computed(() => {
   return store.getUpgradeMultiplier(props.factory.id)
 })
 
-const upgradeBadgeLevels = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024]
+const upgradeBadgeLevels = [1, 2, 4, 8, 16, 32, 64, 128, 256, 512]
 
 const upgradeProgressSummary = computed(() => {
   const activeLevel = upgradeBadgeLevels.reduce((highest, level) => {

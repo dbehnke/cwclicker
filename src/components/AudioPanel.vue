@@ -131,7 +131,7 @@ defineExpose({
         <span class="text-terminal-green">Mute</span>
         <button
           @click="toggleMute"
-          class="px-4 py-1 rounded font-bold transition-colors touch-action-manipulation"
+          class="px-4 py-1 rounded font-bold transition-colors touch-manipulation"
           :class="{
             'bg-terminal-amber text-terminal-bg hover:brightness-110 active:brightness-95': isMuted,
             'bg-terminal-green text-terminal-bg hover:brightness-110 active:brightness-95': !isMuted,
