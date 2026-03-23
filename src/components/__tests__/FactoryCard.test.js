@@ -178,6 +178,40 @@ describe('FactoryCard.vue', () => {
     expect(summary.text()).toContain('7 more')
   })
 
+  it('exposes aria-expanded on upgrade details toggle', async () => {
+    mockStore({
+      factoryCounts: { elmer: 1 },
+      getAvailableUpgrades: () => [elmerUpgrade],
+    })
+
+    const wrapper = mount(FactoryCard, {
+      props: {
+        factory: elmerFactory,
+      },
+    })
+
+    const toggle = wrapper.get('button[class*="tracking-wide"]')
+    expect(toggle.attributes('aria-expanded')).toBe('false')
+
+    await toggle.trigger('click')
+    expect(toggle.attributes('aria-expanded')).toBe('true')
+  })
+
+  it('handles non-finite rates without throwing', () => {
+    mockStore({
+      factoryCounts: { elmer: 1 },
+      getUpgradeMultiplier: () => Number.POSITIVE_INFINITY,
+    })
+
+    expect(() =>
+      mount(FactoryCard, {
+        props: {
+          factory: elmerFactory,
+        },
+      })
+    ).not.toThrow()
+  })
+
   it('disables buy button when cannot afford', () => {
     mockStore({ qsos: 5n })
 

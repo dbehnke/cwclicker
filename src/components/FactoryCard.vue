@@ -61,7 +61,12 @@ const effectivePerFactoryRate = computed(() => {
   return props.factory.qsosPerSecond * upgradeMultiplier
 })
 
-const formatRate = value => `${value.toFixed(1)}`
+const formatRate = value => {
+  if (!Number.isFinite(value)) {
+    return formatNumber(value)
+  }
+  return `${value.toFixed(1)}`
+}
 
 /**
  * Calculates how many more QSOs are needed to afford this factory.
@@ -255,6 +260,7 @@ function handleBuyUpgrade() {
         <button
           type="button"
           class="uppercase tracking-wide text-terminal-amber touch-manipulation"
+          :aria-expanded="showUpgradeDetails"
           @click="showUpgradeDetails = !showUpgradeDetails"
         >
           {{ showUpgradeDetails ? 'Hide details' : 'Show details' }}
