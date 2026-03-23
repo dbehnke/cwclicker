@@ -54,11 +54,14 @@ export function formatNumber(value) {
 
 /**
  * Formats a per-second rate with one decimal place.
- * Handles non-finite numbers explicitly for UI safety.
+ * Handles null/undefined and non-finite numbers explicitly for UI safety.
  * @param {number} value
  * @returns {string}
  */
 export function formatRate(value) {
+  if (value == null) {
+    return '—'
+  }
   if (!Number.isFinite(value)) {
     if (Number.isNaN(value)) {
       return '—'
