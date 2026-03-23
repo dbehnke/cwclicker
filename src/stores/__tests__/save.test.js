@@ -52,6 +52,18 @@ describe('Game Store - Save/Load', () => {
       expect(saved.licenseLevel).toBe(3)
     })
 
+    it('persists prestige state to localStorage', () => {
+      const store = useGameStore()
+      store.prestigeLevel = 7n
+      store.prestigePoints = 11n
+
+      store.save()
+
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY))
+      expect(saved.prestigeLevel).toBe('7')
+      expect(saved.prestigePoints).toBe('11')
+    })
+
     it('handles save failure gracefully', () => {
       const store = useGameStore()
       const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
@@ -159,6 +171,42 @@ describe('Game Store - Save/Load', () => {
       expect(store.factoryCounts).toEqual({})
     })
 
+    it('seeds prestige from total QSOs on old saves without prestige fields', () => {
+      const saveData = {
+        version: '1.1.0',
+        qsos: '0',
+        totalQsosEarned: '27000000000',
+        factoryCounts: {},
+        licenseLevel: 1,
+      }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(saveData))
+
+      const store = useGameStore()
+      store.load()
+
+      expect(store.prestigeLevel).toBe(3n)
+      expect(store.prestigePoints).toBe(3n)
+    })
+
+    it('normalizes invalid prestige fields on load', () => {
+      const saveData = {
+        version: '1.1.0',
+        qsos: '0',
+        totalQsosEarned: '27000000000',
+        prestigeLevel: '-5',
+        prestigePoints: '-2',
+        factoryCounts: {},
+        licenseLevel: 1,
+      }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(saveData))
+
+      const store = useGameStore()
+      store.load()
+
+      expect(store.prestigeLevel).toBe(0n)
+      expect(store.prestigePoints).toBe(0n)
+    })
+
     it('preserves current state when no save exists', () => {
       const store = useGameStore()
       store.qsos = 500n
@@ -189,6 +237,8 @@ describe('Game Store - Save/Load', () => {
       store.qsos = 12345n
       store.licenseLevel = 2
       store.factoryCounts = { elmer: 5, 'paddle-key': 2 }
+      store.prestigeLevel = 4n
+      store.prestigePoints = 9n
 
       store.save()
 
@@ -198,12 +248,16 @@ describe('Game Store - Save/Load', () => {
       expect(saved).toHaveProperty('qsos')
       expect(saved).toHaveProperty('factoryCounts')
       expect(saved).toHaveProperty('licenseLevel')
+      expect(saved).toHaveProperty('prestigeLevel')
+      expect(saved).toHaveProperty('prestigePoints')
       expect(saved).toHaveProperty('purchasedUpgrades')
 
       // Verify types (qsos is stored as string for BigInt compatibility)
       expect(typeof saved.qsos).toBe('string')
       expect(typeof saved.factoryCounts).toBe('object')
       expect(typeof saved.licenseLevel).toBe('number')
+      expect(typeof saved.prestigeLevel).toBe('string')
+      expect(typeof saved.prestigePoints).toBe('string')
       expect(Array.isArray(saved.purchasedUpgrades)).toBe(true)
     })
 

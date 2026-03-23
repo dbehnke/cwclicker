@@ -23,11 +23,52 @@ export const useGameStore = defineStore('game', () => {
     return Math.max(0, Math.min(MAX_BULK_PURCHASE_COUNT, Math.floor(count)))
   }
 
+  function cubeRootFloor(value) {
+    if (value < 0n) {
+      return 0n
+    }
+
+    let low = 0n
+    let high = 1n
+
+    while (high * high * high <= value) {
+      high *= 2n
+    }
+
+    while (low + 1n < high) {
+      const mid = (low + high) / 2n
+      const midCubed = mid * mid * mid
+
+      if (midCubed === value) {
+        return mid
+      }
+
+      if (midCubed < value) {
+        low = mid
+      } else {
+        high = mid
+      }
+    }
+
+    return low
+  }
+
+  function parseNonNegativeBigInt(value) {
+    try {
+      const parsed = BigInt(value ?? '0')
+      return parsed < 0n ? 0n : parsed
+    } catch {
+      return 0n
+    }
+  }
+
   /**
    * @returns {bigint} QSO value as BigInt
    */
   const qsos = ref(0n)
   const totalQsosEarned = ref(0n) // Total QSOs earned for prestige system
+  const prestigeLevel = ref(0n)
+  const prestigePoints = ref(0n)
   const licenseLevel = ref(1)
   const factoryCounts = ref({})
   const fractionalQSOs = ref(0) // Accumulate fractional QSOs between frames
@@ -243,6 +284,55 @@ export const useGameStore = defineStore('game', () => {
     totalQsosEarned.value += amount
   }
 
+  const eligiblePrestigeLevel = computed(() => {
+    if (totalQsosEarned.value < 1_000_000_000n) {
+      return 0n
+    }
+
+    const normalized = totalQsosEarned.value / 1_000_000_000n
+    return cubeRootFloor(normalized)
+  })
+
+  const canPrestigeReset = computed(() => eligiblePrestigeLevel.value > prestigeLevel.value)
+
+  const prestigeMultiplier = computed(() => 1 + Number(prestigeLevel.value) * 0.05)
+
+  function prestigeReset() {
+    const eligibleLevel = eligiblePrestigeLevel.value
+    const newPoints = eligibleLevel > prestigeLevel.value ? eligibleLevel - prestigeLevel.value : 0n
+
+    prestigePoints.value += newPoints
+    prestigeLevel.value = eligibleLevel > prestigeLevel.value ? eligibleLevel : prestigeLevel.value
+
+    qsos.value = 0n
+    factoryCounts.value = {}
+    fractionalQSOs.value = 0
+    purchasedUpgrades.value = new Set()
+    licenseLevel.value = 1
+    offlineEarnings.value = null
+    lotteryState.value = {
+      lastTriggerTime: 0,
+      isBonusAvailable: false,
+      bonusFactoryId: null,
+      bonusEndTime: 0,
+      bonusAvailableEndTime: 0,
+      phenomenonTitle: '',
+      isSolarStorm: false,
+      solarStormEndTime: 0,
+    }
+    migrationInfo.value = null
+    save()
+  }
+
+  function normalizePrestigeState() {
+    const eligibleLevel = eligiblePrestigeLevel.value
+
+    if (prestigeLevel.value === 0n && prestigePoints.value === 0n && eligibleLevel > 0n) {
+      prestigeLevel.value = eligibleLevel
+      prestigePoints.value = eligibleLevel
+    }
+  }
+
   /**
    * Gets the tier multiplier for cost calculation.
    * @param {number} tier - The factory tier (1-7).
@@ -445,6 +535,8 @@ export const useGameStore = defineStore('game', () => {
         version: GAME_VERSION,
         qsos: qsos.value.toString(),
         totalQsosEarned: totalQsosEarned.value.toString(),
+        prestigeLevel: prestigeLevel.value.toString(),
+        prestigePoints: prestigePoints.value.toString(),
         licenseLevel: licenseLevel.value,
         factoryCounts: factoryCounts.value,
         fractionalQSOs: fractionalQSOs.value,
@@ -493,6 +585,12 @@ export const useGameStore = defineStore('game', () => {
 
         qsos.value = BigInt(state.qsos || '0')
         totalQsosEarned.value = BigInt(state.totalQsosEarned || state.qsos || '0')
+        const hasPrestigeFields = 'prestigeLevel' in state || 'prestigePoints' in state
+        prestigeLevel.value = parseNonNegativeBigInt(state.prestigeLevel)
+        prestigePoints.value = parseNonNegativeBigInt(state.prestigePoints)
+        if (!hasPrestigeFields) {
+          normalizePrestigeState()
+        }
         licenseLevel.value = state.licenseLevel || 1
         factoryCounts.value = state.factoryCounts || {}
         fractionalQSOs.value = state.fractionalQSOs || 0
@@ -577,13 +675,14 @@ export const useGameStore = defineStore('game', () => {
     let total = 0
 
     for (const [factoryId, count] of Object.entries(factoryCounts.value)) {
-      const factory = FACTORIES.find(f => f.id === factoryId)
-      if (factory) {
-        const lotteryMultiplier = getLotteryMultiplier(factoryId)
-        const upgradeMultiplier = getUpgradeMultiplier(factoryId)
-        total += factory.qsosPerSecond * count * lotteryMultiplier * upgradeMultiplier
+        const factory = FACTORIES.find(f => f.id === factoryId)
+        if (factory) {
+          const lotteryMultiplier = getLotteryMultiplier(factoryId)
+          const upgradeMultiplier = getUpgradeMultiplier(factoryId)
+          total +=
+            factory.qsosPerSecond * count * lotteryMultiplier * upgradeMultiplier * prestigeMultiplier.value
+        }
       }
-    }
 
     return total
   }
@@ -630,6 +729,8 @@ export const useGameStore = defineStore('game', () => {
   return {
     qsos,
     totalQsosEarned,
+    prestigeLevel,
+    prestigePoints,
     licenseLevel,
     factoryCounts,
     fractionalQSOs,
@@ -650,6 +751,11 @@ export const useGameStore = defineStore('game', () => {
     getAvailableUpgrades,
     buyUpgrade,
     getUpgradeMultiplier,
+    eligiblePrestigeLevel,
+    canPrestigeReset,
+    prestigeMultiplier,
+    prestigeReset,
+    normalizePrestigeState,
     clearExpiredBonus,
     offlineEarnings,
     calculateOfflineProgress,
