@@ -2,6 +2,7 @@ import { setActivePinia, createPinia } from 'pinia'
 import { useGameStore } from '../game'
 import { describe, it, expect, beforeEach } from 'vitest'
 import { FACTORIES } from '../../constants/factories'
+import { UPGRADES } from '../../constants/upgrades'
 
 describe('Game Store - Factory Logic', () => {
   beforeEach(() => {
@@ -186,6 +187,30 @@ describe('Game Store - Factory Logic', () => {
 
       expect(result).toBe(true)
       expect(store.factoryCounts['elmer']).toBe(10)
+    })
+  })
+
+  describe('upgrade coverage', () => {
+    it('gives every factory at least one upgrade definition', () => {
+      for (const factory of FACTORIES) {
+        const upgrades = UPGRADES.filter(upgrade => upgrade.factoryId === factory.id)
+
+        expect(upgrades.length, `Expected upgrades for factory ${factory.id}`).toBeGreaterThan(0)
+      }
+    })
+
+    it('exposes the first bug-catcher upgrade at the threshold', () => {
+      const store = useGameStore()
+      store.factoryCounts['bug-catcher'] = 1
+
+      const upgrades = store.getAvailableUpgrades('bug-catcher')
+
+      expect(upgrades[0]).toMatchObject({
+        factoryId: 'bug-catcher',
+        threshold: 1,
+      })
+      expect(upgrades[0].name).toBeDefined()
+      expect(upgrades[0].baseCost).toBeGreaterThan(0)
     })
   })
 })
