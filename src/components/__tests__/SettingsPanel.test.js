@@ -82,4 +82,22 @@ describe('SettingsPanel.vue', () => {
     expect(prestigeReset).toHaveBeenCalled()
     expect(wrapper.text()).not.toContain('Prestige reset will reset your run but keep prestige progress.')
   })
+
+  it('prestige and reset confirmations are mutually exclusive', async () => {
+    const resetGame = vi.fn()
+    mockStore({ canPrestigeReset: true, resetGame })
+
+    const wrapper = mount(SettingsPanel)
+
+    const resetBtn = wrapper.findAll('button').filter(b => b.text().includes('⚠️ Reset Game'))[0]
+    const prestigeBtn = wrapper.findAll('button').filter(b => b.text().includes('Prestige Reset'))[0]
+
+    await resetBtn.trigger('click')
+    expect(wrapper.text()).toContain('Are you sure? This cannot be undone!')
+    expect(wrapper.text()).not.toContain('Prestige reset will reset your run')
+
+    await prestigeBtn.trigger('click')
+    expect(wrapper.text()).not.toContain('Are you sure? This cannot be undone!')
+    expect(wrapper.text()).toContain('Prestige reset will reset your run')
+  })
 })
