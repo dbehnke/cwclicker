@@ -7,7 +7,7 @@ import { UPGRADES } from '../constants/upgrades'
  * Current game version for save data migration
  * @type {string}
  */
-const GAME_VERSION = '1.1.3'
+const GAME_VERSION = '1.1.4'
 const MAX_BULK_PURCHASE_COUNT = 10
 const OVERFLOW_FACTORY_COST = 10n ** 100n
 
