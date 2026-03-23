@@ -57,7 +57,7 @@ const formatCost = cost => {
     <div class="text-sm text-gray-400 mb-3 leading-snug">
       Bulk Purchase: <span class="text-terminal-green font-semibold">{{ factory.name }}</span>
     </div>
-    <div class="grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-3">
+    <div class="grid grid-cols-1 gap-2 sm:grid-cols-3 sm:gap-3" data-testid="bulk-buy-row">
       <button
         @click="handleBuy(1)"
         :disabled="!canAfford1"

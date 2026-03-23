@@ -292,7 +292,7 @@ This repo uses npm scripts for build, test, and lint. Prefer `npx vitest run` or
 - Do not rely on `package.json` for game migration/version behavior; it is package metadata only.
 
 If adding code in the future:
-- Use `npm` as the package manager
+- Use `npm` as the supported package manager
 - Add appropriate package.json scripts for linting/formatting
 
 ---

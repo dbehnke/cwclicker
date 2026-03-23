@@ -111,6 +111,27 @@ describe('MultiBuyPanel.vue', () => {
     ])
   })
 
+  it('applies the responsive grid classes for the button row', () => {
+    useGameStore.mockReturnValue({
+      qsos: 1000n,
+      factoryCounts: {},
+      getFactoryCost: () => 10n,
+      getBulkCost: (id, count) => BigInt(Math.floor(count * 10 * 0.95)),
+    })
+
+    const wrapper = mount(MultiBuyPanel, {
+      props: {
+        multiBuyAvailable: true,
+        factory: elmerFactory,
+      },
+    })
+
+    const row = wrapper.get('[data-testid="bulk-buy-row"]')
+    expect(row.classes()).toContain('grid')
+    expect(row.classes()).toContain('grid-cols-1')
+    expect(row.classes()).toContain('sm:grid-cols-3')
+  })
+
   it('emits buy event with count 1 on x1 button click', async () => {
     useGameStore.mockReturnValue({
       qsos: 1000n,
