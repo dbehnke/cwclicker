@@ -95,7 +95,7 @@ const handleUpgrade = () => {
         v-if="nextLicense"
         @click="handleUpgrade"
         :disabled="!canUpgrade"
-        class="px-4 py-1 rounded font-bold transition-colors touch-action-manipulation"
+        class="px-4 py-1 rounded font-bold transition-colors touch-manipulation"
         :class="{
           'bg-terminal-green text-terminal-bg hover:brightness-110 active:brightness-95': canUpgrade,
           'bg-gray-700 text-gray-400 opacity-50 cursor-not-allowed': !canUpgrade,

@@ -75,14 +75,14 @@ function dismissError() {
         <div class="flex gap-4 justify-center">
           <button
             @click="reloadPage"
-            class="px-6 py-3 bg-red-600 text-white font-bold rounded transition-colors touch-action-manipulation hover:brightness-110 active:brightness-95"
+            class="px-6 py-3 bg-red-600 text-white font-bold rounded transition-colors touch-manipulation hover:brightness-110 active:brightness-95"
           >
             🔄 Reload Game
           </button>
           
           <button
             @click="dismissError"
-            class="px-6 py-3 bg-gray-600 text-white font-bold rounded transition-colors touch-action-manipulation hover:brightness-110 active:brightness-95"
+            class="px-6 py-3 bg-gray-600 text-white font-bold rounded transition-colors touch-manipulation hover:brightness-110 active:brightness-95"
           >
             Try to Continue
           </button>

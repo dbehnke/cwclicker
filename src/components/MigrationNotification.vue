@@ -96,7 +96,7 @@ function dismiss() {
         <!-- Action Button -->
         <button
           @click="dismiss"
-          class="w-full py-3 px-4 bg-terminal-green text-terminal-bg font-bold rounded transition-colors touch-action-manipulation hover:brightness-110 active:brightness-95"
+          class="w-full py-3 px-4 bg-terminal-green text-terminal-bg font-bold rounded transition-colors touch-manipulation hover:brightness-110 active:brightness-95"
         >
           Continue to v{{ store.migrationInfo?.toVersion }}
         </button>

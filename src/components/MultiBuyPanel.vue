@@ -61,7 +61,7 @@ const formatCost = cost => {
       <button
         @click="handleBuy(1)"
         :disabled="!canAfford1"
-        class="w-full px-3 py-2 rounded text-sm font-bold transition-colors touch-action-manipulation"
+        class="w-full px-3 py-2 rounded text-sm font-bold transition-colors touch-manipulation"
         :class="{
           'bg-terminal-green text-terminal-bg hover:brightness-110 active:brightness-95': canAfford1,
           'bg-gray-700 text-gray-400 opacity-50 cursor-not-allowed': !canAfford1,
@@ -72,7 +72,7 @@ const formatCost = cost => {
       <button
         @click="handleBuy(5)"
         :disabled="!canAfford5"
-        class="w-full px-3 py-2 rounded text-sm font-bold transition-colors touch-action-manipulation"
+        class="w-full px-3 py-2 rounded text-sm font-bold transition-colors touch-manipulation"
         :class="{
           'bg-terminal-green text-terminal-bg hover:brightness-110 active:brightness-95': canAfford5,
           'bg-gray-700 text-gray-400 opacity-50 cursor-not-allowed': !canAfford5,
@@ -83,7 +83,7 @@ const formatCost = cost => {
       <button
         @click="handleBuy(10)"
         :disabled="!canAfford10"
-        class="w-full px-3 py-2 rounded text-sm font-bold transition-colors touch-action-manipulation"
+        class="w-full px-3 py-2 rounded text-sm font-bold transition-colors touch-manipulation"
         :class="{
           'bg-terminal-green text-terminal-bg hover:brightness-110 active:brightness-95': canAfford10,
           'bg-gray-700 text-gray-400 opacity-50 cursor-not-allowed': !canAfford10,

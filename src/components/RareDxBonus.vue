@@ -209,7 +209,7 @@ function handleBonusClick() {
 
         <button
           @click="handleBonusClick"
-          class="ml-4 px-6 py-3 bg-terminal-amber text-terminal-bg font-bold rounded transition-colors touch-action-manipulation hover:brightness-110 active:brightness-95 animate-bounce"
+          class="ml-4 px-6 py-3 bg-terminal-amber text-terminal-bg font-bold rounded transition-colors touch-manipulation hover:brightness-110 active:brightness-95 animate-bounce"
         >
           WORK IT!
         </button>

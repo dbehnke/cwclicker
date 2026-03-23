@@ -191,11 +191,15 @@ describe('Game Store - Factory Logic', () => {
   })
 
   describe('upgrade coverage', () => {
-    it('gives every factory at least one upgrade definition', () => {
+    it('gives every factory a full 9-step upgrade chain', () => {
+      const expectedThresholds = [1, 5, 25, 50, 100, 150, 200, 250, 300]
+
       for (const factory of FACTORIES) {
         const upgrades = UPGRADES.filter(upgrade => upgrade.factoryId === factory.id)
 
-        expect(upgrades.length, `Expected upgrades for factory ${factory.id}`).toBeGreaterThan(0)
+        expect(upgrades.length, `Expected exactly 9 upgrades for factory ${factory.id}`).toBe(9)
+        expect(upgrades.map(upgrade => upgrade.threshold)).toEqual(expectedThresholds)
+        expect(upgrades.every(upgrade => upgrade.multiplier === 2)).toBe(true)
       }
     })
 

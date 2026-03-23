@@ -189,7 +189,7 @@ function handleBuyUpgrade() {
       <button
         @click="handleBuy"
         :disabled="!canAfford"
-        class="rounded px-4 py-1 font-bold transition-colors touch-action-manipulation"
+        class="rounded px-4 py-1 font-bold transition-colors touch-manipulation"
         :class="{
           'bg-terminal-green text-terminal-bg hover:brightness-110 active:brightness-95': canAfford,
           'bg-gray-700 text-gray-400 opacity-50 cursor-not-allowed': !canAfford,
@@ -235,7 +235,7 @@ function handleBuyUpgrade() {
           <button
             @click="handleBuyUpgrade"
             :disabled="!canAffordUpgrade"
-            class="mt-1 rounded px-3 py-1 text-sm font-bold touch-action-manipulation"
+            class="mt-1 rounded px-3 py-1 text-sm font-bold touch-manipulation"
             :class="{
               'bg-terminal-amber text-terminal-bg hover:brightness-110 active:brightness-95': canAffordUpgrade,
               'bg-gray-700 text-gray-400 opacity-50 cursor-not-allowed': !canAffordUpgrade,
@@ -254,7 +254,7 @@ function handleBuyUpgrade() {
         <span v-if="showUpgradeDetails">Unlocks at {{ nextUpgrade.threshold }} factories.</span>
         <button
           type="button"
-          class="uppercase tracking-wide text-terminal-amber touch-action-manipulation"
+          class="uppercase tracking-wide text-terminal-amber touch-manipulation"
           @click="showUpgradeDetails = !showUpgradeDetails"
         >
           {{ showUpgradeDetails ? 'Hide details' : 'Show details' }}
@@ -265,17 +265,19 @@ function handleBuyUpgrade() {
     <!-- Latest Purchased Section -->
     <div v-if="purchasedCount > 0">
       <div class="border border-gray-600 rounded p-3">
-        <div
+        <button
+          type="button"
           @click="showPurchasedUpgrades = !showPurchasedUpgrades"
           data-testid="purchased-upgrades-toggle"
-          class="flex justify-between items-center cursor-pointer"
+          :aria-expanded="showPurchasedUpgrades"
+          class="flex w-full items-center justify-between text-left"
         >
           <div>
             <span class="text-xs text-gray-400 uppercase">Latest Purchased</span>
             <span class="text-xs text-gray-500 ml-2">({{ purchasedCount }})</span>
           </div>
           <span class="text-gray-500">{{ showPurchasedUpgrades ? '▲' : '▼' }}</span>
-        </div>
+        </button>
 
         <!-- All purchased (expandable) -->
         <div v-if="showPurchasedUpgrades" class="mt-2 pl-4 border-l-2 border-gray-600">
