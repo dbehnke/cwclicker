@@ -17,9 +17,9 @@ describe('FactoryCard.vue', () => {
 
   function mockStore(overrides = {}) {
     useGameStore.mockReturnValue({
-      qsos: 100,
+      qsos: 100n,
       factoryCounts: {},
-      getFactoryCost: () => 10,
+      getFactoryCost: () => 10n,
       getUpgradeMultiplier: () => 1,
       getAvailableUpgrades: () => [],
       purchasedUpgrades: new Set(),
@@ -59,7 +59,7 @@ describe('FactoryCard.vue', () => {
   })
 
   it('shows current cost', () => {
-    mockStore({ getFactoryCost: () => 15 })
+    mockStore({ getFactoryCost: () => 15n })
 
     const wrapper = mount(FactoryCard, {
       props: {
@@ -71,7 +71,7 @@ describe('FactoryCard.vue', () => {
   })
 
   it('keeps cost and buy together in one action row', () => {
-    mockStore({ getFactoryCost: () => 15 })
+    mockStore({ getFactoryCost: () => 15n })
 
     const wrapper = mount(FactoryCard, {
       props: {
@@ -88,7 +88,7 @@ describe('FactoryCard.vue', () => {
   it('shows final rate above the breakdown line', () => {
     mockStore({
       factoryCounts: { elmer: 50 },
-      getFactoryCost: () => 15,
+      getFactoryCost: () => 15n,
       getUpgradeMultiplier: () => 2,
     })
 
@@ -100,8 +100,8 @@ describe('FactoryCard.vue', () => {
 
     const output = wrapper.find('[data-testid="factory-production"]')
     expect(output.text()).toContain('10.0/sec')
-    expect(output.text()).toContain('(0.2/sec × 2 × 50)')
-    expect(output.text().indexOf('10.0/sec')).toBeLessThan(output.text().indexOf('(0.2/sec × 2 × 50)'))
+    expect(output.text()).toContain('(0.2/sec × 50)')
+    expect(output.text().indexOf('10.0/sec')).toBeLessThan(output.text().indexOf('(0.2/sec × 50)'))
   })
 
   it('sources the upgrade teaser text from upgrade description', () => {
@@ -179,7 +179,7 @@ describe('FactoryCard.vue', () => {
   })
 
   it('disables buy button when cannot afford', () => {
-    mockStore({ qsos: 5 })
+    mockStore({ qsos: 5n })
 
     const wrapper = mount(FactoryCard, {
       props: {

@@ -180,7 +180,7 @@ function handleBuyUpgrade() {
     <div class="mb-4 space-y-1" data-testid="factory-production">
       <div class="text-terminal-amber font-semibold">{{ formatRate(actualOutput) }}/sec</div>
       <div class="text-sm text-gray-500">
-        ({{ formatRate(effectivePerFactoryRate) }}/sec × {{ currentMultiplier }} × {{ ownedCount }})
+        ({{ formatRate(effectivePerFactoryRate) }}/sec × {{ ownedCount }})
       </div>
     </div>
 
