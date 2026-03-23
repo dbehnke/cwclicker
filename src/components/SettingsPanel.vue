@@ -5,6 +5,7 @@ import { audioService } from '../services/audio'
 
 const store = useGameStore()
 const showResetConfirm = ref(false)
+const showPrestigeResetConfirm = ref(false)
 const exportData = ref('')
 const importError = ref('')
 
@@ -61,6 +62,19 @@ function resetGame() {
 
   // Save cleared state
   store.save()
+
+  // Hide confirmation
+  showResetConfirm.value = false
+
+  // Reload page to ensure clean state
+  window.location.reload()
+}
+
+/**
+ * Reset prestige with confirmation
+ */
+function resetPrestige() {
+  store.prestigeReset()
 
   // Hide confirmation
   showResetConfirm.value = false
@@ -462,6 +476,13 @@ function formatPercent(value) {
           >
             ⚠️ Reset Game
           </button>
+          <button
+            @click="showPrestigeResetConfirm = true"
+            :disabled="!store.canPrestigeReset"
+            class="ml-3 px-6 py-3 bg-terminal-amber text-terminal-bg font-bold rounded hover:brightness-110 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Prestige Reset
+          </button>
         </div>
 
         <div v-else class="space-y-4 border-2 border-red-600 p-4 rounded">
@@ -477,6 +498,26 @@ function formatPercent(value) {
 
             <button
               @click="showResetConfirm = false"
+              class="px-6 py-3 bg-gray-600 text-white font-bold rounded hover:bg-gray-700 transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+
+        <div v-if="showPrestigeResetConfirm" class="space-y-4 border-2 border-terminal-amber p-4 rounded">
+          <p class="text-terminal-amber font-bold">Prestige reset will reset your run but keep prestige progress.</p>
+
+          <div class="flex gap-4">
+            <button
+              @click="resetPrestige"
+              class="px-6 py-3 bg-terminal-amber text-terminal-bg font-bold rounded hover:brightness-110 transition-colors"
+            >
+              Yes, Prestige Reset
+            </button>
+
+            <button
+              @click="showPrestigeResetConfirm = false"
               class="px-6 py-3 bg-gray-600 text-white font-bold rounded hover:bg-gray-700 transition-colors"
             >
               Cancel
