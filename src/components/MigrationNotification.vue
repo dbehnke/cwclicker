@@ -49,7 +49,7 @@ function dismiss() {
         <!-- Migration Details -->
         <div class="space-y-4 mb-6">
           <p class="text-terminal-green text-center">
-            CW Keyer Idle has been updated to <strong>v{{ store.migrationInfo?.toVersion }}</strong>
+            CW Clicker has been updated to <strong>v{{ store.migrationInfo?.toVersion }}</strong>
           </p>
 
           <div class="bg-terminal-dark border border-terminal-green rounded p-4">
@@ -96,7 +96,7 @@ function dismiss() {
         <!-- Action Button -->
         <button
           @click="dismiss"
-          class="w-full py-3 px-4 bg-terminal-green text-terminal-bg font-bold rounded hover:bg-green-600 transition-colors"
+          class="w-full py-3 px-4 bg-terminal-green text-terminal-bg font-bold rounded transition-colors touch-action-manipulation hover:brightness-110 active:brightness-95"
         >
           Continue to v{{ store.migrationInfo?.toVersion }}
         </button>

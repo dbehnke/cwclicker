@@ -279,7 +279,17 @@ ECC provides **language-specific patterns** and fills gaps in superpowers. Reque
 
 ## Section 6: Build/Test/Lint Commands
 
-This is a documentation repository. No build, test, or lint commands are currently configured.
+This repo uses npm scripts for build, test, and lint. Prefer `npx vitest run` or `npm test` when verifying changes, and `npm run build` before release.
+
+### Save Data Compatibility
+
+- Keep the localStorage key `cw-keyer-game` unchanged unless you also add a migration path.
+- The old storage key is intentionally preserved so existing player saves continue to load.
+
+### Version Bumps
+
+- When bumping a release version, update `VERSION` and `src/stores/game.js` (`GAME_VERSION`) together.
+- Do not rely on `package.json` for game migration/version behavior; it is package metadata only.
 
 If adding code in the future:
 - Use `bun` as the package manager

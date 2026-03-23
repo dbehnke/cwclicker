@@ -1,4 +1,4 @@
-# CW Keyer Idle Game - Factory & License System Design
+# CW Clicker - Factory & License System Design
 
 **Date:** 2025-03-19  
 **Status:** Ready for Implementation  

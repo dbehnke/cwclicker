@@ -189,9 +189,9 @@ function handleBuyUpgrade() {
       <button
         @click="handleBuy"
         :disabled="!canAfford"
-        class="rounded px-4 py-1 font-bold transition-colors"
+        class="rounded px-4 py-1 font-bold transition-colors touch-action-manipulation"
         :class="{
-          'bg-terminal-green text-terminal-bg hover:bg-green-600': canAfford,
+          'bg-terminal-green text-terminal-bg hover:brightness-110 active:brightness-95': canAfford,
           'bg-gray-700 text-gray-400 opacity-50 cursor-not-allowed': !canAfford,
         }"
       >
@@ -235,9 +235,9 @@ function handleBuyUpgrade() {
           <button
             @click="handleBuyUpgrade"
             :disabled="!canAffordUpgrade"
-            class="mt-1 rounded px-3 py-1 text-sm font-bold"
+            class="mt-1 rounded px-3 py-1 text-sm font-bold touch-action-manipulation"
             :class="{
-              'bg-terminal-amber text-terminal-bg hover:bg-amber-600': canAffordUpgrade,
+              'bg-terminal-amber text-terminal-bg hover:brightness-110 active:brightness-95': canAffordUpgrade,
               'bg-gray-700 text-gray-400 opacity-50 cursor-not-allowed': !canAffordUpgrade,
             }"
           >
@@ -254,7 +254,7 @@ function handleBuyUpgrade() {
         <span v-if="showUpgradeDetails">Unlocks at {{ nextUpgrade.threshold }} factories.</span>
         <button
           type="button"
-          class="uppercase tracking-wide text-terminal-amber"
+          class="uppercase tracking-wide text-terminal-amber touch-action-manipulation"
           @click="showUpgradeDetails = !showUpgradeDetails"
         >
           {{ showUpgradeDetails ? 'Hide details' : 'Show details' }}

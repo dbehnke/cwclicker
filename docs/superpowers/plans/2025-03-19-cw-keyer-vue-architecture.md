@@ -1,4 +1,4 @@
-# CW Keyer Idle Game - Vue Architecture Implementation Plan
+# CW Clicker - Vue Architecture Implementation Plan
 
 > **For agentic workers:** REQUIRED: Use superpowers:subagent-driven-development (if subagents available) or superpowers:executing-plans to implement this plan. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -422,7 +422,7 @@ Create `src/components/StatHeader.vue`:
 ```vue
 <template>
   <header class="mb-8 flex justify-between border-b border-terminal-green pb-4">
-    <h1 class="text-2xl font-bold">CW KEYER IDLE</h1>
+    <h1 class="text-2xl font-bold">CW CLICKER</h1>
     <div class="text-xl">QSOs: {{ store.qsos }}</div>
   </header>
 </template>

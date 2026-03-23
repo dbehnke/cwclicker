@@ -9,7 +9,7 @@ const store = useGameStore()
 
 <template>
   <header class="mb-8 flex justify-between border-b border-terminal-green pb-4">
-    <h1 class="text-2xl font-bold">CW KEYER IDLE</h1>
+    <h1 class="text-2xl font-bold">CW CLICKER</h1>
     <div class="text-xl">QSOs: {{ store.qsos }}</div>
   </header>
 </template>

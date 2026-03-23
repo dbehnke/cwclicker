@@ -1,4 +1,4 @@
-# CW Keyer Idle Game - Design Specification
+# CW Clicker - Design Specification
 
 **Date:** 2025-03-19  
 **Status:** Ready for Planning  
@@ -16,7 +16,7 @@ A browser-based idle clicker game with a ham radio theme. Players tap out Morse 
 
 ## Core Mechanics
 
-### The CW Keyer (Primary Interaction)
+### The CW Clicker (Primary Interaction)
 
 The game centers on a virtual Morse code keyer that players interact with using mouse/touch:
 
@@ -179,7 +179,7 @@ After purchasing 10 of any factory type, unlock bulk purchase buttons:
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│  CW KEYER IDLE        QSOs: 1,247,392,018    [⚙]  │
+│  CW CLICKER        QSOs: 1,247,392,018    [⚙]  │
 ├─────────────────────────────────────────────────────┤
 │                                                     │
 │              ┌─────────────────┐                    │

@@ -1,4 +1,4 @@
-# Vue.js Architecture Design - CW Keyer Idle Game
+# Vue.js Architecture Design - CW Clicker
 
 **Date:** 2025-03-19  
 **Status:** Approved for Planning  

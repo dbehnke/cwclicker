@@ -1,4 +1,4 @@
-# CW Keyer Idle Game Implementation Plan
+# CW Clicker Implementation Plan
 
 > **For agentic workers:** REQUIRED: Use superpowers:subagent-driven-development (if subagents available) or superpowers:executing-plans to implement this plan. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -31,20 +31,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CW Keyer Idle</title>
+    <title>CW Clicker</title>
     <link rel="stylesheet" href="src/styles/main.css">
 </head>
 <body>
     <div id="game-container">
         <header>
-            <h1>CW KEYER IDLE</h1>
+            <h1>CW CLICKER</h1>
             <div id="qso-counter">QSOs: 0</div>
             <div id="qso-rate">QSOs/sec: 0</div>
         </header>
         
         <main>
             <section id="keyer-section">
-                <div id="cw-keyer" tabindex="0" role="button" aria-label="CW Keyer - click to send Morse code">
+                <div id="cw-keyer" tabindex="0" role="button" aria-label="CW Clicker - click to send Morse code">
                     <div class="keyer-button"></div>
                     <div class="keyer-label">TAP TO SEND</div>
                 </div>
@@ -538,9 +538,9 @@ git commit -m "feat: add GameState module with QSO management and factory tracki
 
 ---
 
-## Chunk 3: CW Keyer Component with Audio
+## Chunk 3: CW Clicker Component with Audio
 
-### Task 3: Implement CW Keyer with Audio Feedback
+### Task 3: Implement CW Clicker with Audio Feedback
 
 **Files:**
 - Create: `src/js/cw-keyer.js`
@@ -713,7 +713,7 @@ import CWKeyer from './cw-keyer.js';
 const gameState = new GameState();
 const keyerElement = document.getElementById('cw-keyer');
 
-// Create CW Keyer with callbacks
+// Create CW Clicker with callbacks
 const cwKeyer = new CWKeyer(
     keyerElement,
     () => {

@@ -108,7 +108,7 @@ defineExpose({
     <!-- Collapsed Header -->
     <button
       @click="togglePanel"
-      class="w-full px-4 py-2 flex items-center justify-between text-terminal-green hover:bg-terminal-green hover:text-terminal-bg transition-colors"
+      class="w-full px-4 py-2 flex items-center justify-between text-terminal-green transition-colors touch-action-manipulation hover:bg-terminal-green hover:text-terminal-bg active:brightness-95"
       :class="{ 'border-b-2 border-terminal-green': isExpanded }"
     >
       <span class="font-bold flex items-center gap-2">
@@ -131,10 +131,10 @@ defineExpose({
         <span class="text-terminal-green">Mute</span>
         <button
           @click="toggleMute"
-          class="px-4 py-1 rounded font-bold transition-colors"
+          class="px-4 py-1 rounded font-bold transition-colors touch-action-manipulation"
           :class="{
-            'bg-terminal-amber text-terminal-bg': isMuted,
-            'bg-terminal-green text-terminal-bg': !isMuted,
+            'bg-terminal-amber text-terminal-bg hover:brightness-110 active:brightness-95': isMuted,
+            'bg-terminal-green text-terminal-bg hover:brightness-110 active:brightness-95': !isMuted,
           }"
         >
           {{ isMuted ? 'OFF' : 'ON' }}

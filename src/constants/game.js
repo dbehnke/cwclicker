@@ -1,5 +1,5 @@
 /**
- * Game constants for CW Keyer Idle Game
+ * Game constants for CW Clicker
  * Centralizes all magic numbers for easier maintenance
  */
 
