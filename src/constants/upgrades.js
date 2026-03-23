@@ -241,6 +241,615 @@ const DIPOLE_UPGRADES = generateUpgrades(
   '⚡'
 )
 
+const BUG_CATCHER_UPGRADES = generateUpgrades(
+  'bug-catcher',
+  'Bug Catcher',
+  3500,
+  [
+    'Solder Splat',
+    'Frayed Coil',
+    'Mystery Capacitor',
+    'Tin-Can Enclosure',
+    'Smoke Test',
+    'Garage Calibration',
+    'Band-Sledge Hammer',
+    'Pirate Warranty',
+    'Five-Watt Legend',
+  ],
+  [
+    'A blob of solder and a prayer.',
+    'Still hanging on by one suspicious strand.',
+    'Nobody knows what it does, but it sure is vintage.',
+    'Built from scrap and bad decisions.',
+    'It passed once, so you called it finished.',
+    'Calibrated with a screwdriver and confidence.',
+    'Large enough to scare the neighbors.',
+    'The seller promised it was only lightly cursed.',
+    'Five watts of pure folklore.',
+  ],
+  '⚡'
+)
+
+const VERTICAL_ANTENNA_UPGRADES = generateUpgrades(
+  'vertical-antenna',
+  'Vertical Antenna',
+  5000,
+  [
+    'Longer Mast',
+    'Ground Radials',
+    'Weatherproof Paint',
+    'Radial Spaghetti',
+    'Better Loading Coil',
+    'Salt Air Coating',
+    'Invisible To HOA',
+    'Monopole Prestige',
+    'Skyward Apology',
+  ],
+  [
+    'A little taller and slightly less apologetic.',
+    'Now it actually has something to stand on.',
+    'Keeps working through the next regret-filled storm.',
+    'A mess of wires that somehow helps.',
+    'Tunes better, sounds the same.',
+    'Corrosion fears are now only half the hobby.',
+    'Looks invisible from the driveway. Probably.',
+    'A vertical so fancy it demands a chairmanship.',
+    'Pointed at the sky and still somehow embarrassing.',
+  ],
+  '⚡'
+)
+
+const LINEAR_AMPLIFIER_UPGRADES = generateUpgrades(
+  'linear-amplifier',
+  'Linear Amplifier',
+  10000,
+  [
+    'Driver Tube',
+    'Bigger Fan',
+    'Heat Sink',
+    'Plate Voltage',
+    'Dummy Load',
+    'Arc Suppressor',
+    'Kilowatt Dreams',
+    'Mains Upgrade',
+    'Smoke Reserve',
+  ],
+  [
+    'Just enough drive to cause trouble.',
+    'Now the fan sounds like a small airport.',
+    'Finally enough aluminum to matter.',
+    'The volts are up; so is your liability.',
+    'A safe place to test bad ideas.',
+    'Keeps the sparks mostly inside the box.',
+    'More power than common sense requires.',
+    'The breaker box has filed a complaint.',
+    'Backup smoke for when the main smoke runs out.',
+  ],
+  '⚡'
+)
+
+const BEAM_ANTENNA_UPGRADES = generateUpgrades(
+  'beam-antenna',
+  'Beam Antenna',
+  25000,
+  [
+    'Director Element',
+    'Boom Extension',
+    'Rotor Grease',
+    'Narrower Beam',
+    'Full-Sized Reflector',
+    'Stacked Elements',
+    'Turntable Upgrade',
+    'DX Snob Mode',
+    'Forward Gain Glory',
+  ],
+  [
+    'More direction, less dignity.',
+    'Because the original boom was too modest.',
+    'Keeps the rotor sounding like it regrets everything.',
+    'Now even your beam has trust issues.',
+    'Reflects signals and compliments equally poorly.',
+    'Stacked high enough to irritate aviation.',
+    'Turns the whole mess instead of just the antenna.',
+    'You only answer the farthest stations now.',
+    'All gain, no humility.',
+  ],
+  '⚡'
+)
+
+const RAGCHEW_NET_UPGRADES = generateUpgrades(
+  'ragchew-net',
+  'Ragchew Net',
+  35000,
+  [
+    'Check-In List',
+    'Coffee Break',
+    'Medical Update',
+    'Weather Recap',
+    'Longer Roundtable',
+    'Name-Rotator',
+    'Traffic Cop',
+    'Final Filler',
+    '73 Curtain Call',
+  ],
+  [
+    'Same names, same order, same frequency.',
+    'The net now runs on caffeine and habit.',
+    'Still not a doctor, but now more detailed.',
+    'If it is not raining, someone will mention it anyway.',
+    'Because three minutes of talk was never enough.',
+    'Makes sure everyone says their call sign twice.',
+    'Keeps the pileup of stories vaguely organized.',
+    'One more anecdote before we clear up.',
+    'The net ends exactly where it began.',
+  ],
+  '⚡'
+)
+
+const TOWER_INSTALLATION_UPGRADES = generateUpgrades(
+  'tower-installation',
+  'Tower Installation',
+  50000,
+  [
+    'Permit Stack',
+    'Guy Wire Set',
+    'Concrete Footing',
+    'Lightning Rod',
+    'Crane Rental',
+    'Safety Harness',
+    'Sectioned Mast',
+    'Roof Repair Kit',
+    'Skyward Regret',
+  ],
+  [
+    'The paperwork weighs more than the tower.',
+    'Keeps the whole thing from wandering off.',
+    'Poured once, cursed forever.',
+    'For when the weather gets personal.',
+    'The most expensive way to lift bad ideas.',
+    'Useful if you enjoy surviving the hobby.',
+    'More sections, more excuses to climb.',
+    'For after the antenna goes through the shingles.',
+    'The view is great. The fear is better.',
+  ],
+  '⚡'
+)
+
+const CONTEST_STATION_UPGRADES = generateUpgrades(
+  'contest-station',
+  'Contest Station',
+  100000,
+  [
+    'Second Radio',
+    'Score Tracker',
+    'Key-Down Timer',
+    'Band Map',
+    'Voice Keyer',
+    'Log Sync',
+    'Multiplier Board',
+    'Caffeine Bank',
+    'Podium Pressure',
+  ],
+  [
+    'Because one radio is for amateurs.',
+    'Keeps score while you lose your voice.',
+    'Tracks how long you have been yelling.',
+    'A map for people who hate sleeping.',
+    'Now your voice sounds almost organized.',
+    'Every contact, logged twice for safety.',
+    'For the points you will still miss.',
+    'Liquid operating budget, highly volatile.',
+    'The medals are imaginary; the stress is not.',
+  ],
+  '⚡'
+)
+
+const PAPER_LOGBOOK_UPGRADES = generateUpgrades(
+  'paper-logbook',
+  'Paper Logbook',
+  175000,
+  [
+    'Sharp Pencil',
+    'Index Tabs',
+    'Coffee Ring',
+    'Backup Clipboard',
+    'Reading Glasses',
+    'Ledger Binder',
+    'Cross-Reference',
+    'Archival Box',
+    'Carbon Copy Glory',
+  ],
+  [
+    'The future is hand cramps.',
+    'Finds old contacts almost as fast as the dust does.',
+    'Authentic stains from authentic operating.',
+    'Because one clipboard is never enough paper.',
+    'Now you can read your own handwriting again.',
+    'A binder heavy enough to qualify as gear.',
+    'Double-checks every QSO and your life choices.',
+    'Preserved for the next owner to decipher.',
+    'More copies, same illegible notes.',
+  ],
+  '⚡'
+)
+
+const DX_CLUSTER_UPGRADES = generateUpgrades(
+  'dx-cluster',
+  'DX Cluster',
+  250000,
+  [
+    'Spot Filter',
+    'Packet TNC',
+    'Rare Country Alert',
+    'Message Scroll',
+    'Band Activity Map',
+    'DX Alarm',
+    'Cluster Mirror',
+    'Self-Radiospot',
+    'Refresh Addiction',
+  ],
+  [
+    'Filters out everything except wishful thinking.',
+    'A little packet goes a long way.',
+    'Pinged the moment a rare prefix appears and disappears.',
+    'Now the spam arrives in a more elegant format.',
+    'Shows where the action is, not where you are.',
+    'Wakes you up for signals you still will not hear.',
+    'Because one cluster server was never enough.',
+    'When you need to spot yourself for applause.',
+    'The bands are dead, but the page keeps loading.',
+  ],
+  '⚡'
+)
+
+const HAMFEST_UPGRADES = generateUpgrades(
+  'hamfest',
+  'Hamfest',
+  500000,
+  [
+    'Tailgate Table',
+    'Bargain Bin',
+    'Cash Only',
+    'Door Prize',
+    'Club Banner',
+    'Hot Dog Stand',
+    'Flea Market Glow',
+    'Used Rotor',
+    'Buyer Remorse',
+  ],
+  [
+    'Now your junk has a proper display.',
+    'One person’s trash, another person’s project.',
+    'The universal language of questionable deals.',
+    'You entered for the prize and stayed for the noise.',
+    'Signals to everyone that you brought cookies.',
+    'The actual reason everyone showed up.',
+    'Everything is dusty, overpriced, and irresistible.',
+    'It only squeals a little when you turn it.',
+    'A required symptom of every successful hamfest.',
+  ],
+  '⚡'
+)
+
+const QSL_CARD_PRINTER_UPGRADES = generateUpgrades(
+  'qsl-card-printer',
+  'QSL Card Printer',
+  1000000,
+  [
+    'Card Stock',
+    'Ink Flood',
+    'Bureau Stamp',
+    'Gloss Finish',
+    'Envelope Jam',
+    'Return Label',
+    'Mail Sack',
+    'Overnight Fantasy',
+    'Confirmation Fever',
+  ],
+  [
+    'Thicker paper for thicker lies.',
+    'The printer is now mildly radioactive with color.',
+    'Stamped and sorted into the void.',
+    'Shiny enough to distract from the delay.',
+    'The tray is full and still nobody mailed them.',
+    'Because writing the address twice helps morale.',
+    'Big enough to hold every contact from last year.',
+    'Still faster than the bureau, in your dreams.',
+    'You almost believe the return cards are coming.',
+  ],
+  '⚡'
+)
+
+const REMOTE_STATION_UPGRADES = generateUpgrades(
+  'remote-station',
+  'Remote Station',
+  2500000,
+  [
+    'VPN Tunnel',
+    'Webcam Feed',
+    'Power Relay',
+    'Rain Sensor',
+    'Antenna Switch',
+    'Remote Reboot',
+    'Mouse Jiggler',
+    'Latency Monitor',
+    'Basement Beachfront',
+  ],
+  [
+    'Now the shack is securely two time zones away.',
+    'Lets you watch the storm ruin your setup in real time.',
+    'Because somebody has to flip the mains.',
+    'Shuts things down before the weather does.',
+    'Selects antennas with all the confidence of a gambler.',
+    'The universal cure for frozen remote rigs.',
+    'Keeps the station awake while you are not.',
+    'Measures delay in units of regret.',
+    'Paradise, if paradise had a fiber line.',
+  ],
+  '⚡'
+)
+
+const FT8_BOT_UPGRADES = generateUpgrades(
+  'ft8-bot',
+  'FT8 Bot',
+  5000000,
+  [
+    'Auto Macro',
+    'Grid Hunter',
+    'Decoder Stack',
+    'Sleep Mode',
+    'Band Hopper',
+    'Message Queue',
+    'Pounce Script',
+    'Botnet of One',
+    'Human Optional',
+  ],
+  [
+    'The bot now types your excuses for you.',
+    'Tracks grids so you do not have to feel guilty.',
+    'More layers, same robot charm.',
+    'Works while you pretend to be involved.',
+    'Never gets tired of waiting for openings.',
+    'Contacts arrive faster than your patience.',
+    'Hits the rare ones with machine precision.',
+    'Just one bot, but with very strong opinions.',
+    'At this point, you are mostly a power supply.',
+  ],
+  '⚡'
+)
+
+const DIGITAL_INTERFACE_UPGRADES = generateUpgrades(
+  'digital-interface',
+  'Digital Interface',
+  7500000,
+  [
+    'Sound Card Driver',
+    'USB Hiss Filter',
+    'PTT Delay',
+    'Codec Patch',
+    'CAT Cable',
+    'Galvanic Isolation',
+    'Virtual Port',
+    'Sample Rate Pride',
+    'Menu Deep Dive',
+  ],
+  [
+    'The laptop now only complains a little.',
+    'Cuts the noise floor and your remaining hope.',
+    'A pause long enough to second-guess yourself.',
+    'Fixes everything except the operator.',
+    'One more cable to blame when it breaks.',
+    'Keeps the smoke on its own side of the wall.',
+    'For when a real serial port feels too human.',
+    'Higher numbers, same terrible audio.',
+    'If you have to ask which menu, you are already lost.',
+  ],
+  '⚡'
+)
+
+const CLUSTER_SPOTTING_NETWORK_UPGRADES = generateUpgrades(
+  'cluster-spotting-network',
+  'Cluster Spotting Network',
+  10000000,
+  [
+    'Login Farm',
+    'Spot Relay',
+    'Crowd Source',
+    'Auto Refresh',
+    'Packet Swarm',
+    'Callsign Scraper',
+    'Mirror Node',
+    'Duplicate Alert',
+    'Endless Tabs',
+  ],
+  [
+    'So many logins, so little listening.',
+    'Faster spotting by doing less operating.',
+    'Everyone else is doing the work for you.',
+    'Because manual refreshing is for hobbyists.',
+    'A cloud of packets with very strong opinions.',
+    'Harvests callsigns from pure optimism.',
+    'Copies the noise so you can share it faster.',
+    'Warns you when the same spot appears everywhere.',
+    'The browser now qualifies as part of the station.',
+  ],
+  '⚡'
+)
+
+const EME_MOONBOUNCE_UPGRADES = generateUpgrades(
+  'eme-moonbounce',
+  'EME Moonbounce',
+  25000000,
+  [
+    'Dish Polish',
+    'Preamplifier',
+    'Lunar Timing',
+    'Earth Rotation Chart',
+    'Moon Tracker',
+    'Weak Signal Decoder',
+    'Polarization Twist',
+    'Power Bill Shock',
+    'Crater Echo',
+  ],
+  [
+    'Shiny enough to blind astronauts.',
+    'Turns whispers into barely useful whispers.',
+    'The moon now gets your schedule by fax.',
+    'Because the planet will not wait for your QSO.',
+    'Keeps tabs on the nearest expensive reflector.',
+    'Decodes what everyone else gave up on.',
+    'Swaps polarization and adds unnecessary drama.',
+    'Every watt comes with a monthly apology.',
+    'Your signal comes back with lunar attitude.',
+  ],
+  '⚡'
+)
+
+const LUNAR_REPEATER_UPGRADES = generateUpgrades(
+  'lunar-repeater',
+  'Lunar Repeater',
+  37500000,
+  [
+    'Moon Dust Shield',
+    'Delay Buffer',
+    'Echo Canceller',
+    'Crater Permit',
+    'Line-of-Sight Prayer',
+    'Orbital Hop',
+    'Reflective Paint',
+    'Skyward Relay',
+    'Stellar Patience',
+  ],
+  [
+    'Keeps the moon from filing a complaint.',
+    'Adds enough delay to feel scientific.',
+    'Removes the echo, mostly by worsening it.',
+    'Because even the moon has zoning rules now.',
+    'The cheapest kind of propagation plan.',
+    'A tiny hop for signals, a huge hop for ego.',
+    'Shiny enough for the whole solar system.',
+    'Repeats everything, eventually.',
+    'Needed for the 14-month round trip.',
+  ],
+  '⚡'
+)
+
+const SATELLITE_CONSTELLATION_UPGRADES = generateUpgrades(
+  'satellite-constellation',
+  'Satellite Constellation',
+  50000000,
+  [
+    'Launch Window',
+    'Ground Station',
+    'Solar Panel',
+    'Orbit Update',
+    'Beacon Stream',
+    'Tracking Array',
+    'Space Junk Waiver',
+    'Downlink Pileup',
+    'Zero-G Ego',
+  ],
+  [
+    'A narrow window for a very expensive toss.',
+    'Now you can operate from the planet correctly.',
+    'Keeps the fleet powered and the accountants mad.',
+    'Because low Earth orbit is a moving target.',
+    'Signals flashing everywhere like a cosmic billboard.',
+    'Tracks everything except common sense.',
+    'Essential paperwork for orbital optimism.',
+    'More satellites, more overlapping excuses.',
+    'Weightless pride, heavy invoices.',
+  ],
+  '⚡'
+)
+
+const IONOSPHERIC_MODIFICATION_UPGRADES = generateUpgrades(
+  'ionospheric-modification',
+  'Ionospheric Modification',
+  100000000,
+  [
+    'Sky Heater',
+    'Aurora Tuner',
+    'Particle Budget',
+    'HF Weather Report',
+    'Plasma Knob',
+    'Electric Fence',
+    'Upper Atmosphere Permit',
+    'Solar Storm Coupon',
+    'Science-ish Mode',
+  ],
+  [
+    'Makes the sky slightly less cooperative.',
+    'Tunes the aurora like a stubborn receiver.',
+    'Every experiment needs a bigger budget.',
+    'Forecast: interference with a chance of glory.',
+    'Adjusts the plasma until the paperwork glows.',
+    'Keeps the electrons from wandering off.',
+    'The atmosphere asked for IDs, somehow.',
+    'Discounted chaos from the Sun.',
+    'Close enough to science for ham radio.',
+  ],
+  '⚡'
+)
+
+const TIME_TRAVEL_DX_UPGRADES = generateUpgrades(
+  'time-travel-dx',
+  'Time Travel DX',
+  250000000,
+  [
+    'Yesterday Spot',
+    'Future Propagation',
+    'Paradox Budget',
+    'Chrono Logbook',
+    'Solar Cycle Replay',
+    'Temporal Filter',
+    'Causality Buffer',
+    'Retro Call Sign',
+    'Next Week Contest',
+  ],
+  [
+    'The pileup already happened, and it was ugly.',
+    'Because tomorrow always has better openings.',
+    'For when a broken timeline is still on budget.',
+    'Keeps records from before you made them.',
+    'The sun is now on a loop, like your excuses.',
+    'Cuts out signals from the wrong century.',
+    'Protects the timeline from your operating style.',
+    'Vintage call signs with future discipline.',
+    'You already know you will lose it.',
+  ],
+  '⚡'
+)
+
+const ALTERNATE_DIMENSION_DXCC_UPGRADES = generateUpgrades(
+  'alternate-dimension-dxcc',
+  'Alternate Dimension DXCC',
+  500000000,
+  [
+    'Portal Tuner',
+    'Quantum Logbook',
+    'Schrodinger QSO',
+    'Dimensional Slip',
+    'Cosmic Bureau',
+    'Phase Alignment',
+    'Multiverse Spot',
+    'Reality Check',
+    'Infinite Ego',
+  ],
+  [
+    'Dialed in for the universe next door.',
+    'Confirmed only when observed by the referee.',
+    'Worked, not worked, and somehow both.',
+    'The station now lives between realities.',
+    'Bureaucracy survives across dimensions.',
+    'Keeps your signals from falling through cracks in existence.',
+    'Spotted by hams you have never met and never will.',
+    'Asks whether any of this is really real.',
+    'Finally, a trophy large enough for every universe.',
+  ],
+  '⚡'
+)
+
 // Combine all upgrades
 export const UPGRADES = [
   ...ELMER_UPGRADES,
@@ -249,6 +858,27 @@ export const UPGRADES = [
   ...PADDLE_KEY_UPGRADES,
   ...CPO_UPGRADES,
   ...DIPOLE_UPGRADES,
+  ...BUG_CATCHER_UPGRADES,
+  ...VERTICAL_ANTENNA_UPGRADES,
+  ...LINEAR_AMPLIFIER_UPGRADES,
+  ...BEAM_ANTENNA_UPGRADES,
+  ...RAGCHEW_NET_UPGRADES,
+  ...TOWER_INSTALLATION_UPGRADES,
+  ...CONTEST_STATION_UPGRADES,
+  ...PAPER_LOGBOOK_UPGRADES,
+  ...DX_CLUSTER_UPGRADES,
+  ...HAMFEST_UPGRADES,
+  ...QSL_CARD_PRINTER_UPGRADES,
+  ...REMOTE_STATION_UPGRADES,
+  ...FT8_BOT_UPGRADES,
+  ...DIGITAL_INTERFACE_UPGRADES,
+  ...CLUSTER_SPOTTING_NETWORK_UPGRADES,
+  ...EME_MOONBOUNCE_UPGRADES,
+  ...LUNAR_REPEATER_UPGRADES,
+  ...SATELLITE_CONSTELLATION_UPGRADES,
+  ...IONOSPHERIC_MODIFICATION_UPGRADES,
+  ...TIME_TRAVEL_DX_UPGRADES,
+  ...ALTERNATE_DIMENSION_DXCC_UPGRADES,
 ]
 
 /**
