@@ -56,12 +56,26 @@ describe('Game Store - Save/Load', () => {
       const store = useGameStore()
       store.prestigeLevel = 7n
       store.prestigePoints = 11n
+      store.tapPrestigeAccumulator = 5n
 
       store.save()
 
       const saved = JSON.parse(localStorage.getItem(STORAGE_KEY))
       expect(saved.prestigeLevel).toBe('7')
       expect(saved.prestigePoints).toBe('11')
+      // tapPrestigeAccumulator should also be saved as a string for BigInt compatibility
+      expect(saved.tapPrestigeAccumulator).toBe('5')
+
+      // Mutate in-memory state, then verify that load() restores the persisted values
+      store.prestigeLevel = 0n
+      store.prestigePoints = 0n
+      store.tapPrestigeAccumulator = 0n
+
+      store.load()
+
+      expect(store.prestigeLevel).toBe(7n)
+      expect(store.prestigePoints).toBe(11n)
+      expect(store.tapPrestigeAccumulator).toBe(5n)
     })
 
     it('handles save failure gracefully', () => {
