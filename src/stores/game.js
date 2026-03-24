@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { FACTORIES } from '../constants/factories'
 import { UPGRADES } from '../constants/upgrades'
-import { PRESTIGE_QSOS_PER_LEVEL, prestigeThresholdForLevel } from '../constants/game'
+import { PRESTIGE_QSOS_PER_LEVEL, prestigeThresholdForLevel, GAME_CONSTANTS } from '../constants/game'
 
 /**
  * Current game version for save data migration
@@ -55,9 +55,14 @@ export const useGameStore = defineStore('game', () => {
     return low
   }
 
+  // Maximum number of digits accepted for BigInt fields to prevent DoS via large-number parsing.
+  const MAX_BIGINT_DIGITS = GAME_CONSTANTS.SAVE.MAX_BIGINT_DIGITS
+
   function parseNonNegativeBigInt(value) {
     try {
-      const parsed = BigInt(value ?? '0')
+      const str = String(value ?? '0')
+      if (str.length > MAX_BIGINT_DIGITS) return 0n
+      const parsed = BigInt(str)
       return parsed < 0n ? 0n : parsed
     } catch {
       return 0n
@@ -281,8 +286,10 @@ export const useGameStore = defineStore('game', () => {
   }
 
   /**
-   * Adds QSOs from keyer taps.
-   * @param {bigint} amount - The amount of QSOs to add.
+   * Adds QSOs from keyer taps, applying the prestige multiplier.
+   * @param {bigint} amount - The base tap value before the prestige multiplier is applied.
+   *   The actual QSOs credited are floor(amount * percentMultiplier / 100) over time,
+   *   with any remainder carried in tapPrestigeAccumulator.
    */
   function addQSOs(amount) {
     const clampedPrestigeLevel = prestigeLevel.value > MAX_PRESTIGE_LEVEL_FOR_MULTIPLIER
@@ -630,9 +637,11 @@ export const useGameStore = defineStore('game', () => {
           prestigeLevel.value = parseNonNegativeBigInt(state.prestigeLevel)
           prestigePoints.value = parseNonNegativeBigInt(state.prestigePoints)
 
-          // Guard against inconsistent prestige data from sanitized/corrupt saves
+          // Guard against inconsistent prestige data from sanitized/corrupt saves:
+          // normalizePrestigeState() only acts when both fields are 0n, so when
+          // prestigeLevel>0 but prestigePoints=0 we repair directly.
           if (prestigeLevel.value > 0n && prestigePoints.value === 0n) {
-            normalizePrestigeState()
+            prestigePoints.value = prestigeLevel.value
           }
         } else {
           // If either prestige field is missing, derive a consistent prestige state

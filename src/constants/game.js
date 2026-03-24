@@ -80,7 +80,8 @@ export const GAME_CONSTANTS = {
   SAVE: {
     STORAGE_KEY: 'cw-keyer-game',
     MAX_BASE64_LENGTH: 100000, // 100KB
-    MAX_DECODED_LENGTH: 50000 // 50KB
+    MAX_DECODED_LENGTH: 50000, // 50KB
+    MAX_BIGINT_DIGITS: 50 // Maximum digit length for BigInt fields to prevent DoS
   }
 }
 
