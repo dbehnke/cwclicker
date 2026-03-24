@@ -183,11 +183,14 @@ function isValidSaveData(data) {
 function sanitizeSaveData(data) {
   const sanitized = {}
 
-  // Preserve version for migration detection only when it is present and non-empty
+  // Preserve version for migration detection; if missing/blank, fall back to a safe default
   const rawVersion = typeof data.version === 'string' ? data.version.trim() : ''
-  if (rawVersion) {
-    sanitized.version = rawVersion
-  }
+  const defaultVersion =
+    rawVersion ||
+    (GAME_CONSTANTS.SAVE && GAME_CONSTANTS.SAVE.DEFAULT_VERSION) ||
+    GAME_CONSTANTS.VERSION ||
+    '1.0.0'
+  sanitized.version = defaultVersion
 
   // Sanitize qsos - ensure it's a valid numeric string, bounded to prevent DoS via huge BigInt parsing
   const MAX_BIGINT_DIGITS = GAME_CONSTANTS.SAVE.MAX_BIGINT_DIGITS
