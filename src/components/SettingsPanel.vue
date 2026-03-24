@@ -174,8 +174,11 @@ function isValidSaveData(data) {
 function sanitizeSaveData(data) {
   const sanitized = {}
 
-  // Preserve version for migration detection
-  sanitized.version = String(data.version || '')
+  // Preserve version for migration detection only when it is present and non-empty
+  const rawVersion = typeof data.version === 'string' ? data.version.trim() : ''
+  if (rawVersion) {
+    sanitized.version = rawVersion
+  }
 
   // Sanitize qsos - ensure it's a valid numeric string
   const qsosStr = String(data.qsos).replace(/[^\d]/g, '')
