@@ -188,22 +188,23 @@ function sanitizeSaveData(data) {
     sanitized.version = rawVersion
   }
 
-  // Sanitize qsos - ensure it's a valid numeric string
+  // Sanitize qsos - ensure it's a valid numeric string, bounded to prevent DoS via huge BigInt parsing
+  const MAX_BIGINT_DIGITS = 50
   const qsosStr = String(data.qsos).replace(/[^\d]/g, '')
-  sanitized.qsos = qsosStr || '0'
+  sanitized.qsos = (qsosStr && qsosStr.length <= MAX_BIGINT_DIGITS) ? qsosStr : '0'
 
   // Preserve prestige fields only when they are present and valid.
   // If omitted, game.load() can apply legacy migration/seeding logic.
-  if (typeof data.totalQsosEarned === 'string' && /^\d+$/.test(data.totalQsosEarned)) {
+  if (typeof data.totalQsosEarned === 'string' && /^\d+$/.test(data.totalQsosEarned) && data.totalQsosEarned.length <= MAX_BIGINT_DIGITS) {
     sanitized.totalQsosEarned = data.totalQsosEarned
   }
-  if (typeof data.prestigeLevel === 'string' && /^\d+$/.test(data.prestigeLevel)) {
+  if (typeof data.prestigeLevel === 'string' && /^\d+$/.test(data.prestigeLevel) && data.prestigeLevel.length <= MAX_BIGINT_DIGITS) {
     sanitized.prestigeLevel = data.prestigeLevel
   }
-  if (typeof data.prestigePoints === 'string' && /^\d+$/.test(data.prestigePoints)) {
+  if (typeof data.prestigePoints === 'string' && /^\d+$/.test(data.prestigePoints) && data.prestigePoints.length <= MAX_BIGINT_DIGITS) {
     sanitized.prestigePoints = data.prestigePoints
   }
-  if (typeof data.tapPrestigeAccumulator === 'string' && /^\d+$/.test(data.tapPrestigeAccumulator)) {
+  if (typeof data.tapPrestigeAccumulator === 'string' && /^\d+$/.test(data.tapPrestigeAccumulator) && data.tapPrestigeAccumulator.length <= MAX_BIGINT_DIGITS) {
     sanitized.tapPrestigeAccumulator = data.tapPrestigeAccumulator
   }
 
