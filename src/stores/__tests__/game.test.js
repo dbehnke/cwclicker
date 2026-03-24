@@ -68,6 +68,21 @@ describe('Game Store', () => {
     expect(store.totalQsosEarned).toBe(27_000_000_003n)
   })
 
+  it('accumulates tap prestige bonus across repeated small taps', () => {
+    const store = useGameStore()
+
+    store.totalQsosEarned = 27_000_000_000n
+    store.prestigeLevel = 3n
+
+    for (let i = 0; i < 20; i++) {
+      store.tapKeyer('dit')
+    }
+
+    expect(store.qsos).toBeGreaterThan(20n)
+    expect(store.totalQsosEarned).toBeGreaterThan(27_000_000_020n)
+    expect(store.qsos).toBe(store.totalQsosEarned - 27_000_000_000n)
+  })
+
   it('prestige reset awards only newly earned points and clears run state', () => {
     const store = useGameStore()
 

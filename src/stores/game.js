@@ -72,6 +72,7 @@ export const useGameStore = defineStore('game', () => {
   const licenseLevel = ref(1)
   const factoryCounts = ref({})
   const fractionalQSOs = ref(0) // Accumulate fractional QSOs between frames
+  const tapPrestigeAccumulator = ref(0n) // Accumulates tap prestige bonus in basis points
   const purchasedUpgrades = ref(new Set()) // Set of upgrade IDs that have been purchased
 
   // Migration tracking
@@ -284,7 +285,9 @@ export const useGameStore = defineStore('game', () => {
       ? MAX_PRESTIGE_LEVEL_FOR_MULTIPLIER
       : prestigeLevel.value
     const basisPoints = 100n + 5n * clampedPrestigeLevel
-    const bonus = (amount * basisPoints) / 100n
+    tapPrestigeAccumulator.value += amount * basisPoints
+    const bonus = tapPrestigeAccumulator.value / 100n
+    tapPrestigeAccumulator.value %= 100n
     qsos.value += bonus
     totalQsosEarned.value += bonus
   }
@@ -320,6 +323,7 @@ export const useGameStore = defineStore('game', () => {
     qsos.value = 0n
     factoryCounts.value = {}
     fractionalQSOs.value = 0
+    tapPrestigeAccumulator.value = 0n
     purchasedUpgrades.value = new Set()
     licenseLevel.value = 1
     offlineEarnings.value = null
@@ -553,6 +557,7 @@ export const useGameStore = defineStore('game', () => {
         licenseLevel: licenseLevel.value,
         factoryCounts: factoryCounts.value,
         fractionalQSOs: fractionalQSOs.value,
+        tapPrestigeAccumulator: tapPrestigeAccumulator.value.toString(),
         audioSettings: audioSettings.value,
         lotteryState: lotteryState.value,
         purchasedUpgrades: Array.from(purchasedUpgrades.value),
@@ -607,6 +612,7 @@ export const useGameStore = defineStore('game', () => {
         licenseLevel.value = state.licenseLevel || 1
         factoryCounts.value = state.factoryCounts || {}
         fractionalQSOs.value = state.fractionalQSOs || 0
+        tapPrestigeAccumulator.value = parseNonNegativeBigInt(state.tapPrestigeAccumulator)
 
         if (state.audioSettings) {
           audioSettings.value = {
@@ -748,6 +754,7 @@ export const useGameStore = defineStore('game', () => {
     licenseLevel,
     factoryCounts,
     fractionalQSOs,
+    tapPrestigeAccumulator,
     audioSettings,
     lotteryState,
     purchasedUpgrades,
