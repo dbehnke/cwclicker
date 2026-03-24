@@ -282,7 +282,7 @@ export const useGameStore = defineStore('game', () => {
   function addQSOs(amount) {
     const basisPoints = BigInt(Math.round(prestigeMultiplier.value * 100))
     const bonus = (amount * basisPoints) / 100n
-    qsos.value += amount
+    qsos.value += bonus
     totalQsosEarned.value += bonus
   }
 

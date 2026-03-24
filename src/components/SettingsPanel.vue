@@ -181,18 +181,21 @@ function sanitizeSaveData(data) {
   const qsosStr = String(data.qsos).replace(/[^\d]/g, '')
   sanitized.qsos = qsosStr || '0'
 
-  // Preserve prestige fields if present
-  if (typeof data.totalQsosEarned === 'string') {
-    const totalStr = data.totalQsosEarned.replace(/[^\d]/g, '')
-    sanitized.totalQsosEarned = totalStr || '0'
+  // Preserve prestige fields if present — only accept valid digit-only strings
+  if (typeof data.totalQsosEarned === 'string' && /^\d+$/.test(data.totalQsosEarned)) {
+    sanitized.totalQsosEarned = data.totalQsosEarned
+  } else {
+    sanitized.totalQsosEarned = '0'
   }
-  if (typeof data.prestigeLevel === 'string') {
-    const levelStr = data.prestigeLevel.replace(/[^\d]/g, '')
-    sanitized.prestigeLevel = levelStr || '0'
+  if (typeof data.prestigeLevel === 'string' && /^\d+$/.test(data.prestigeLevel)) {
+    sanitized.prestigeLevel = data.prestigeLevel
+  } else {
+    sanitized.prestigeLevel = '0'
   }
-  if (typeof data.prestigePoints === 'string') {
-    const pointsStr = data.prestigePoints.replace(/[^\d]/g, '')
-    sanitized.prestigePoints = pointsStr || '0'
+  if (typeof data.prestigePoints === 'string' && /^\d+$/.test(data.prestigePoints)) {
+    sanitized.prestigePoints = data.prestigePoints
+  } else {
+    sanitized.prestigePoints = '0'
   }
 
   // Sanitize licenseLevel
