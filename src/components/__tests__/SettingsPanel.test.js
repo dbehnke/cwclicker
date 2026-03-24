@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils'
-import { describe, expect, it, vi, beforeEach } from 'vitest'
+import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 import SettingsPanel from '../SettingsPanel.vue'
 import { useGameStore } from '../../stores/game'
@@ -18,9 +18,25 @@ vi.mock('../../services/audio', () => ({
 }))
 
 describe('SettingsPanel.vue', () => {
+  let reloadMock
+  let originalLocation
+
   beforeEach(() => {
     setActivePinia(createPinia())
     vi.clearAllMocks()
+    originalLocation = window.location
+    reloadMock = vi.fn()
+    Object.defineProperty(window, 'location', {
+      configurable: true,
+      value: { ...window.location, reload: reloadMock },
+    })
+  })
+
+  afterEach(() => {
+    Object.defineProperty(window, 'location', {
+      configurable: true,
+      value: originalLocation,
+    })
   })
 
   function mockStore(overrides = {}) {

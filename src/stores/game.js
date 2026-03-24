@@ -74,7 +74,7 @@ export const useGameStore = defineStore('game', () => {
   const licenseLevel = ref(1)
   const factoryCounts = ref({})
   const fractionalQSOs = ref(0) // Accumulate fractional QSOs between frames
-  const tapPrestigeAccumulator = ref(0n) // Accumulates tap prestige bonus in basis points
+  const tapPrestigeAccumulator = ref(0n) // Accumulates tap prestige bonus in percentage units (scale of 100; 1 = 1%)
   const purchasedUpgrades = ref(new Set()) // Set of upgrade IDs that have been purchased
   let cachedEligiblePrestigeLevel = 0n
   let cachedEligiblePrestigeThreshold = PRESTIGE_QSOS_PER_LEVEL
@@ -288,8 +288,8 @@ export const useGameStore = defineStore('game', () => {
     const clampedPrestigeLevel = prestigeLevel.value > MAX_PRESTIGE_LEVEL_FOR_MULTIPLIER
       ? MAX_PRESTIGE_LEVEL_FOR_MULTIPLIER
       : prestigeLevel.value
-    const basisPoints = 100n + 5n * clampedPrestigeLevel
-    tapPrestigeAccumulator.value += amount * basisPoints
+    const percentMultiplier = 100n + 5n * clampedPrestigeLevel
+    tapPrestigeAccumulator.value += amount * percentMultiplier
     const bonus = tapPrestigeAccumulator.value / 100n
     tapPrestigeAccumulator.value %= 100n
     qsos.value += bonus
