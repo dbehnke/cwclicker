@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { useGameStore } from '../stores/game'
 import { audioService } from '../services/audio'
+import { GAME_CONSTANTS } from '../constants/game'
 
 const store = useGameStore()
 const showResetConfirm = ref(false)
@@ -189,7 +190,7 @@ function sanitizeSaveData(data) {
   }
 
   // Sanitize qsos - ensure it's a valid numeric string, bounded to prevent DoS via huge BigInt parsing
-  const MAX_BIGINT_DIGITS = 50
+  const MAX_BIGINT_DIGITS = GAME_CONSTANTS.SAVE.MAX_BIGINT_DIGITS
   const qsosStr = String(data.qsos).replace(/[^\d]/g, '')
   sanitized.qsos = (qsosStr && qsosStr.length <= MAX_BIGINT_DIGITS) ? qsosStr : '0'
 

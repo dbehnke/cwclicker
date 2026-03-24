@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { FACTORIES } from '../constants/factories'
 import { UPGRADES } from '../constants/upgrades'
-import { PRESTIGE_QSOS_PER_LEVEL, prestigeThresholdForLevel } from '../constants/game'
+import { PRESTIGE_QSOS_PER_LEVEL, prestigeThresholdForLevel, GAME_CONSTANTS } from '../constants/game'
 
 /**
  * Current game version for save data migration
@@ -56,7 +56,7 @@ export const useGameStore = defineStore('game', () => {
   }
 
   // Maximum number of digits accepted for BigInt fields to prevent DoS via large-number parsing.
-  const MAX_BIGINT_DIGITS = 50
+  const MAX_BIGINT_DIGITS = GAME_CONSTANTS.SAVE.MAX_BIGINT_DIGITS
 
   function parseNonNegativeBigInt(value) {
     try {
