@@ -504,8 +504,8 @@ function formatPercent(value) {
       <div class="space-y-4">
         <p class="text-gray-400 text-sm">
           Resetting will permanently delete your QSOs, factories, upgrades,
-          and achievements. Prestige progress (level and points) is preserved.
-          This cannot be undone.
+          and achievements, and will reset your license level to 1 and other current run state.
+          Prestige progress (level and points) is preserved. This cannot be undone.
         </p>
 
         <div v-if="!showResetConfirm && !showPrestigeResetConfirm">
