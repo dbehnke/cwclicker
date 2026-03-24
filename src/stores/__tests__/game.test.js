@@ -53,7 +53,7 @@ describe('Game Store', () => {
     expect(store.prestigeMultiplier).toBeCloseTo(1.15)
   })
 
-  it('applies prestige multiplier to keyer taps', () => {
+  it('applies prestige multiplier to keyer taps with remainder accumulation', () => {
     const store = useGameStore()
 
     store.totalQsosEarned = 27_000_000_000n
