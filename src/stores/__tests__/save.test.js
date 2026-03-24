@@ -207,6 +207,23 @@ describe('Game Store - Save/Load', () => {
       expect(store.prestigePoints).toBe(0n)
     })
 
+    it('clamps negative qsos values on load', () => {
+      const saveData = {
+        version: '1.1.0',
+        qsos: '-42',
+        totalQsosEarned: '-99',
+        factoryCounts: {},
+        licenseLevel: 1,
+      }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(saveData))
+
+      const store = useGameStore()
+      store.load()
+
+      expect(store.qsos).toBe(0n)
+      expect(store.totalQsosEarned).toBe(0n)
+    })
+
     it('preserves current state when no save exists', () => {
       const store = useGameStore()
       store.qsos = 500n

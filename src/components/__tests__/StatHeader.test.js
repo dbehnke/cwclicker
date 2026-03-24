@@ -17,7 +17,7 @@ describe('StatHeader.vue', () => {
   it('shows prestige level, bonus, points, and progress', () => {
     useGameStore.mockReturnValue({
       qsos: 123456789012n,
-      prestigeLevel: 12n,
+      prestigeLevel: 11n,
       prestigePoints: 12n,
       eligiblePrestigeLevel: 12n,
       prestigeMultiplier: 1.6,
@@ -25,9 +25,15 @@ describe('StatHeader.vue', () => {
 
     const wrapper = mount(StatHeader)
 
-    expect(wrapper.text()).toContain('Prestige Level 12')
+    expect(wrapper.text()).toContain('Prestige Level 11')
+    expect(wrapper.text()).toContain('Eligible for 12')
     expect(wrapper.text()).toContain('+60% bonus')
     expect(wrapper.text()).toContain('Prestige Points: 12')
     expect(wrapper.text()).toContain('Next level: 2.20T QSOs')
+
+    const progress = wrapper.find('[role="progressbar"]')
+    expect(progress.exists()).toBe(true)
+    expect(progress.attributes('aria-valuemin')).toBe('0')
+    expect(progress.attributes('aria-valuemax')).toBe('100')
   })
 })

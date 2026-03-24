@@ -70,6 +70,11 @@ function resetGame() {
   window.location.reload()
 }
 
+function clearConfirmationState() {
+  showResetConfirm.value = false
+  showPrestigeResetConfirm.value = false
+}
+
 /**
  * Reset prestige with confirmation
  */
@@ -77,7 +82,7 @@ function resetPrestige() {
   store.prestigeReset()
 
   // Hide confirmation
-  showPrestigeResetConfirm.value = false
+  clearConfirmationState()
 
   // Reload page to ensure clean state
   window.location.reload()
@@ -516,7 +521,7 @@ function formatPercent(value) {
             </button>
 
             <button
-              @click="showResetConfirm = false"
+              @click="clearConfirmationState"
               class="px-6 py-3 bg-gray-600 text-white font-bold rounded hover:bg-gray-700 transition-colors"
             >
               Cancel
@@ -536,7 +541,7 @@ function formatPercent(value) {
             </button>
 
             <button
-              @click="showPrestigeResetConfirm = false"
+              @click="clearConfirmationState"
               class="px-6 py-3 bg-gray-600 text-white font-bold rounded hover:bg-gray-700 transition-colors"
             >
               Cancel

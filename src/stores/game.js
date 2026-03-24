@@ -601,8 +601,8 @@ export const useGameStore = defineStore('game', () => {
           return
         }
 
-        qsos.value = BigInt(state.qsos || '0')
-        totalQsosEarned.value = BigInt(state.totalQsosEarned || state.qsos || '0')
+        qsos.value = parseNonNegativeBigInt(state.qsos || '0')
+        totalQsosEarned.value = parseNonNegativeBigInt(state.totalQsosEarned || state.qsos || '0')
         const hasPrestigeFields = 'prestigeLevel' in state || 'prestigePoints' in state
         prestigeLevel.value = parseNonNegativeBigInt(state.prestigeLevel)
         prestigePoints.value = parseNonNegativeBigInt(state.prestigePoints)
