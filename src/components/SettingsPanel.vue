@@ -203,6 +203,9 @@ function sanitizeSaveData(data) {
   if (typeof data.prestigePoints === 'string' && /^\d+$/.test(data.prestigePoints)) {
     sanitized.prestigePoints = data.prestigePoints
   }
+  if (typeof data.tapPrestigeAccumulator === 'string' && /^\d+$/.test(data.tapPrestigeAccumulator)) {
+    sanitized.tapPrestigeAccumulator = data.tapPrestigeAccumulator
+  }
 
   // Sanitize licenseLevel
   sanitized.licenseLevel = Math.max(1, Math.min(3, Number(data.licenseLevel) || 1))
