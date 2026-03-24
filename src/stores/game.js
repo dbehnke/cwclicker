@@ -622,10 +622,20 @@ export const useGameStore = defineStore('game', () => {
 
         qsos.value = parseNonNegativeBigInt(state.qsos || '0')
         setTotalQsosEarned(parseNonNegativeBigInt(state.totalQsosEarned || state.qsos || '0'))
-        const hasPrestigeFields = 'prestigeLevel' in state || 'prestigePoints' in state
-        prestigeLevel.value = parseNonNegativeBigInt(state.prestigeLevel)
-        prestigePoints.value = parseNonNegativeBigInt(state.prestigePoints)
-        if (!hasPrestigeFields) {
+        const hasPrestigeLevelField = 'prestigeLevel' in state
+        const hasPrestigePointsField = 'prestigePoints' in state
+        const hasBothPrestigeFields = hasPrestigeLevelField && hasPrestigePointsField
+
+        if (hasBothPrestigeFields) {
+          prestigeLevel.value = parseNonNegativeBigInt(state.prestigeLevel)
+          prestigePoints.value = parseNonNegativeBigInt(state.prestigePoints)
+
+          // Guard against inconsistent prestige data from sanitized/corrupt saves
+          if (prestigeLevel.value > 0n && prestigePoints.value === 0n) {
+            normalizePrestigeState()
+          }
+        } else {
+          // If either prestige field is missing, derive a consistent prestige state
           normalizePrestigeState()
         }
         licenseLevel.value = state.licenseLevel || 1
