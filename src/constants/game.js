@@ -84,6 +84,8 @@ export const GAME_CONSTANTS = {
   }
 }
 
+export const PRESTIGE_QSOS_PER_LEVEL = 1_000_000_000n
+
 /**
  * Factory tiers mapped to cost scaling multipliers
  */
@@ -110,4 +112,15 @@ export function getUpgradeThreshold(index) {
  */
 export function calculateUpgradeCost(factoryBaseCost, tier) {
   return BigInt(factoryBaseCost) * BigInt(GAME_CONSTANTS.UPGRADES.COST_MULTIPLIER_BASE) ** BigInt(tier + 1)
+}
+
+/**
+ * Calculate the total QSOs required for a given prestige level.
+ */
+export function prestigeThresholdForLevel(level) {
+  if (level <= 0n) {
+    return 0n
+  }
+
+  return PRESTIGE_QSOS_PER_LEVEL * level * level * level
 }

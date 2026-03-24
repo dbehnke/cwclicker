@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from 'vue'
 import { useGameStore } from '../stores/game'
+import { prestigeThresholdForLevel } from '../constants/game'
 import { formatNumber } from '../utils/format'
 
 /**
@@ -14,10 +15,7 @@ const currentPrestigeThreshold = computed(() => {
   const effectiveLevel = store.prestigeLevel > store.eligiblePrestigeLevel
     ? store.prestigeLevel
     : store.eligiblePrestigeLevel
-  if (effectiveLevel <= 0n) {
-    return 0n
-  }
-  return 1_000_000_000n * effectiveLevel * effectiveLevel * effectiveLevel
+  return prestigeThresholdForLevel(effectiveLevel)
 })
 
 const nextPrestigeThreshold = computed(() => {
@@ -25,7 +23,7 @@ const nextPrestigeThreshold = computed(() => {
     ? store.prestigeLevel
     : store.eligiblePrestigeLevel
   const nextLevel = effectiveLevel + 1n
-  return 1_000_000_000n * nextLevel * nextLevel * nextLevel
+  return prestigeThresholdForLevel(nextLevel)
 })
 
 const prestigeProgress = computed(() => {

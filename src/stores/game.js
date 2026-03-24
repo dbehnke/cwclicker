@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { FACTORIES } from '../constants/factories'
 import { UPGRADES } from '../constants/upgrades'
+import { PRESTIGE_QSOS_PER_LEVEL, prestigeThresholdForLevel } from '../constants/game'
 
 /**
  * Current game version for save data migration
@@ -10,7 +11,6 @@ import { UPGRADES } from '../constants/upgrades'
 const GAME_VERSION = '1.1.4'
 const MAX_BULK_PURCHASE_COUNT = 10
 const OVERFLOW_FACTORY_COST = 10n ** 100n
-const PRESTIGE_QSOS_PER_LEVEL = 1_000_000_000n
 const MAX_PRESTIGE_LEVEL_FOR_MULTIPLIER = BigInt(Number.MAX_SAFE_INTEGER)
 
 /**
@@ -128,14 +128,6 @@ export const useGameStore = defineStore('game', () => {
 
   // Offline progress tracking
   const offlineEarnings = ref(null)
-
-  function prestigeThresholdForLevel(level) {
-    if (level <= 0n) {
-      return 0n
-    }
-
-    return PRESTIGE_QSOS_PER_LEVEL * level * level * level
-  }
 
   /**
    * Processes a keyer tap to add QSOs.
@@ -314,15 +306,12 @@ export const useGameStore = defineStore('game', () => {
     }
 
     if (earned < cachedEligiblePrestigeThreshold) {
-      cachedEligiblePrestigeLevel = cubeRootFloor(earned / PRESTIGE_QSOS_PER_LEVEL)
-      cachedEligiblePrestigeThreshold = prestigeThresholdForLevel(cachedEligiblePrestigeLevel + 1n)
       return cachedEligiblePrestigeLevel
     }
 
-    while (earned >= cachedEligiblePrestigeThreshold) {
-      cachedEligiblePrestigeLevel += 1n
-      cachedEligiblePrestigeThreshold = prestigeThresholdForLevel(cachedEligiblePrestigeLevel + 1n)
-    }
+    // Threshold crossed: compute the exact new level directly instead of incrementing level-by-level.
+    cachedEligiblePrestigeLevel = cubeRootFloor(earned / PRESTIGE_QSOS_PER_LEVEL)
+    cachedEligiblePrestigeThreshold = prestigeThresholdForLevel(cachedEligiblePrestigeLevel + 1n)
 
     return cachedEligiblePrestigeLevel
   })
