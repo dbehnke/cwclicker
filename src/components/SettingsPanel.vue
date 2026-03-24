@@ -49,6 +49,8 @@ function resetGame() {
   store.factoryCounts = {}
   store.fractionalQSOs = 0
   store.tapPrestigeAccumulator = 0n
+  store.offlineEarnings = null
+  store.migrationInfo = null
   store.purchasedUpgrades = new Set()
   store.lotteryState = {
     lastTriggerTime: 0,

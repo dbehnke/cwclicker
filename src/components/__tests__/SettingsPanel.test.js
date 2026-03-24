@@ -90,13 +90,16 @@ describe('SettingsPanel.vue', () => {
 
     const wrapper = mount(SettingsPanel)
 
-    const resetBtn = wrapper.findAll('button').filter(b => b.text().includes('⚠️ Reset Game'))[0]
-    const prestigeBtn = wrapper.findAll('button').filter(b => b.text().includes('Prestige Reset'))[0]
+    const resetBtn = wrapper.findAll('button').find(b => b.text().includes('⚠️ Reset Game'))
 
     await resetBtn.trigger('click')
     expect(wrapper.text()).toContain('Are you sure? This cannot be undone!')
     expect(wrapper.text()).not.toContain('Prestige reset will reset your run')
 
+    const cancelBtn = wrapper.findAll('button').find(b => b.text().includes('Cancel'))
+    await cancelBtn.trigger('click')
+
+    const prestigeBtn = wrapper.findAll('button').find(b => b.text().includes('Prestige Reset'))
     await prestigeBtn.trigger('click')
     expect(wrapper.text()).not.toContain('Are you sure? This cannot be undone!')
     expect(wrapper.text()).toContain('Prestige reset will reset your run')
