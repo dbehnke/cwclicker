@@ -194,19 +194,26 @@ function sanitizeSaveData(data) {
   const qsosStr = String(data.qsos).replace(/[^\d]/g, '')
   sanitized.qsos = (qsosStr && qsosStr.length <= MAX_BIGINT_DIGITS) ? qsosStr : '0'
 
-  // Preserve prestige fields only when they are present and valid.
-  // If omitted, game.load() can apply legacy migration/seeding logic.
-  if (typeof data.totalQsosEarned === 'string' && /^\d+$/.test(data.totalQsosEarned) && data.totalQsosEarned.length <= MAX_BIGINT_DIGITS) {
-    sanitized.totalQsosEarned = data.totalQsosEarned
-  }
-  if (typeof data.prestigeLevel === 'string' && /^\d+$/.test(data.prestigeLevel) && data.prestigeLevel.length <= MAX_BIGINT_DIGITS) {
-    sanitized.prestigeLevel = data.prestigeLevel
-  }
-  if (typeof data.prestigePoints === 'string' && /^\d+$/.test(data.prestigePoints) && data.prestigePoints.length <= MAX_BIGINT_DIGITS) {
-    sanitized.prestigePoints = data.prestigePoints
-  }
-  if (typeof data.tapPrestigeAccumulator === 'string' && /^\d+$/.test(data.tapPrestigeAccumulator) && data.tapPrestigeAccumulator.length <= MAX_BIGINT_DIGITS) {
-    sanitized.tapPrestigeAccumulator = data.tapPrestigeAccumulator
+  // Sanitize prestige fields.
+  // If a prestige field is present but invalid, normalize it to "0" instead of omitting it.
+  // Truly absent fields are left unset so game.load() can still apply legacy migration/seeding logic.
+  const prestigeFields = [
+    'totalQsosEarned',
+    'prestigeLevel',
+    'prestigePoints',
+    'tapPrestigeAccumulator',
+  ]
+
+  for (const field of prestigeFields) {
+    if (Object.prototype.hasOwnProperty.call(data, field)) {
+      const rawValue = data[field]
+      if (typeof rawValue === 'string' && /^\d+$/.test(rawValue) && rawValue.length <= MAX_BIGINT_DIGITS) {
+        sanitized[field] = rawValue
+      } else {
+        // Corrupt or out-of-bounds prestige values are clamped to "0"
+        sanitized[field] = '0'
+      }
+    }
   }
 
   // Sanitize licenseLevel
