@@ -181,21 +181,16 @@ function sanitizeSaveData(data) {
   const qsosStr = String(data.qsos).replace(/[^\d]/g, '')
   sanitized.qsos = qsosStr || '0'
 
-  // Preserve prestige fields if present — only accept valid digit-only strings
+  // Preserve prestige fields only when they are present and valid.
+  // If omitted, game.load() can apply legacy migration/seeding logic.
   if (typeof data.totalQsosEarned === 'string' && /^\d+$/.test(data.totalQsosEarned)) {
     sanitized.totalQsosEarned = data.totalQsosEarned
-  } else {
-    sanitized.totalQsosEarned = '0'
   }
   if (typeof data.prestigeLevel === 'string' && /^\d+$/.test(data.prestigeLevel)) {
     sanitized.prestigeLevel = data.prestigeLevel
-  } else {
-    sanitized.prestigeLevel = '0'
   }
   if (typeof data.prestigePoints === 'string' && /^\d+$/.test(data.prestigePoints)) {
     sanitized.prestigePoints = data.prestigePoints
-  } else {
-    sanitized.prestigePoints = '0'
   }
 
   // Sanitize licenseLevel
