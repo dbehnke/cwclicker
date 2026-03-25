@@ -67,7 +67,9 @@ export const useGameStore = defineStore('game', () => {
   function parseNonNegativeBigInt(value) {
     try {
       const str = String(value ?? '0')
-      if (str.length > MAX_BIGINT_DIGITS) {return 0n}
+      if (str.length > MAX_BIGINT_DIGITS) {
+        return 0n
+      }
       const parsed = BigInt(str)
       return parsed < 0n ? 0n : parsed
     } catch {
@@ -496,15 +498,23 @@ export const useGameStore = defineStore('game', () => {
   function getAvailableUpgrades(factoryId) {
     const ownedCount = factoryCounts.value[factoryId] || 0
     const factory = FACTORIES.find(f => f.id === factoryId)
-    if (!factory) {return []}
+    if (!factory) {
+      return []
+    }
 
     return UPGRADES.filter(upgrade => {
       // Must be for this factory
-      if (upgrade.factoryId !== factoryId) {return false}
+      if (upgrade.factoryId !== factoryId) {
+        return false
+      }
       // Must meet threshold
-      if (upgrade.threshold > ownedCount) {return false}
+      if (upgrade.threshold > ownedCount) {
+        return false
+      }
       // Must not already be purchased
-      if (purchasedUpgrades.value.has(upgrade.id)) {return false}
+      if (purchasedUpgrades.value.has(upgrade.id)) {
+        return false
+      }
       return true
     })
   }
@@ -827,10 +837,14 @@ export const useGameStore = defineStore('game', () => {
    */
   function getQRQOutput() {
     const factory = FACTORIES.find(f => f.id === 'qrq-protocol')
-    if (!factory) {return 0.1}
+    if (!factory) {
+      return 0.1
+    }
 
     const count = factoryCounts.value['qrq-protocol'] || 0
-    if (count === 0) {return 0.1}
+    if (count === 0) {
+      return 0.1
+    }
 
     const baseOutput = factory.qsosPerSecond * count
     const upgradeMult = getUpgradeMultiplier('qrq-protocol')
@@ -865,8 +879,18 @@ export const useGameStore = defineStore('game', () => {
    */
   function handleMorseKeyTap(type) {
     const state = morseChallengeState.value
-    if (state.state === 'success') {return}
-    if (!state.isActive || state.state !== 'active') {return}
+    if (state.state === 'success') {
+      return
+    }
+    if (!state.isActive || state.state !== 'active') {
+      return
+    }
+
+    // Handle timeout
+    if (type === 'timeout') {
+      advanceMorseLetter()
+      return
+    }
 
     const now = Date.now()
     const timeSinceLastKey = state.lastKeyTime ? now - state.lastKeyTime : Infinity
@@ -906,7 +930,9 @@ export const useGameStore = defineStore('game', () => {
    */
   function evaluateMorsePattern() {
     const state = morseChallengeState.value
-    if (!state.isActive) {return}
+    if (!state.isActive) {
+      return
+    }
 
     const pattern = state.currentPattern.split('')
     const keyed = state.keyedSequence.map(s => (s === 'dit' ? '·' : '−'))
