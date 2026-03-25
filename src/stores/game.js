@@ -7,6 +7,7 @@ import {
   prestigeThresholdForLevel,
   GAME_CONSTANTS,
 } from '../constants/game'
+import { MORSE_CHARS, MORSE_CHAR_LIST, MORSE_TIMING } from '../constants/morse'
 
 /**
  * Current game version for save data migration
@@ -133,6 +134,17 @@ export const useGameStore = defineStore('game', () => {
     phenomenonTitle: '',
     isSolarStorm: false,
     solarStormEndTime: 0,
+  })
+
+  // Morse Keying Challenge state
+  const morseChallengeState = ref({
+    isActive: false, // Whether challenge is currently showing
+    currentChar: null, // Current character to key (e.g., 'A')
+    currentPattern: '', // Morse pattern (e.g., '·−')
+    keyedSequence: [], // Array of 'dit' or 'dah' keyed so far
+    lastKeyTime: 0, // Timestamp of last key tap
+    challengeStartTime: 0, // When current challenge started
+    state: 'idle', // 'idle' | 'active' | 'success' | 'timeout'
   })
 
   // Offline progress tracking
@@ -807,6 +819,126 @@ export const useGameStore = defineStore('game', () => {
     offlineEarnings.value = null
   }
 
+  /**
+   * Gets the QRQ Protocol factory's current output per second
+   * Includes all multipliers: upgrades, prestige, lottery
+   * @returns {number} QSOs per second
+   */
+  function getQRQOutput() {
+    const factory = FACTORIES.find(f => f.id === 'qrq-protocol')
+    if (!factory) return 0.1
+
+    const count = factoryCounts.value['qrq-protocol'] || 0
+    if (count === 0) return 0.1
+
+    const baseOutput = factory.qsosPerSecond * count
+    const upgradeMult = getUpgradeMultiplier('qrq-protocol')
+    const prestigeMult = prestigeMultiplier.value
+    const lotteryMult = getLotteryMultiplier('qrq-protocol')
+
+    return baseOutput * upgradeMult * prestigeMult * lotteryMult
+  }
+
+  /**
+   * Starts a new morse challenge with a random character
+   */
+  function startMorseChallenge() {
+    const char = MORSE_CHAR_LIST[Math.floor(Math.random() * MORSE_CHAR_LIST.length)]
+    const pattern = MORSE_CHARS[char] || ''
+
+    morseChallengeState.value = {
+      isActive: true,
+      currentChar: char,
+      currentPattern: pattern,
+      keyedSequence: [],
+      lastKeyTime: 0,
+      challengeStartTime: Date.now(),
+      state: 'active',
+    }
+  }
+
+  /**
+   * Handles a key tap during morse challenge
+   * Evaluates dit/dah based on timing
+   * @param {'dit'|'dah'} type - The type of tap
+   */
+  function handleMorseKeyTap(type) {
+    const state = morseChallengeState.value
+    if (!state.isActive || state.state !== 'active') return
+
+    const now = Date.now()
+    const timeSinceLastKey = state.lastKeyTime ? now - state.lastKeyTime : Infinity
+
+    // Check for inter-character gap (if we have a sequence and enough time has passed)
+    if (state.keyedSequence.length > 0 && timeSinceLastKey >= MORSE_TIMING.INTER_GAP_MIN_MS) {
+      // Evaluate what we have so far
+      evaluateMorsePattern()
+      return
+    }
+
+    // Add to sequence
+    state.keyedSequence.push(type)
+    state.lastKeyTime = now
+
+    // Check if sequence matches pattern (partial or full)
+    const pattern = state.currentPattern.split('')
+    const keyed = state.keyedSequence.map(s => (s === 'dit' ? '·' : '−'))
+
+    // Check for exact match
+    if (keyed.length === pattern.length && keyed.every((v, i) => v === pattern[i])) {
+      // Success!
+      grantMorseBonus()
+      return
+    }
+
+    // Check if already wrong (keyed doesn't match prefix of pattern)
+    if (!pattern.slice(0, keyed.length).every((v, i) => v === keyed[i])) {
+      // Wrong - just reset the sequence but don't penalize
+      state.keyedSequence = [type]
+      state.lastKeyTime = now
+    }
+  }
+
+  /**
+   * Evaluates the current keyed sequence against the target pattern
+   */
+  function evaluateMorsePattern() {
+    const state = morseChallengeState.value
+    if (!state.isActive) return
+
+    const pattern = state.currentPattern.split('')
+    const keyed = state.keyedSequence.map(s => (s === 'dit' ? '·' : '−'))
+
+    if (keyed.length === pattern.length && keyed.every((v, i) => v === pattern[i])) {
+      grantMorseBonus()
+    } else {
+      // Timeout or incomplete - just advance
+      advanceMorseLetter()
+    }
+  }
+
+  /**
+   * Grants the QRQ bonus for correct keying
+   */
+  function grantMorseBonus() {
+    const bonus = getQRQOutput()
+    if (bonus > 0) {
+      addQSOs(BigInt(Math.floor(bonus)))
+    }
+    morseChallengeState.value.state = 'success'
+    // Auto advance after brief delay
+    setTimeout(() => {
+      advanceMorseLetter()
+    }, 300)
+  }
+
+  /**
+   * Advances to the next letter after success or timeout
+   */
+  function advanceMorseLetter() {
+    startMorseChallenge()
+  }
+
   return {
     qsos,
     totalQsosEarned,
@@ -818,6 +950,7 @@ export const useGameStore = defineStore('game', () => {
     tapPrestigeAccumulator,
     audioSettings,
     lotteryState,
+    morseChallengeState,
     purchasedUpgrades,
     migrationInfo, // For UI to display migration message
     tapKeyer,
@@ -842,6 +975,9 @@ export const useGameStore = defineStore('game', () => {
     offlineEarnings,
     calculateOfflineProgress,
     dismissOfflineEarnings,
+    getQRQOutput,
+    startMorseChallenge,
+    handleMorseKeyTap,
     save,
     load,
   }
