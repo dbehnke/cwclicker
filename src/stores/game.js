@@ -2,13 +2,17 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { FACTORIES } from '../constants/factories'
 import { UPGRADES } from '../constants/upgrades'
-import { PRESTIGE_QSOS_PER_LEVEL, prestigeThresholdForLevel, GAME_CONSTANTS } from '../constants/game'
+import {
+  PRESTIGE_QSOS_PER_LEVEL,
+  prestigeThresholdForLevel,
+  GAME_CONSTANTS,
+} from '../constants/game'
 
 /**
  * Current game version for save data migration
  * @type {string}
  */
-const GAME_VERSION = '1.1.4'
+const GAME_VERSION = '1.1.5'
 const MAX_BULK_PURCHASE_COUNT = 10
 const OVERFLOW_FACTORY_COST = 10n ** 100n
 const MAX_PRESTIGE_LEVEL_FOR_MULTIPLIER = BigInt(Number.MAX_SAFE_INTEGER)
@@ -292,9 +296,10 @@ export const useGameStore = defineStore('game', () => {
    *   with any remainder carried in tapPrestigeAccumulator.
    */
   function addQSOs(amount) {
-    const clampedPrestigeLevel = prestigeLevel.value > MAX_PRESTIGE_LEVEL_FOR_MULTIPLIER
-      ? MAX_PRESTIGE_LEVEL_FOR_MULTIPLIER
-      : prestigeLevel.value
+    const clampedPrestigeLevel =
+      prestigeLevel.value > MAX_PRESTIGE_LEVEL_FOR_MULTIPLIER
+        ? MAX_PRESTIGE_LEVEL_FOR_MULTIPLIER
+        : prestigeLevel.value
     const percentMultiplier = 100n + 5n * clampedPrestigeLevel
     tapPrestigeAccumulator.value += amount * percentMultiplier
     const bonus = tapPrestigeAccumulator.value / 100n
@@ -326,9 +331,10 @@ export const useGameStore = defineStore('game', () => {
   const canPrestigeReset = computed(() => eligiblePrestigeLevel.value > prestigeLevel.value)
 
   const prestigeMultiplier = computed(() => {
-    const safePrestigeLevel = prestigeLevel.value > MAX_PRESTIGE_LEVEL_FOR_MULTIPLIER
-      ? MAX_PRESTIGE_LEVEL_FOR_MULTIPLIER
-      : prestigeLevel.value
+    const safePrestigeLevel =
+      prestigeLevel.value > MAX_PRESTIGE_LEVEL_FOR_MULTIPLIER
+        ? MAX_PRESTIGE_LEVEL_FOR_MULTIPLIER
+        : prestigeLevel.value
 
     return 1 + Number(safePrestigeLevel) * 0.05
   })
@@ -738,9 +744,17 @@ export const useGameStore = defineStore('game', () => {
         const lotteryMultiplier = getLotteryMultiplier(factoryId)
         const upgradeMultiplier = getUpgradeMultiplier(factoryId)
         const contribution =
-          factory.qsosPerSecond * count * lotteryMultiplier * upgradeMultiplier * prestigeMultiplier.value
+          factory.qsosPerSecond *
+          count *
+          lotteryMultiplier *
+          upgradeMultiplier *
+          prestigeMultiplier.value
 
-        if (!Number.isFinite(contribution) || contribution < 0 || contribution > Number.MAX_SAFE_INTEGER) {
+        if (
+          !Number.isFinite(contribution) ||
+          contribution < 0 ||
+          contribution > Number.MAX_SAFE_INTEGER
+        ) {
           continue
         }
 
