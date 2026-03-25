@@ -1,4 +1,4 @@
-import { formatNumber } from '../format.js'
+import { formatNumber, formatRate } from '../format.js'
 
 describe('formatNumber', () => {
   test('returns full number for values under 1000', () => {
@@ -95,5 +95,32 @@ describe('formatNumber', () => {
 
   test('preserves huge BigInt digits without Number precision loss', () => {
     expect(formatNumber(123456789012345678901500000000000000000n)).toBe('123456789012345678901.5Qi')
+  })
+})
+
+describe('formatRate', () => {
+  test('returns one decimal for small values', () => {
+    expect(formatRate(0)).toBe('0.0')
+    expect(formatRate(1)).toBe('1.0')
+    expect(formatRate(999.9)).toBe('999.9')
+  })
+
+  test('uses compact notation for values >= 1000', () => {
+    expect(formatRate(1000)).toBe('1.00K')
+    expect(formatRate(1500)).toBe('1.50K')
+    expect(formatRate(1000000)).toBe('1.00M')
+    expect(formatRate(500000)).toBe('500K')
+  })
+
+  test('handles negative large values with compact notation', () => {
+    expect(formatRate(-1500)).toBe('-1.50K')
+  })
+
+  test('handles edge cases', () => {
+    expect(formatRate(null)).toBe('—')
+    expect(formatRate(undefined)).toBe('—')
+    expect(formatRate(NaN)).toBe('—')
+    expect(formatRate(Infinity)).toBe('∞')
+    expect(formatRate(-Infinity)).toBe('-∞')
   })
 })

@@ -53,7 +53,8 @@ export function formatNumber(value) {
 }
 
 /**
- * Formats a per-second rate with one decimal place.
+ * Formats a per-second rate with one decimal place for small values,
+ * or compact notation (K, M, B, …) for values >= 1000.
  * Handles null/undefined and non-finite numbers explicitly for UI safety.
  * @param {number} value
  * @returns {string}
@@ -70,6 +71,10 @@ export function formatRate(value) {
       return '∞'
     }
     return '-∞'
+  }
+
+  if (Math.abs(value) >= 1000) {
+    return formatNumber(value)
   }
 
   return value.toFixed(1)

@@ -69,7 +69,7 @@ const prestigeProgress = computed(() => {
           Eligible for {{ store.eligiblePrestigeLevel }}
         </span>
         <span>{{ prestigeBonusPercent }} bonus</span>
-        <span>Prestige Points: {{ store.prestigePoints }}</span>
+        <span>Prestige Points: {{ formatNumber(store.prestigePoints) }}</span>
       </div>
       <div class="space-y-1 text-gray-400">
         <div
