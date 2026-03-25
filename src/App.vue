@@ -8,6 +8,7 @@ import LicensePanel from './components/LicensePanel.vue'
 import KeyerArea from './components/KeyerArea.vue'
 import ClickIndicator from './components/ClickIndicator.vue'
 import RareDxBonus from './components/RareDxBonus.vue'
+import MorseChallenge from './components/MorseChallenge.vue'
 import FactoryCard from './components/FactoryCard.vue'
 import MultiBuyPanel from './components/MultiBuyPanel.vue'
 import SettingsPanel from './components/SettingsPanel.vue'
@@ -137,7 +138,9 @@ function handleTabKeydown(event, tabId) {
           <div class="flex-1">
             <KeyerArea @tap="handleKeyerTap" />
           </div>
-          <div class="absolute right-0 top-0 bottom-0 pointer-events-none md:static md:pointer-events-auto">
+          <div
+            class="absolute right-0 top-0 bottom-0 pointer-events-none md:static md:pointer-events-auto"
+          >
             <ClickIndicator ref="clickIndicatorRef" />
           </div>
         </div>
@@ -146,6 +149,8 @@ function handleTabKeydown(event, tabId) {
           @lottery-activated="handleLotteryActivated"
           @solar-storm-started="handleSolarStormStarted"
         />
+
+        <MorseChallenge />
 
         <!-- Tab Navigation -->
         <div class="border-b border-terminal-green">
