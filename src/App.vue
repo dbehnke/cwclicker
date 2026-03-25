@@ -133,11 +133,13 @@ function handleTabKeydown(event, tabId) {
       <StatHeader />
       <LicensePanel @upgrade="handleLicenseUpgrade" />
       <main class="space-y-6">
-        <div class="flex flex-col md:flex-row gap-2 md:gap-4">
+        <div class="relative flex flex-col md:flex-row gap-2 md:gap-4">
           <div class="flex-1">
             <KeyerArea @tap="handleKeyerTap" />
           </div>
-          <ClickIndicator ref="clickIndicatorRef" />
+          <div class="absolute right-0 top-0 bottom-0 pointer-events-none md:static md:pointer-events-auto">
+            <ClickIndicator ref="clickIndicatorRef" />
+          </div>
         </div>
 
         <RareDxBonus
