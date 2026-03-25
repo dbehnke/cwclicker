@@ -31,12 +31,13 @@ const handleUp = () => {
   if (!isDown.value) return
   isDown.value = false
   audioService.stopTone()
-  
+
   const duration = Date.now() - startTime.value
   const type = duration < DIT_DAH_THRESHOLD_MS ? 'dit' : 'dah'
   const qsoValue = type === 'dit' ? 1 : 2
-  
+
   store.tapKeyer(type)
+  store.handleMorseKeyTap(type)
   emit('tap', qsoValue)
 }
 
@@ -44,7 +45,7 @@ const handleUp = () => {
  * Handles keyboard events for accessibility.
  * @param {KeyboardEvent} event
  */
-const handleKeydown = (event) => {
+const handleKeydown = event => {
   if (event.key === ' ' || event.key === 'Enter') {
     event.preventDefault()
     handleDown()
@@ -55,7 +56,7 @@ const handleKeydown = (event) => {
  * Handles keyboard up events for accessibility.
  * @param {KeyboardEvent} event
  */
-const handleKeyup = (event) => {
+const handleKeyup = event => {
   if (event.key === ' ' || event.key === 'Enter') {
     event.preventDefault()
     handleUp()
@@ -64,7 +65,7 @@ const handleKeyup = (event) => {
 </script>
 
 <template>
-  <div 
+  <div
     class="w-full h-48 border-2 border-terminal-green rounded flex items-center justify-center cursor-pointer select-none"
     role="button"
     tabindex="0"
@@ -77,8 +78,6 @@ const handleKeyup = (event) => {
     @keydown="handleKeydown"
     @keyup="handleKeyup"
   >
-    <span class="text-2xl font-bold uppercase tracking-widest">
-      [ CW KEYER ]
-    </span>
+    <span class="text-2xl font-bold uppercase tracking-widest"> [ CW KEYER ] </span>
   </div>
 </template>
