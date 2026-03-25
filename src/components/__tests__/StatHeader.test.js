@@ -29,7 +29,7 @@ describe('StatHeader.vue', () => {
     expect(wrapper.text()).toContain('Eligible for 12')
     expect(wrapper.text()).toContain('+60% bonus')
     expect(wrapper.text()).toContain('Prestige Points: 12')
-    expect(wrapper.text()).toContain('Next level: 2.20T QSOs')
+    expect(wrapper.text()).toContain('Next level: 1.73T QSOs')
 
     const progress = wrapper.find('[role="progressbar"]')
     expect(progress.exists()).toBe(true)
