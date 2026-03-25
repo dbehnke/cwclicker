@@ -80,9 +80,12 @@ export const GAME_CONSTANTS = {
   SAVE: {
     STORAGE_KEY: 'cw-keyer-game',
     MAX_BASE64_LENGTH: 100000, // 100KB
-    MAX_DECODED_LENGTH: 50000 // 50KB
+    MAX_DECODED_LENGTH: 50000, // 50KB
+    MAX_BIGINT_DIGITS: 50 // Maximum digit length for BigInt fields to prevent DoS
   }
 }
+
+export const PRESTIGE_QSOS_PER_LEVEL = 1_000_000_000n
 
 /**
  * Factory tiers mapped to cost scaling multipliers
@@ -110,4 +113,15 @@ export function getUpgradeThreshold(index) {
  */
 export function calculateUpgradeCost(factoryBaseCost, tier) {
   return BigInt(factoryBaseCost) * BigInt(GAME_CONSTANTS.UPGRADES.COST_MULTIPLIER_BASE) ** BigInt(tier + 1)
+}
+
+/**
+ * Calculate the total QSOs required for a given prestige level.
+ */
+export function prestigeThresholdForLevel(level) {
+  if (level <= 0n) {
+    return 0n
+  }
+
+  return PRESTIGE_QSOS_PER_LEVEL * level * level * level
 }

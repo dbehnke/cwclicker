@@ -2,9 +2,11 @@
 import { ref } from 'vue'
 import { useGameStore } from '../stores/game'
 import { audioService } from '../services/audio'
+import { GAME_CONSTANTS } from '../constants/game'
 
 const store = useGameStore()
 const showResetConfirm = ref(false)
+const showPrestigeResetConfirm = ref(false)
 const exportData = ref('')
 const importError = ref('')
 
@@ -47,6 +49,9 @@ function resetGame() {
   store.licenseLevel = 1
   store.factoryCounts = {}
   store.fractionalQSOs = 0
+  store.tapPrestigeAccumulator = 0n
+  store.offlineEarnings = null
+  store.migrationInfo = null
   store.purchasedUpgrades = new Set()
   store.lotteryState = {
     lastTriggerTime: 0,
@@ -64,6 +69,24 @@ function resetGame() {
 
   // Hide confirmation
   showResetConfirm.value = false
+
+  // Reload page to ensure clean state
+  window.location.reload()
+}
+
+function clearConfirmationState() {
+  showResetConfirm.value = false
+  showPrestigeResetConfirm.value = false
+}
+
+/**
+ * Reset prestige with confirmation
+ */
+function resetPrestige() {
+  store.prestigeReset()
+
+  // Hide confirmation
+  clearConfirmationState()
 
   // Reload page to ensure clean state
   window.location.reload()
@@ -160,9 +183,38 @@ function isValidSaveData(data) {
 function sanitizeSaveData(data) {
   const sanitized = {}
 
-  // Sanitize qsos - ensure it's a valid numeric string
+  // Preserve version for migration detection; if missing/blank, leave it unset so game.load() can handle legacy saves
+  const rawVersion = typeof data.version === 'string' ? data.version.trim() : ''
+  if (rawVersion) {
+    sanitized.version = rawVersion
+  }
+
+  // Sanitize qsos - ensure it's a valid numeric string, bounded to prevent DoS via huge BigInt parsing
+  const MAX_BIGINT_DIGITS = GAME_CONSTANTS.SAVE.MAX_BIGINT_DIGITS
   const qsosStr = String(data.qsos).replace(/[^\d]/g, '')
-  sanitized.qsos = qsosStr || '0'
+  sanitized.qsos = (qsosStr && qsosStr.length <= MAX_BIGINT_DIGITS) ? qsosStr : '0'
+
+  // Sanitize prestige fields.
+  // If a prestige field is present but invalid, normalize it to "0" instead of omitting it.
+  // Truly absent fields are left unset so game.load() can still apply legacy migration/seeding logic.
+  const prestigeFields = [
+    'totalQsosEarned',
+    'prestigeLevel',
+    'prestigePoints',
+    'tapPrestigeAccumulator',
+  ]
+
+  for (const field of prestigeFields) {
+    if (Object.prototype.hasOwnProperty.call(data, field)) {
+      const rawValue = data[field]
+      if (typeof rawValue === 'string' && /^\d+$/.test(rawValue) && rawValue.length <= MAX_BIGINT_DIGITS) {
+        sanitized[field] = rawValue
+      } else {
+        // Corrupt or out-of-bounds prestige values are clamped to "0"
+        sanitized[field] = '0'
+      }
+    }
+  }
 
   // Sanitize licenseLevel
   sanitized.licenseLevel = Math.max(1, Math.min(3, Number(data.licenseLevel) || 1))
@@ -451,20 +503,28 @@ function formatPercent(value) {
 
       <div class="space-y-4">
         <p class="text-gray-400 text-sm">
-          Resetting will permanently delete all your progress including QSOs, factories, upgrades,
-          and achievements. This cannot be undone.
+          Resetting will permanently delete your QSOs, factories, upgrades,
+          and achievements, and will reset your license level to 1 and other current run state.
+          Prestige progress (level and points) is preserved. This cannot be undone.
         </p>
 
-        <div v-if="!showResetConfirm">
+        <div v-if="!showResetConfirm && !showPrestigeResetConfirm">
           <button
-            @click="showResetConfirm = true"
+            @click="showResetConfirm = true; showPrestigeResetConfirm = false"
             class="px-6 py-3 bg-red-600 text-white font-bold rounded hover:bg-red-700 transition-colors"
           >
             ⚠️ Reset Game
           </button>
+          <button
+            @click="showPrestigeResetConfirm = true; showResetConfirm = false"
+            :disabled="!store.canPrestigeReset"
+            class="ml-3 px-6 py-3 bg-terminal-amber text-terminal-bg font-bold rounded hover:brightness-110 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Prestige Reset
+          </button>
         </div>
 
-        <div v-else class="space-y-4 border-2 border-red-600 p-4 rounded">
+        <div v-else-if="showResetConfirm" class="space-y-4 border-2 border-red-600 p-4 rounded">
           <p class="text-red-500 font-bold">Are you sure? This cannot be undone!</p>
 
           <div class="flex gap-4">
@@ -476,7 +536,27 @@ function formatPercent(value) {
             </button>
 
             <button
-              @click="showResetConfirm = false"
+              @click="clearConfirmationState"
+              class="px-6 py-3 bg-gray-600 text-white font-bold rounded hover:bg-gray-700 transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+
+        <div v-else-if="showPrestigeResetConfirm" class="space-y-4 border-2 border-terminal-amber p-4 rounded">
+          <p class="text-terminal-amber font-bold">Prestige reset will reset your run but keep prestige progress.</p>
+
+          <div class="flex gap-4">
+            <button
+              @click="resetPrestige"
+              class="px-6 py-3 bg-terminal-amber text-terminal-bg font-bold rounded hover:brightness-110 transition-colors"
+            >
+              Yes, Prestige Reset
+            </button>
+
+            <button
+              @click="clearConfirmationState"
               class="px-6 py-3 bg-gray-600 text-white font-bold rounded hover:bg-gray-700 transition-colors"
             >
               Cancel

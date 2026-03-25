@@ -2,14 +2,16 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { FACTORIES } from '../constants/factories'
 import { UPGRADES } from '../constants/upgrades'
+import { PRESTIGE_QSOS_PER_LEVEL, prestigeThresholdForLevel, GAME_CONSTANTS } from '../constants/game'
 
 /**
  * Current game version for save data migration
  * @type {string}
  */
-const GAME_VERSION = '1.1.3'
+const GAME_VERSION = '1.1.4'
 const MAX_BULK_PURCHASE_COUNT = 10
 const OVERFLOW_FACTORY_COST = 10n ** 100n
+const MAX_PRESTIGE_LEVEL_FOR_MULTIPLIER = BigInt(Number.MAX_SAFE_INTEGER)
 
 /**
  * Manages the game's core state and progression.
@@ -23,15 +25,64 @@ export const useGameStore = defineStore('game', () => {
     return Math.max(0, Math.min(MAX_BULK_PURCHASE_COUNT, Math.floor(count)))
   }
 
+  function cubeRootFloor(value) {
+    if (value < 0n) {
+      return 0n
+    }
+
+    let low = 0n
+    let high = 1n
+
+    while (high * high * high <= value) {
+      high *= 2n
+    }
+
+    while (low + 1n < high) {
+      const mid = (low + high) / 2n
+      const midCubed = mid * mid * mid
+
+      if (midCubed === value) {
+        return mid
+      }
+
+      if (midCubed < value) {
+        low = mid
+      } else {
+        high = mid
+      }
+    }
+
+    return low
+  }
+
+  // Maximum number of digits accepted for BigInt fields to prevent DoS via large-number parsing.
+  const MAX_BIGINT_DIGITS = GAME_CONSTANTS.SAVE.MAX_BIGINT_DIGITS
+
+  function parseNonNegativeBigInt(value) {
+    try {
+      const str = String(value ?? '0')
+      if (str.length > MAX_BIGINT_DIGITS) return 0n
+      const parsed = BigInt(str)
+      return parsed < 0n ? 0n : parsed
+    } catch {
+      return 0n
+    }
+  }
+
   /**
    * @returns {bigint} QSO value as BigInt
    */
   const qsos = ref(0n)
   const totalQsosEarned = ref(0n) // Total QSOs earned for prestige system
+  const prestigeLevel = ref(0n)
+  const prestigePoints = ref(0n)
   const licenseLevel = ref(1)
   const factoryCounts = ref({})
   const fractionalQSOs = ref(0) // Accumulate fractional QSOs between frames
+  const tapPrestigeAccumulator = ref(0n) // Accumulates tap prestige bonus in percentage units (scale of 100; 1 = 1%)
   const purchasedUpgrades = ref(new Set()) // Set of upgrade IDs that have been purchased
+  let cachedEligiblePrestigeLevel = 0n
+  let cachedEligiblePrestigeThreshold = PRESTIGE_QSOS_PER_LEVEL
 
   // Migration tracking
   const migrationInfo = ref(null) // Stores info about migration for UI display
@@ -235,12 +286,94 @@ export const useGameStore = defineStore('game', () => {
   }
 
   /**
-   * Adds QSOs from keyer taps.
-   * @param {bigint} amount - The amount of QSOs to add.
+   * Adds QSOs from keyer taps, applying the prestige multiplier.
+   * @param {bigint} amount - The base tap value before the prestige multiplier is applied.
+   *   The actual QSOs credited are floor(amount * percentMultiplier / 100) over time,
+   *   with any remainder carried in tapPrestigeAccumulator.
    */
   function addQSOs(amount) {
-    qsos.value += amount
-    totalQsosEarned.value += amount
+    const clampedPrestigeLevel = prestigeLevel.value > MAX_PRESTIGE_LEVEL_FOR_MULTIPLIER
+      ? MAX_PRESTIGE_LEVEL_FOR_MULTIPLIER
+      : prestigeLevel.value
+    const percentMultiplier = 100n + 5n * clampedPrestigeLevel
+    tapPrestigeAccumulator.value += amount * percentMultiplier
+    const bonus = tapPrestigeAccumulator.value / 100n
+    tapPrestigeAccumulator.value %= 100n
+    qsos.value += bonus
+    totalQsosEarned.value += bonus
+  }
+
+  const eligiblePrestigeLevel = computed(() => {
+    const earned = totalQsosEarned.value
+
+    if (earned < PRESTIGE_QSOS_PER_LEVEL) {
+      cachedEligiblePrestigeLevel = 0n
+      cachedEligiblePrestigeThreshold = PRESTIGE_QSOS_PER_LEVEL
+      return 0n
+    }
+
+    if (earned < cachedEligiblePrestigeThreshold) {
+      return cachedEligiblePrestigeLevel
+    }
+
+    // Threshold crossed: compute the exact new level directly instead of incrementing level-by-level.
+    cachedEligiblePrestigeLevel = cubeRootFloor(earned / PRESTIGE_QSOS_PER_LEVEL)
+    cachedEligiblePrestigeThreshold = prestigeThresholdForLevel(cachedEligiblePrestigeLevel + 1n)
+
+    return cachedEligiblePrestigeLevel
+  })
+
+  const canPrestigeReset = computed(() => eligiblePrestigeLevel.value > prestigeLevel.value)
+
+  const prestigeMultiplier = computed(() => {
+    const safePrestigeLevel = prestigeLevel.value > MAX_PRESTIGE_LEVEL_FOR_MULTIPLIER
+      ? MAX_PRESTIGE_LEVEL_FOR_MULTIPLIER
+      : prestigeLevel.value
+
+    return 1 + Number(safePrestigeLevel) * 0.05
+  })
+
+  function prestigeReset() {
+    const eligibleLevel = eligiblePrestigeLevel.value
+    const newPoints = eligibleLevel > prestigeLevel.value ? eligibleLevel - prestigeLevel.value : 0n
+
+    prestigePoints.value += newPoints
+    prestigeLevel.value = eligibleLevel > prestigeLevel.value ? eligibleLevel : prestigeLevel.value
+
+    qsos.value = 0n
+    factoryCounts.value = {}
+    fractionalQSOs.value = 0
+    tapPrestigeAccumulator.value = 0n
+    purchasedUpgrades.value = new Set()
+    licenseLevel.value = 1
+    offlineEarnings.value = null
+    lotteryState.value = {
+      lastTriggerTime: 0,
+      isBonusAvailable: false,
+      bonusFactoryId: null,
+      bonusEndTime: 0,
+      bonusAvailableEndTime: 0,
+      phenomenonTitle: '',
+      isSolarStorm: false,
+      solarStormEndTime: 0,
+    }
+    migrationInfo.value = null
+    save()
+  }
+
+  function setTotalQsosEarned(value) {
+    totalQsosEarned.value = value
+    cachedEligiblePrestigeLevel = 0n
+    cachedEligiblePrestigeThreshold = PRESTIGE_QSOS_PER_LEVEL
+  }
+
+  function normalizePrestigeState() {
+    const eligibleLevel = eligiblePrestigeLevel.value
+
+    if (prestigeLevel.value === 0n && prestigePoints.value === 0n && eligibleLevel > 0n) {
+      prestigeLevel.value = eligibleLevel
+      prestigePoints.value = eligibleLevel
+    }
   }
 
   /**
@@ -445,9 +578,12 @@ export const useGameStore = defineStore('game', () => {
         version: GAME_VERSION,
         qsos: qsos.value.toString(),
         totalQsosEarned: totalQsosEarned.value.toString(),
+        prestigeLevel: prestigeLevel.value.toString(),
+        prestigePoints: prestigePoints.value.toString(),
         licenseLevel: licenseLevel.value,
         factoryCounts: factoryCounts.value,
         fractionalQSOs: fractionalQSOs.value,
+        tapPrestigeAccumulator: tapPrestigeAccumulator.value.toString(),
         audioSettings: audioSettings.value,
         lotteryState: lotteryState.value,
         purchasedUpgrades: Array.from(purchasedUpgrades.value),
@@ -491,11 +627,30 @@ export const useGameStore = defineStore('game', () => {
           return
         }
 
-        qsos.value = BigInt(state.qsos || '0')
-        totalQsosEarned.value = BigInt(state.totalQsosEarned || state.qsos || '0')
+        qsos.value = parseNonNegativeBigInt(state.qsos || '0')
+        setTotalQsosEarned(parseNonNegativeBigInt(state.totalQsosEarned || state.qsos || '0'))
+        const hasPrestigeLevelField = 'prestigeLevel' in state
+        const hasPrestigePointsField = 'prestigePoints' in state
+        const hasBothPrestigeFields = hasPrestigeLevelField && hasPrestigePointsField
+
+        if (hasBothPrestigeFields) {
+          prestigeLevel.value = parseNonNegativeBigInt(state.prestigeLevel)
+          prestigePoints.value = parseNonNegativeBigInt(state.prestigePoints)
+
+          // Guard against inconsistent prestige data from sanitized/corrupt saves:
+          // normalizePrestigeState() only acts when both fields are 0n, so when
+          // prestigeLevel>0 but prestigePoints=0 we repair directly.
+          if (prestigeLevel.value > 0n && prestigePoints.value === 0n) {
+            prestigePoints.value = prestigeLevel.value
+          }
+        } else {
+          // If either prestige field is missing, derive a consistent prestige state
+          normalizePrestigeState()
+        }
         licenseLevel.value = state.licenseLevel || 1
         factoryCounts.value = state.factoryCounts || {}
         fractionalQSOs.value = state.fractionalQSOs || 0
+        tapPrestigeAccumulator.value = parseNonNegativeBigInt(state.tapPrestigeAccumulator)
 
         if (state.audioSettings) {
           audioSettings.value = {
@@ -550,6 +705,7 @@ export const useGameStore = defineStore('game', () => {
 
               if (offlineQsos > 0 && Number.isSafeInteger(offlineQsos)) {
                 qsos.value = qsos.value + BigInt(offlineQsos)
+                totalQsosEarned.value += BigInt(offlineQsos)
 
                 // Store offline earnings info for UI display
                 const roundedHours = Math.min(Math.ceil(offlineHours), MAX_OFFLINE_HOURS)
@@ -581,11 +737,21 @@ export const useGameStore = defineStore('game', () => {
       if (factory) {
         const lotteryMultiplier = getLotteryMultiplier(factoryId)
         const upgradeMultiplier = getUpgradeMultiplier(factoryId)
-        total += factory.qsosPerSecond * count * lotteryMultiplier * upgradeMultiplier
+        const contribution =
+          factory.qsosPerSecond * count * lotteryMultiplier * upgradeMultiplier * prestigeMultiplier.value
+
+        if (!Number.isFinite(contribution) || contribution < 0 || contribution > Number.MAX_SAFE_INTEGER) {
+          continue
+        }
+
+        total += contribution
+        if (!Number.isFinite(total) || total > Number.MAX_SAFE_INTEGER) {
+          return 0
+        }
       }
     }
 
-    return total
+    return Number.isFinite(total) && total > 0 && total <= Number.MAX_SAFE_INTEGER ? total : 0
   }
 
   /**
@@ -630,9 +796,12 @@ export const useGameStore = defineStore('game', () => {
   return {
     qsos,
     totalQsosEarned,
+    prestigeLevel,
+    prestigePoints,
     licenseLevel,
     factoryCounts,
     fractionalQSOs,
+    tapPrestigeAccumulator,
     audioSettings,
     lotteryState,
     purchasedUpgrades,
@@ -650,6 +819,11 @@ export const useGameStore = defineStore('game', () => {
     getAvailableUpgrades,
     buyUpgrade,
     getUpgradeMultiplier,
+    eligiblePrestigeLevel,
+    canPrestigeReset,
+    prestigeMultiplier,
+    prestigeReset,
+    normalizePrestigeState,
     clearExpiredBonus,
     offlineEarnings,
     calculateOfflineProgress,
