@@ -12,11 +12,11 @@ const store = useGameStore()
 const prestigeBonusPercent = computed(() => `+${Math.round((Number(store.prestigeMultiplier) - 1) * 100)}%`)
 
 const currentPrestigeThreshold = computed(() => {
-  return prestigeThresholdForLevel(store.prestigeLevel)
+  return prestigeThresholdForLevel(store.eligiblePrestigeLevel)
 })
 
 const nextPrestigeThreshold = computed(() => {
-  return prestigeThresholdForLevel(store.prestigeLevel + 1n)
+  return prestigeThresholdForLevel(store.eligiblePrestigeLevel + 1n)
 })
 
 const prestigeProgress = computed(() => {
