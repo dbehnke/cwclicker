@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import MorseChallenge from '../MorseChallenge.vue'
@@ -22,7 +22,6 @@ describe('MorseChallenge', () => {
         currentChar: 'A',
         currentPattern: '·−',
         keyedSequence: [],
-        lastKeyTime: 0,
         challengeStartTime: Date.now(),
         state: 'active',
       },
@@ -30,6 +29,10 @@ describe('MorseChallenge', () => {
       handleMorseKeyTap: vi.fn(),
     }
     useGameStore.mockReturnValue(mockStore)
+  })
+
+  afterEach(() => {
+    vi.useRealTimers()
   })
 
   it('renders when active', () => {

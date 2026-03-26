@@ -145,9 +145,8 @@ export const useGameStore = defineStore('game', () => {
     currentChar: null, // Current character to key (e.g., 'A')
     currentPattern: '', // Morse pattern (e.g., '·−')
     keyedSequence: [], // Array of 'dit' or 'dah' keyed so far
-    lastKeyTime: 0, // Timestamp of last key tap
     challengeStartTime: 0, // When current challenge started
-    state: 'idle', // 'idle' | 'active' | 'success' | 'timeout'
+    state: 'idle', // 'idle' | 'active' | 'success' | 'timeout' | 'wrong'
   })
 
   // Timer for evaluating morse pattern after inter-character gap
@@ -878,7 +877,6 @@ export const useGameStore = defineStore('game', () => {
       currentChar: char,
       currentPattern: pattern,
       keyedSequence: [],
-      lastKeyTime: 0,
       challengeStartTime: Date.now(),
       state: 'active',
     }
@@ -892,10 +890,8 @@ export const useGameStore = defineStore('game', () => {
    */
   function handleMorseKeyTap(type) {
     const state = morseChallengeState.value
-    if (state.state === 'success' || state.state === 'timeout') {
-      return
-    }
-    if (!state.isActive || state.state !== 'active') {
+    // Guard covers all non-active states: 'idle', 'success', 'timeout', 'wrong'
+    if (state.state !== 'active') {
       return
     }
 
@@ -914,11 +910,8 @@ export const useGameStore = defineStore('game', () => {
       return
     }
 
-    const now = Date.now()
-
     // Add tap to sequence
     state.keyedSequence.push(type)
-    state.lastKeyTime = now
 
     // Map keyed sequence to symbols for comparison
     const pattern = state.currentPattern.split('')
@@ -932,7 +925,7 @@ export const useGameStore = defineStore('game', () => {
 
     // Check if keyed sequence diverges from the pattern prefix — advance on wrong input
     if (!pattern.slice(0, keyed.length).every((v, i) => v === keyed[i])) {
-      morseChallengeState.value.state = 'timeout'
+      morseChallengeState.value.state = 'wrong'
       setTimeout(() => {
         advanceMorseLetter()
       }, MORSE_CHALLENGE_ADVANCE_DELAY_MS)

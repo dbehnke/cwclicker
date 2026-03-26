@@ -40,6 +40,21 @@ describe('Morse Challenge', () => {
       expect(store.morseChallengeState.state).toBe('success')
     })
 
+    it('awards fractional QSOs when correct pattern is keyed (fallback 0.1 with no factories)', () => {
+      const store = useGameStore()
+      store.startMorseChallenge()
+      store.morseChallengeState.currentChar = 'E'
+      store.morseChallengeState.currentPattern = '·'
+      store.morseChallengeState.keyedSequence = []
+
+      const beforeFractional = store.fractionalQSOs
+      store.handleMorseKeyTap('dit')
+
+      // With no QRQ factories the fallback bonus is 0.1; addPassiveQSOs accumulates it
+      expect(store.morseChallengeState.state).toBe('success')
+      expect(store.fractionalQSOs).toBeGreaterThan(beforeFractional)
+    })
+
     it('sets success state for a multi-element pattern (A = ·−)', () => {
       const store = useGameStore()
       store.startMorseChallenge()
@@ -73,7 +88,7 @@ describe('Morse Challenge', () => {
   })
 
   describe('handleMorseKeyTap - wrong sequence', () => {
-    it('sets timeout state immediately when first element is wrong (A expects dit, got dah)', () => {
+    it('sets wrong state immediately when first element is wrong (A expects dit, got dah)', () => {
       const store = useGameStore()
       store.startMorseChallenge()
       store.morseChallengeState.currentChar = 'A'
@@ -82,10 +97,10 @@ describe('Morse Challenge', () => {
 
       store.handleMorseKeyTap('dah')
 
-      expect(store.morseChallengeState.state).toBe('timeout')
+      expect(store.morseChallengeState.state).toBe('wrong')
     })
 
-    it('sets timeout state when sequence diverges mid-pattern (A: ·−, got ··)', () => {
+    it('sets wrong state when sequence diverges mid-pattern (A: ·−, got ··)', () => {
       const store = useGameStore()
       store.startMorseChallenge()
       store.morseChallengeState.currentChar = 'A'
@@ -95,10 +110,10 @@ describe('Morse Challenge', () => {
       store.handleMorseKeyTap('dit') // correct first
       store.handleMorseKeyTap('dit') // wrong second (should be dah)
 
-      expect(store.morseChallengeState.state).toBe('timeout')
+      expect(store.morseChallengeState.state).toBe('wrong')
     })
 
-    it('advances to next letter after wrong-input timeout delay', () => {
+    it('advances to next letter after wrong-input delay', () => {
       const store = useGameStore()
       store.startMorseChallenge()
       store.morseChallengeState.currentChar = 'A'
@@ -106,7 +121,7 @@ describe('Morse Challenge', () => {
       store.morseChallengeState.keyedSequence = []
 
       store.handleMorseKeyTap('dah')
-      expect(store.morseChallengeState.state).toBe('timeout')
+      expect(store.morseChallengeState.state).toBe('wrong')
 
       vi.runAllTimers()
 
@@ -137,7 +152,7 @@ describe('Morse Challenge', () => {
       expect(store.morseChallengeState.state).toBe('active')
     })
 
-    it('ignores taps when already in timeout state', () => {
+    it('ignores taps when already in timeout or wrong state', () => {
       const store = useGameStore()
       store.startMorseChallenge()
 

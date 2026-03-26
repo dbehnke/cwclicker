@@ -21,7 +21,8 @@ const timeRemaining = computed(() => {
 })
 
 const timeRemainingPercent = computed(() => {
-  return (timeRemaining.value / CHALLENGE_DURATION_MS) * 100
+  const pct = (timeRemaining.value / CHALLENGE_DURATION_MS) * 100
+  return Math.min(100, Math.max(0, pct))
 })
 
 const formattedTime = computed(() => {
@@ -40,6 +41,7 @@ const keyedDisplay = computed(() => {
 
 const isSuccess = computed(() => morseState.value.state === 'success')
 const isTimeout = computed(() => morseState.value.state === 'timeout')
+const isWrong = computed(() => morseState.value.state === 'wrong')
 
 function startTimer() {
   if (timerInterval) return
@@ -64,6 +66,8 @@ watch(
   isActive,
   active => {
     if (active) {
+      // Sync now immediately so timeRemainingPercent starts at 100% (not >100%)
+      now.value = Date.now()
       startTimer()
     } else {
       stopTimer()
@@ -86,12 +90,12 @@ onUnmounted(() => {
 
 <template>
   <div
-    v-if="isActive || isSuccess || isTimeout"
+    v-if="isActive || isSuccess || isTimeout || isWrong"
     class="border-2 rounded p-4 transition-colors"
     :class="
       isSuccess
         ? 'border-terminal-green bg-terminal-green/10'
-        : isTimeout
+        : isTimeout || isWrong
           ? 'border-red-500 bg-red-500/10'
           : 'border-terminal-amber bg-terminal-bg'
     "
@@ -105,10 +109,14 @@ onUnmounted(() => {
         <p
           class="text-2xl font-mono"
           :class="
-            isSuccess ? 'text-terminal-green' : isTimeout ? 'text-red-500' : 'text-terminal-amber'
+            isSuccess
+              ? 'text-terminal-green'
+              : isTimeout || isWrong
+                ? 'text-red-500'
+                : 'text-terminal-amber'
           "
         >
-          {{ isTimeout ? 'TIME!' : formattedTime }}
+          {{ isTimeout ? 'TIME!' : isWrong ? '✗' : formattedTime }}
         </p>
       </div>
     </div>
@@ -130,8 +138,14 @@ onUnmounted(() => {
     <div class="w-full bg-gray-700 rounded h-2">
       <div
         class="h-2 rounded transition-all duration-100"
-        :class="isSuccess ? 'bg-terminal-green' : isTimeout ? 'bg-red-500' : 'bg-terminal-amber'"
-        :style="{ width: isSuccess || isTimeout ? '100%' : timeRemainingPercent + '%' }"
+        :class="
+          isSuccess
+            ? 'bg-terminal-green'
+            : isTimeout || isWrong
+              ? 'bg-red-500'
+              : 'bg-terminal-amber'
+        "
+        :style="{ width: isSuccess || isTimeout || isWrong ? '100%' : timeRemainingPercent + '%' }"
       ></div>
     </div>
 
@@ -143,6 +157,11 @@ onUnmounted(() => {
     <!-- Timeout message -->
     <p v-if="isTimeout" class="text-red-500 text-center mt-2 font-bold">
       ✗ TIME'S UP! Moving to next letter...
+    </p>
+
+    <!-- Wrong input message -->
+    <p v-if="isWrong" class="text-red-500 text-center mt-2 font-bold">
+      ✗ WRONG! Moving to next letter...
     </p>
   </div>
 </template>
