@@ -1,7 +1,7 @@
 import { setActivePinia, createPinia } from 'pinia'
 import { useGameStore } from '../game'
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { MORSE_TIMING } from '../../constants/morse'
+import { MORSE_TIMING, MORSE_CHALLENGE_WRONG_RETRY_DELAY_MS } from '../../constants/morse'
 
 describe('Morse Challenge', () => {
   beforeEach(() => {
@@ -134,7 +134,7 @@ describe('Morse Challenge', () => {
   })
 
   describe('handleMorseKeyTap - wrong sequence with 3 tries', () => {
-    it('decrements triesRemaining on wrong input and resets sequence', () => {
+    it('enters wrong-retry state and decrements triesRemaining on wrong input (not yet last try)', () => {
       const store = useGameStore()
       store.startMorseChallenge()
       store.morseChallengeState.currentChar = 'A'
@@ -144,9 +144,26 @@ describe('Morse Challenge', () => {
 
       store.handleMorseKeyTap('dah') // wrong first element
 
-      expect(store.morseChallengeState.state).toBe('active') // not 'wrong'
+      expect(store.morseChallengeState.state).toBe('wrong-retry') // 2-second feedback
       expect(store.morseChallengeState.triesRemaining).toBe(2)
+    })
+
+    it('resets sequence and returns to active state after wrong-retry delay', () => {
+      const store = useGameStore()
+      store.startMorseChallenge()
+      store.morseChallengeState.currentChar = 'A'
+      store.morseChallengeState.currentPattern = '·−'
+      store.morseChallengeState.keyedSequence = []
+      store.morseChallengeState.triesRemaining = 3
+
+      store.handleMorseKeyTap('dah') // wrong first element
+      expect(store.morseChallengeState.state).toBe('wrong-retry')
+
+      vi.advanceTimersByTime(MORSE_CHALLENGE_WRONG_RETRY_DELAY_MS)
+
+      expect(store.morseChallengeState.state).toBe('active')
       expect(store.morseChallengeState.keyedSequence).toEqual([])
+      expect(store.morseChallengeState.triesRemaining).toBe(2)
     })
 
     it('sets wrong state when triesRemaining reaches 0', () => {
@@ -162,7 +179,7 @@ describe('Morse Challenge', () => {
       expect(store.morseChallengeState.state).toBe('wrong')
     })
 
-    it('allows successful retry after wrong first attempt', () => {
+    it('allows successful retry after wrong first attempt (after retry delay)', () => {
       const store = useGameStore()
       store.startMorseChallenge()
       store.morseChallengeState.currentChar = 'A'
@@ -171,13 +188,47 @@ describe('Morse Challenge', () => {
       store.morseChallengeState.triesRemaining = 2
 
       store.handleMorseKeyTap('dah') // wrong
-      expect(store.morseChallengeState.state).toBe('active')
+      expect(store.morseChallengeState.state).toBe('wrong-retry')
       expect(store.morseChallengeState.triesRemaining).toBe(1)
+
+      // Wait for the retry delay to elapse before keying again
+      vi.advanceTimersByTime(MORSE_CHALLENGE_WRONG_RETRY_DELAY_MS)
+      expect(store.morseChallengeState.state).toBe('active')
 
       store.handleMorseKeyTap('dit') // correct first
       store.handleMorseKeyTap('dah') // completes ·−
 
       expect(store.morseChallengeState.state).toBe('success')
+    })
+
+    it('ignores taps during wrong-retry feedback period', () => {
+      const store = useGameStore()
+      store.startMorseChallenge()
+      store.morseChallengeState.currentChar = 'A'
+      store.morseChallengeState.currentPattern = '·−'
+      store.morseChallengeState.keyedSequence = []
+      store.morseChallengeState.triesRemaining = 3
+
+      store.handleMorseKeyTap('dah') // wrong — enters wrong-retry
+      expect(store.morseChallengeState.state).toBe('wrong-retry')
+
+      store.handleMorseKeyTap('dit') // should be ignored
+      expect(store.morseChallengeState.state).toBe('wrong-retry')
+    })
+
+    it('timeout during wrong-retry transitions to timeout state', () => {
+      const store = useGameStore()
+      store.startMorseChallenge()
+      store.morseChallengeState.currentChar = 'A'
+      store.morseChallengeState.currentPattern = '·−'
+      store.morseChallengeState.keyedSequence = []
+      store.morseChallengeState.triesRemaining = 3
+
+      store.handleMorseKeyTap('dah') // wrong — enters wrong-retry
+      expect(store.morseChallengeState.state).toBe('wrong-retry')
+
+      store.handleMorseKeyTap('timeout') // overall challenge timer expires
+      expect(store.morseChallengeState.state).toBe('timeout')
     })
   })
 
@@ -216,12 +267,13 @@ describe('Morse Challenge', () => {
   })
 
   describe('inter-character gap timer', () => {
-    it('advances to next letter when player stops after an incomplete sequence', () => {
+    it('enters wrong-retry state when player stops after an incomplete sequence (tries remaining)', () => {
       const store = useGameStore()
       store.startMorseChallenge()
       store.morseChallengeState.currentChar = 'A'
       store.morseChallengeState.currentPattern = '·−'
       store.morseChallengeState.keyedSequence = []
+      store.morseChallengeState.triesRemaining = 3
 
       store.handleMorseKeyTap('dit') // correct prefix but not complete
       expect(store.morseChallengeState.state).toBe('active')
@@ -229,7 +281,46 @@ describe('Morse Challenge', () => {
       // Advance time past the inter-character gap threshold
       vi.advanceTimersByTime(MORSE_TIMING.INTER_GAP_MIN_MS + 1)
 
-      // Incomplete sequence causes advance to next letter
+      // Incomplete sequence: shows wrong-retry feedback, same letter
+      expect(store.morseChallengeState.state).toBe('wrong-retry')
+      expect(store.morseChallengeState.triesRemaining).toBe(2)
+    })
+
+    it('resets and returns to active for same letter after wrong-retry delay (incomplete sequence)', () => {
+      const store = useGameStore()
+      store.startMorseChallenge()
+      store.morseChallengeState.currentChar = 'A'
+      store.morseChallengeState.currentPattern = '·−'
+      store.morseChallengeState.keyedSequence = []
+      store.morseChallengeState.triesRemaining = 3
+
+      store.handleMorseKeyTap('dit') // correct prefix but not complete
+      vi.advanceTimersByTime(MORSE_TIMING.INTER_GAP_MIN_MS + 1)
+      expect(store.morseChallengeState.state).toBe('wrong-retry')
+
+      vi.advanceTimersByTime(MORSE_CHALLENGE_WRONG_RETRY_DELAY_MS)
+
+      expect(store.morseChallengeState.state).toBe('active')
+      expect(store.morseChallengeState.keyedSequence).toEqual([])
+    })
+
+    it('advances to next letter when last try is exhausted via incomplete sequence', () => {
+      const store = useGameStore()
+      store.startMorseChallenge()
+      const firstChar = store.morseChallengeState.currentChar
+      store.morseChallengeState.currentChar = 'A'
+      store.morseChallengeState.currentPattern = '·−'
+      store.morseChallengeState.keyedSequence = []
+      store.morseChallengeState.triesRemaining = 1
+
+      store.handleMorseKeyTap('dit') // correct prefix but not complete
+      vi.advanceTimersByTime(MORSE_TIMING.INTER_GAP_MIN_MS + 1)
+
+      // Last try — goes to 'wrong' then advances
+      expect(store.morseChallengeState.state).toBe('wrong')
+
+      vi.runAllTimers()
+
       expect(store.morseChallengeState.state).toBe('active')
       expect(store.morseChallengeState.keyedSequence).toEqual([])
     })
