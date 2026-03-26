@@ -851,6 +851,8 @@ export const useGameStore = defineStore('game', () => {
     const prestigeMult = prestigeMultiplier.value
     const lotteryMult = getLotteryMultiplier('qrq-protocol')
 
+    const output = baseOutput * upgradeMult * prestigeMult * lotteryMult
+
     if (!Number.isFinite(output) || output <= 0) {
       return 0
     }
