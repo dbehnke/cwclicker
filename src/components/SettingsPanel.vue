@@ -150,9 +150,11 @@ function isValidSaveData(data) {
   if (typeof audio.isMuted !== 'boolean') {
     return false
   }
+  // morseWpm is optional for backward compatibility: old saves will have undefined here,
+  // which defaults to MIN_MORSE_WPM (5) in sanitizeSaveData
   if (
     audio.morseWpm !== undefined &&
-    (typeof audio.morseWpm !== 'number' || audio.morseWpm < 5 || audio.morseWpm > 30)
+    (typeof audio.morseWpm !== 'number' || audio.morseWpm < MIN_MORSE_WPM || audio.morseWpm > MAX_MORSE_WPM)
   ) {
     return false
   }
