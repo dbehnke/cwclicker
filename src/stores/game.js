@@ -147,7 +147,7 @@ export const useGameStore = defineStore('game', () => {
     keyedSequence: [], // Array of 'dit' or 'dah' keyed so far
     lastKeyTime: 0, // Timestamp of last key tap
     challengeStartTime: 0, // When current challenge started
-    state: 'idle', // 'idle' | 'active' | 'success'
+    state: 'idle', // 'idle' | 'active' | 'success' | 'timeout'
   })
 
   // Offline progress tracking
@@ -882,13 +882,13 @@ export const useGameStore = defineStore('game', () => {
   }
 
   /**
-   * Handles a key tap during morse challenge
-   * Evaluates dit/dah based on timing
-   * @param {'dit'|'dah'} type - The type of tap
+   * Handles a classified key event during morse challenge
+   * The caller (e.g. KeyerArea) is responsible for determining whether a tap is a dit or dah
+   * @param {'dit'|'dah'|'timeout'} type - Tap classification; 'timeout' indicates inactivity timeout
    */
   function handleMorseKeyTap(type) {
     const state = morseChallengeState.value
-    if (state.state === 'success') {
+    if (state.state === 'success' || state.state === 'timeout') {
       return
     }
     if (!state.isActive || state.state !== 'active') {
@@ -900,7 +900,7 @@ export const useGameStore = defineStore('game', () => {
       morseChallengeState.value.state = 'timeout'
       setTimeout(() => {
         advanceMorseLetter()
-      }, 300)
+      }, MORSE_CHALLENGE_ADVANCE_DELAY_MS)
       return
     }
 
@@ -911,10 +911,12 @@ export const useGameStore = defineStore('game', () => {
     if (state.keyedSequence.length > 0 && timeSinceLastKey >= MORSE_TIMING.INTER_GAP_MIN_MS) {
       // Evaluate what we have so far
       evaluateMorsePattern()
+      // Re-read state after evaluation since advanceMorseLetter may have replaced it
+      const newState = morseChallengeState.value
       // If challenge is still active after evaluation, process current tap as first element of new sequence
-      if (state.isActive && state.state === 'active') {
-        state.keyedSequence = [type]
-        state.lastKeyTime = now
+      if (newState.isActive && newState.state === 'active') {
+        newState.keyedSequence = [type]
+        newState.lastKeyTime = now
       }
       return
     }

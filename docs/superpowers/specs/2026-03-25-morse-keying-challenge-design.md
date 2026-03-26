@@ -65,7 +65,7 @@ qrqFactory = find factory with id 'qrq-protocol'
 bonus = qrqFactory.qsosPerSecond * upgradeMultiplier * prestigeMultiplier * lotteryMultiplier
 ```
 
-Apply as one-time QSOs bonus (added immediately to player's QSOs via `addQSOs()`).
+Apply as passive QSOs bonus via `addPassiveQSOs()` (can be fractional and accrue over time, avoids reapplying prestige multiplier).
 
 If player owns no QRQ Protocol factories, use 0.1 (base rate).
 

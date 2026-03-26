@@ -39,6 +39,7 @@ const keyedDisplay = computed(() => {
 })
 
 const isSuccess = computed(() => morseState.value.state === 'success')
+const isTimeout = computed(() => morseState.value.state === 'timeout')
 
 function startTimer() {
   if (timerInterval) return
@@ -85,12 +86,14 @@ onUnmounted(() => {
 
 <template>
   <div
-    v-if="isActive || isSuccess"
+    v-if="isActive || isSuccess || isTimeout"
     class="border-2 rounded p-4 transition-colors"
     :class="
       isSuccess
         ? 'border-terminal-green bg-terminal-green/10'
-        : 'border-terminal-amber bg-terminal-bg'
+        : isTimeout
+          ? 'border-red-500 bg-red-500/10'
+          : 'border-terminal-amber bg-terminal-bg'
     "
   >
     <div class="flex items-center justify-between mb-2">
@@ -101,9 +104,11 @@ onUnmounted(() => {
       <div class="text-right">
         <p
           class="text-2xl font-mono"
-          :class="isSuccess ? 'text-terminal-green' : 'text-terminal-amber'"
+          :class="
+            isSuccess ? 'text-terminal-green' : isTimeout ? 'text-red-500' : 'text-terminal-amber'
+          "
         >
-          {{ formattedTime }}
+          {{ isTimeout ? 'TIME!' : formattedTime }}
         </p>
       </div>
     </div>
@@ -125,14 +130,19 @@ onUnmounted(() => {
     <div class="w-full bg-gray-700 rounded h-2">
       <div
         class="h-2 rounded transition-all duration-100"
-        :class="isSuccess ? 'bg-terminal-green' : 'bg-terminal-amber'"
-        :style="{ width: isSuccess ? '100%' : timeRemainingPercent + '%' }"
+        :class="isSuccess ? 'bg-terminal-green' : isTimeout ? 'bg-red-500' : 'bg-terminal-amber'"
+        :style="{ width: isSuccess || isTimeout ? '100%' : timeRemainingPercent + '%' }"
       ></div>
     </div>
 
     <!-- Success message -->
     <p v-if="isSuccess" class="text-terminal-green text-center mt-2 font-bold">
       ✓ CORRECT! Bonus QSOs awarded!
+    </p>
+
+    <!-- Timeout message -->
+    <p v-if="isTimeout" class="text-red-500 text-center mt-2 font-bold">
+      ✗ TIME'S UP! Moving to next letter...
     </p>
   </div>
 </template>
