@@ -61,6 +61,7 @@ describe('SettingsPanel.vue', () => {
         solarStormEndTime: 0,
       },
       save: vi.fn(),
+      updateAudioSettings: vi.fn(),
       ...overrides,
     })
   }
@@ -137,5 +138,77 @@ describe('SettingsPanel.vue', () => {
     await confirmBtn.trigger('click')
 
     expect(useGameStore().tapPrestigeAccumulator).toBe(0n)
+  })
+
+  describe('importSave', () => {
+    function makeSaveData(audioOverrides = {}) {
+      return {
+        version: '1.1.5',
+        qsos: '1000',
+        licenseLevel: 1,
+        factoryCounts: {},
+        fractionalQSOs: 0,
+        audioSettings: { volume: 0.5, frequency: 600, isMuted: false, ...audioOverrides },
+        lotteryState: {
+          lastTriggerTime: 0,
+          isBonusAvailable: false,
+          bonusFactoryId: null,
+          bonusEndTime: 0,
+          bonusAvailableEndTime: 0,
+          phenomenonTitle: '',
+          isSolarStorm: false,
+          solarStormEndTime: 0,
+        },
+      }
+    }
+
+    it('accepts old save data without morseWpm (backward compatibility)', async () => {
+      mockStore()
+      const wrapper = mount(SettingsPanel)
+
+      const saveData = makeSaveData() // no morseWpm
+      const encoded = btoa(JSON.stringify(saveData))
+
+      const textarea = wrapper.find('textarea[placeholder="Paste save data here..."]')
+      await textarea.setValue(encoded)
+      const loadBtn = wrapper.findAll('button').find(b => b.text() === 'Load Save')
+      await loadBtn.trigger('click')
+
+      expect(wrapper.find('p.text-red-500.text-sm').exists()).toBe(false)
+      expect(reloadMock).toHaveBeenCalled()
+    })
+
+    it('rejects save data with invalid morseWpm value', async () => {
+      mockStore()
+      const wrapper = mount(SettingsPanel)
+
+      const saveData = makeSaveData({ morseWpm: 999 }) // out of range
+      const encoded = btoa(JSON.stringify(saveData))
+
+      const textarea = wrapper.find('textarea[placeholder="Paste save data here..."]')
+      await textarea.setValue(encoded)
+      const loadBtn = wrapper.findAll('button').find(b => b.text() === 'Load Save')
+      await loadBtn.trigger('click')
+
+      expect(wrapper.find('p.text-red-500.text-sm').exists()).toBe(true)
+      expect(wrapper.find('p.text-red-500.text-sm').text()).toContain('Import failed')
+      expect(reloadMock).not.toHaveBeenCalled()
+    })
+
+    it('accepts save data with valid morseWpm value', async () => {
+      mockStore()
+      const wrapper = mount(SettingsPanel)
+
+      const saveData = makeSaveData({ morseWpm: 15 })
+      const encoded = btoa(JSON.stringify(saveData))
+
+      const textarea = wrapper.find('textarea[placeholder="Paste save data here..."]')
+      await textarea.setValue(encoded)
+      const loadBtn = wrapper.findAll('button').find(b => b.text() === 'Load Save')
+      await loadBtn.trigger('click')
+
+      expect(wrapper.find('p.text-red-500.text-sm').exists()).toBe(false)
+      expect(reloadMock).toHaveBeenCalled()
+    })
   })
 })

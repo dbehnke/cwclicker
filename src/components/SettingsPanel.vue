@@ -150,7 +150,10 @@ function isValidSaveData(data) {
   if (typeof audio.isMuted !== 'boolean') {
     return false
   }
-  if (typeof audio.morseWpm !== 'number' || audio.morseWpm < 5 || audio.morseWpm > 30) {
+  if (
+    audio.morseWpm !== undefined &&
+    (typeof audio.morseWpm !== 'number' || audio.morseWpm < 5 || audio.morseWpm > 30)
+  ) {
     return false
   }
 

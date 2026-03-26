@@ -111,9 +111,9 @@ onUnmounted(() => {
         <p class="text-xs text-gray-400">Tries</p>
         <p
           class="text-lg font-mono"
-          :class="morseState.triesRemaining <= 1 ? 'text-red-400' : 'text-terminal-green'"
+          :class="triesRemaining <= 1 ? 'text-red-400' : 'text-terminal-green'"
         >
-          {{ morseState.triesRemaining ?? 3 }}<span class="text-gray-500">/3</span>
+          {{ triesRemaining }}<span class="text-gray-500">/3</span>
         </p>
         <p
           class="text-2xl font-mono"
@@ -160,7 +160,7 @@ onUnmounted(() => {
 
     <!-- Success message -->
     <p v-if="isSuccess" class="text-terminal-green text-center mt-2 font-bold">
-      ✓ CORRECT! +{{ morseState.lastBonusAwarded.toFixed(1) }} QSOs!
+      ✓ CORRECT! +{{ (morseState.lastBonusAwarded ?? 0).toFixed(1) }} QSOs!
     </p>
 
     <!-- Timeout message -->
