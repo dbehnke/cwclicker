@@ -94,6 +94,7 @@ describe('Morse Challenge', () => {
       store.morseChallengeState.currentChar = 'A'
       store.morseChallengeState.currentPattern = '·−'
       store.morseChallengeState.keyedSequence = []
+      store.morseChallengeState.triesRemaining = 1
 
       store.handleMorseKeyTap('dah')
 
@@ -106,6 +107,7 @@ describe('Morse Challenge', () => {
       store.morseChallengeState.currentChar = 'A'
       store.morseChallengeState.currentPattern = '·−'
       store.morseChallengeState.keyedSequence = []
+      store.morseChallengeState.triesRemaining = 1
 
       store.handleMorseKeyTap('dit') // correct first
       store.handleMorseKeyTap('dit') // wrong second (should be dah)
@@ -119,6 +121,7 @@ describe('Morse Challenge', () => {
       store.morseChallengeState.currentChar = 'A'
       store.morseChallengeState.currentPattern = '·−'
       store.morseChallengeState.keyedSequence = []
+      store.morseChallengeState.triesRemaining = 1
 
       store.handleMorseKeyTap('dah')
       expect(store.morseChallengeState.state).toBe('wrong')
@@ -127,6 +130,54 @@ describe('Morse Challenge', () => {
 
       expect(store.morseChallengeState.state).toBe('active')
       expect(store.morseChallengeState.keyedSequence).toEqual([])
+    })
+  })
+
+  describe('handleMorseKeyTap - wrong sequence with 3 tries', () => {
+    it('decrements triesRemaining on wrong input and resets sequence', () => {
+      const store = useGameStore()
+      store.startMorseChallenge()
+      store.morseChallengeState.currentChar = 'A'
+      store.morseChallengeState.currentPattern = '·−'
+      store.morseChallengeState.keyedSequence = []
+      store.morseChallengeState.triesRemaining = 3
+
+      store.handleMorseKeyTap('dah') // wrong first element
+
+      expect(store.morseChallengeState.state).toBe('active') // not 'wrong'
+      expect(store.morseChallengeState.triesRemaining).toBe(2)
+      expect(store.morseChallengeState.keyedSequence).toEqual([])
+    })
+
+    it('sets wrong state when triesRemaining reaches 0', () => {
+      const store = useGameStore()
+      store.startMorseChallenge()
+      store.morseChallengeState.currentChar = 'A'
+      store.morseChallengeState.currentPattern = '·−'
+      store.morseChallengeState.keyedSequence = []
+      store.morseChallengeState.triesRemaining = 1
+
+      store.handleMorseKeyTap('dah') // wrong — was last try
+
+      expect(store.morseChallengeState.state).toBe('wrong')
+    })
+
+    it('allows successful retry after wrong first attempt', () => {
+      const store = useGameStore()
+      store.startMorseChallenge()
+      store.morseChallengeState.currentChar = 'A'
+      store.morseChallengeState.currentPattern = '·−'
+      store.morseChallengeState.keyedSequence = []
+      store.morseChallengeState.triesRemaining = 2
+
+      store.handleMorseKeyTap('dah') // wrong
+      expect(store.morseChallengeState.state).toBe('active')
+      expect(store.morseChallengeState.triesRemaining).toBe(1)
+
+      store.handleMorseKeyTap('dit') // correct first
+      store.handleMorseKeyTap('dah') // completes ·−
+
+      expect(store.morseChallengeState.state).toBe('success')
     })
   })
 

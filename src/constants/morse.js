@@ -58,3 +58,13 @@ export const MORSE_TIMING = {
   INTRA_GAP_MAX_MS: 400, // Max pause within a character
   INTER_GAP_MIN_MS: 400, // Min pause to end a character
 }
+
+export const MORSE_WPM = {
+  DEFAULT: 5,
+  MIN: 5,
+  MAX: 30,
+}
+
+export function ditDurationMs(wpm) {
+  return Math.round(1200 / wpm)
+}

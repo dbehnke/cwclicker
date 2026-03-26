@@ -41,7 +41,7 @@ describe('SettingsPanel.vue', () => {
 
   function mockStore(overrides = {}) {
     useGameStore.mockReturnValue({
-      audioSettings: { volume: 0.5, frequency: 600, isMuted: false },
+      audioSettings: { volume: 0.5, frequency: 600, isMuted: false, morseWpm: 5 },
       canPrestigeReset: false,
       prestigeReset: vi.fn(),
       qsos: 0n,
@@ -61,6 +61,7 @@ describe('SettingsPanel.vue', () => {
         solarStormEndTime: 0,
       },
       save: vi.fn(),
+      updateAudioSettings: vi.fn(),
       ...overrides,
     })
   }
@@ -70,9 +71,9 @@ describe('SettingsPanel.vue', () => {
 
     const wrapper = mount(SettingsPanel)
 
-    const resetButtons = wrapper.findAll('button').filter(button =>
-      button.text().includes('Prestige Reset'),
-    )
+    const resetButtons = wrapper
+      .findAll('button')
+      .filter(button => button.text().includes('Prestige Reset'))
 
     expect(resetButtons).toHaveLength(1)
     expect(resetButtons[0].attributes('disabled')).toBeDefined()
@@ -84,20 +85,22 @@ describe('SettingsPanel.vue', () => {
 
     const wrapper = mount(SettingsPanel)
 
-    const prestigeButtons = wrapper.findAll('button').filter(button =>
-      button.text().includes('Prestige Reset'),
-    )
+    const prestigeButtons = wrapper
+      .findAll('button')
+      .filter(button => button.text().includes('Prestige Reset'))
 
     expect(prestigeButtons[0].attributes('disabled')).toBeUndefined()
 
     await prestigeButtons[0].trigger('click')
-    const confirmButtons = wrapper.findAll('button').filter(button =>
-      button.text().includes('Yes, Prestige Reset'),
-    )
+    const confirmButtons = wrapper
+      .findAll('button')
+      .filter(button => button.text().includes('Yes, Prestige Reset'))
     await confirmButtons[0].trigger('click')
 
     expect(prestigeReset).toHaveBeenCalled()
-    expect(wrapper.text()).not.toContain('Prestige reset will reset your run but keep prestige progress.')
+    expect(wrapper.text()).not.toContain(
+      'Prestige reset will reset your run but keep prestige progress.'
+    )
   })
 
   it('prestige and reset confirmations are mutually exclusive', async () => {
@@ -129,9 +132,83 @@ describe('SettingsPanel.vue', () => {
     const resetBtn = wrapper.findAll('button').filter(b => b.text().includes('⚠️ Reset Game'))[0]
     await resetBtn.trigger('click')
 
-    const confirmBtn = wrapper.findAll('button').filter(b => b.text().includes('Yes, Reset Everything'))[0]
+    const confirmBtn = wrapper
+      .findAll('button')
+      .filter(b => b.text().includes('Yes, Reset Everything'))[0]
     await confirmBtn.trigger('click')
 
     expect(useGameStore().tapPrestigeAccumulator).toBe(0n)
+  })
+
+  describe('importSave', () => {
+    function makeSaveData(audioOverrides = {}) {
+      return {
+        version: '1.1.5',
+        qsos: '1000',
+        licenseLevel: 1,
+        factoryCounts: {},
+        fractionalQSOs: 0,
+        audioSettings: { volume: 0.5, frequency: 600, isMuted: false, ...audioOverrides },
+        lotteryState: {
+          lastTriggerTime: 0,
+          isBonusAvailable: false,
+          bonusFactoryId: null,
+          bonusEndTime: 0,
+          bonusAvailableEndTime: 0,
+          phenomenonTitle: '',
+          isSolarStorm: false,
+          solarStormEndTime: 0,
+        },
+      }
+    }
+
+    it('accepts old save data without morseWpm (backward compatibility)', async () => {
+      mockStore()
+      const wrapper = mount(SettingsPanel)
+
+      const saveData = makeSaveData() // no morseWpm
+      const encoded = btoa(JSON.stringify(saveData))
+
+      const textarea = wrapper.find('textarea[placeholder="Paste save data here..."]')
+      await textarea.setValue(encoded)
+      const loadBtn = wrapper.findAll('button').find(b => b.text() === 'Load Save')
+      await loadBtn.trigger('click')
+
+      expect(wrapper.find('p.text-red-500.text-sm').exists()).toBe(false)
+      expect(reloadMock).toHaveBeenCalled()
+    })
+
+    it('rejects save data with invalid morseWpm value', async () => {
+      mockStore()
+      const wrapper = mount(SettingsPanel)
+
+      const saveData = makeSaveData({ morseWpm: 999 }) // out of range
+      const encoded = btoa(JSON.stringify(saveData))
+
+      const textarea = wrapper.find('textarea[placeholder="Paste save data here..."]')
+      await textarea.setValue(encoded)
+      const loadBtn = wrapper.findAll('button').find(b => b.text() === 'Load Save')
+      await loadBtn.trigger('click')
+
+      expect(wrapper.find('p.text-red-500.text-sm').exists()).toBe(true)
+      expect(wrapper.find('p.text-red-500.text-sm').text()).toContain('Import failed')
+      expect(reloadMock).not.toHaveBeenCalled()
+    })
+
+    it('accepts save data with valid morseWpm value', async () => {
+      mockStore()
+      const wrapper = mount(SettingsPanel)
+
+      const saveData = makeSaveData({ morseWpm: 15 })
+      const encoded = btoa(JSON.stringify(saveData))
+
+      const textarea = wrapper.find('textarea[placeholder="Paste save data here..."]')
+      await textarea.setValue(encoded)
+      const loadBtn = wrapper.findAll('button').find(b => b.text() === 'Load Save')
+      await loadBtn.trigger('click')
+
+      expect(wrapper.find('p.text-red-500.text-sm').exists()).toBe(false)
+      expect(reloadMock).toHaveBeenCalled()
+    })
   })
 })
