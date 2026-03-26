@@ -964,13 +964,15 @@ export const useGameStore = defineStore('game', () => {
     // Check if keyed sequence diverges from the pattern prefix
     if (!pattern.slice(0, keyed.length).every((v, i) => v === keyed[i])) {
       // Wrong input — consume a try
+      // triesRemaining > 1: at least 2 tries remain after this one fails — decrement and retry
+      // triesRemaining === 1: this is the final try; exhausting it fails immediately
       if (state.triesRemaining > 1) {
         // Retry with same letter
         morseChallengeState.value.triesRemaining = state.triesRemaining - 1
         morseChallengeState.value.keyedSequence = []
         // Timer keeps running — player continues with same letter
       } else {
-        // Last try exhausted — fail
+        // Last try exhausted (triesRemaining was 1) — fail
         morseChallengeState.value.state = 'wrong'
         setTimeout(() => {
           advanceMorseLetter()

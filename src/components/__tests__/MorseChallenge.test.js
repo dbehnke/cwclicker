@@ -80,6 +80,8 @@ describe('MorseChallenge', () => {
 
     mountWithState({
       state: 'active',
+      // 21s = CHALLENGE_DURATION_MS (20s) + 1s buffer; ensures timeRemaining <= 0 is reached
+      // within the first TIMER_UPDATE_INTERVAL_MS (100ms) tick after mounting
       challengeStartTime: fakeNow - 21000,
     })
 
