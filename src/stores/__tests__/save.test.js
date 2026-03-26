@@ -324,6 +324,8 @@ describe('Game Store - Save/Load', () => {
         keyedSequence: ['dit', 'dah'],
         challengeStartTime: 1700000000000,
         state: 'active',
+        triesRemaining: 3,
+        lastBonusAwarded: 0,
       })
     })
 

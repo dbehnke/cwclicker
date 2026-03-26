@@ -13,6 +13,8 @@ const importError = ref('')
 // Audio settings (sync with store)
 const MIN_FREQUENCY = 400
 const MAX_FREQUENCY = 1000
+const MIN_MORSE_WPM = 5
+const MAX_MORSE_WPM = 30
 
 /**
  * Handle volume change
@@ -30,6 +32,14 @@ function handleFrequencyChange(event) {
   const frequency = parseInt(event.target.value, 10)
   audioService.setFrequency(frequency)
   store.updateAudioSettings({ frequency })
+}
+
+/**
+ * Handle morse WPM change
+ */
+function handleMorseWpmChange(event) {
+  const wpm = parseInt(event.target.value, 10)
+  store.updateAudioSettings({ morseWpm: wpm })
 }
 
 /**
@@ -138,6 +148,12 @@ function isValidSaveData(data) {
     return false
   }
   if (typeof audio.isMuted !== 'boolean') {
+    return false
+  }
+  if (
+    audio.morseWpm !== undefined &&
+    (typeof audio.morseWpm !== 'number' || audio.morseWpm < 5 || audio.morseWpm > 30)
+  ) {
     return false
   }
 
@@ -255,6 +271,7 @@ function sanitizeSaveData(data) {
     volume: Math.max(0, Math.min(1, Number(audio.volume) || 0.5)),
     frequency: Math.max(400, Math.min(1000, Number(audio.frequency) || 600)),
     isMuted: Boolean(audio.isMuted),
+    morseWpm: Math.max(5, Math.min(30, Number(audio.morseWpm) || 5)),
   }
 
   // Sanitize lotteryState
@@ -414,6 +431,27 @@ function formatPercent(value) {
           <div class="flex justify-between text-xs text-gray-500">
             <span>{{ MIN_FREQUENCY }} Hz</span>
             <span>{{ MAX_FREQUENCY }} Hz</span>
+          </div>
+        </div>
+
+        <!-- WPM Slider -->
+        <div class="space-y-2">
+          <div class="flex justify-between text-terminal-green">
+            <span>Morse WPM</span>
+            <span>{{ store.audioSettings.morseWpm }} WPM</span>
+          </div>
+          <input
+            type="range"
+            :min="MIN_MORSE_WPM"
+            :max="MAX_MORSE_WPM"
+            step="5"
+            :value="store.audioSettings.morseWpm"
+            @input="handleMorseWpmChange"
+            class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer"
+          />
+          <div class="flex justify-between text-xs text-gray-500">
+            <span>{{ MIN_MORSE_WPM }} WPM (Slow)</span>
+            <span>{{ MAX_MORSE_WPM }} WPM (Fast)</span>
           </div>
         </div>
       </div>

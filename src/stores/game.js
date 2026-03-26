@@ -13,8 +13,8 @@ import { MORSE_CHARS, MORSE_CHAR_LIST, MORSE_TIMING } from '../constants/morse'
  * Current game version for save data migration
  * @type {string}
  */
-const GAME_VERSION = '1.1.5'
-const MORSE_CHALLENGE_ADVANCE_DELAY_MS = 300
+const GAME_VERSION = '1.1.6'
+const MORSE_CHALLENGE_ADVANCE_DELAY_MS = 5000
 const MAX_BULK_PURCHASE_COUNT = 10
 const OVERFLOW_FACTORY_COST = 10n ** 100n
 const MAX_PRESTIGE_LEVEL_FOR_MULTIPLIER = BigInt(Number.MAX_SAFE_INTEGER)
@@ -100,6 +100,7 @@ export const useGameStore = defineStore('game', () => {
     volume: 0.5,
     frequency: 600,
     isMuted: false,
+    morseWpm: 5,
   })
 
   // Lottery system
@@ -147,6 +148,8 @@ export const useGameStore = defineStore('game', () => {
     keyedSequence: [], // Array of 'dit' or 'dah' keyed so far
     challengeStartTime: 0, // When current challenge started
     state: 'idle', // 'idle' | 'active' | 'success' | 'timeout' | 'wrong'
+    triesRemaining: 3, // NEW
+    lastBonusAwarded: 0, // NEW
   })
 
   // Timer for evaluating morse pattern after inter-character gap
@@ -701,6 +704,7 @@ export const useGameStore = defineStore('game', () => {
             volume: state.audioSettings.volume ?? 0.5,
             frequency: state.audioSettings.frequency ?? 600,
             isMuted: state.audioSettings.isMuted ?? false,
+            morseWpm: state.audioSettings.morseWpm ?? 5,
           }
         }
 
@@ -740,6 +744,8 @@ export const useGameStore = defineStore('game', () => {
             keyedSequence: state.morseChallengeState.keyedSequence || [],
             challengeStartTime: state.morseChallengeState.challengeStartTime || 0,
             state: state.morseChallengeState.state || 'idle',
+            triesRemaining: state.morseChallengeState.triesRemaining ?? 3,
+            lastBonusAwarded: state.morseChallengeState.lastBonusAwarded ?? 0,
           }
           // Clear any pending inter-character gap timer from before save
           // The component will re-evaluate on mount
@@ -910,6 +916,8 @@ export const useGameStore = defineStore('game', () => {
       keyedSequence: [],
       challengeStartTime: Date.now(),
       state: 'active',
+      triesRemaining: 3,
+      lastBonusAwarded: 0,
     }
   }
 
@@ -921,7 +929,6 @@ export const useGameStore = defineStore('game', () => {
    */
   function handleMorseKeyTap(type) {
     const state = morseChallengeState.value
-    // Guard covers all non-active states: 'idle', 'success', 'timeout', 'wrong'
     if (state.state !== 'active') {
       return
     }
@@ -954,12 +961,21 @@ export const useGameStore = defineStore('game', () => {
       return
     }
 
-    // Check if keyed sequence diverges from the pattern prefix — advance on wrong input
+    // Check if keyed sequence diverges from the pattern prefix
     if (!pattern.slice(0, keyed.length).every((v, i) => v === keyed[i])) {
-      morseChallengeState.value.state = 'wrong'
-      setTimeout(() => {
-        advanceMorseLetter()
-      }, MORSE_CHALLENGE_ADVANCE_DELAY_MS)
+      // Wrong input — consume a try
+      if (state.triesRemaining > 1) {
+        // Retry with same letter
+        morseChallengeState.value.triesRemaining = state.triesRemaining - 1
+        morseChallengeState.value.keyedSequence = []
+        // Timer keeps running — player continues with same letter
+      } else {
+        // Last try exhausted — fail
+        morseChallengeState.value.state = 'wrong'
+        setTimeout(() => {
+          advanceMorseLetter()
+        }, MORSE_CHALLENGE_ADVANCE_DELAY_MS)
+      }
       return
     }
 
@@ -1000,6 +1016,7 @@ export const useGameStore = defineStore('game', () => {
       addPassiveQSOs(bonus)
     }
     morseChallengeState.value.state = 'success'
+    morseChallengeState.value.lastBonusAwarded = bonus
     setTimeout(() => {
       advanceMorseLetter()
     }, MORSE_CHALLENGE_ADVANCE_DELAY_MS)
