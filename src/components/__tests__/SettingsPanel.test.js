@@ -41,7 +41,7 @@ describe('SettingsPanel.vue', () => {
 
   function mockStore(overrides = {}) {
     useGameStore.mockReturnValue({
-      audioSettings: { volume: 0.5, frequency: 600, isMuted: false },
+      audioSettings: { volume: 0.5, frequency: 600, isMuted: false, morseWpm: 5 },
       canPrestigeReset: false,
       prestigeReset: vi.fn(),
       qsos: 0n,
@@ -70,9 +70,9 @@ describe('SettingsPanel.vue', () => {
 
     const wrapper = mount(SettingsPanel)
 
-    const resetButtons = wrapper.findAll('button').filter(button =>
-      button.text().includes('Prestige Reset'),
-    )
+    const resetButtons = wrapper
+      .findAll('button')
+      .filter(button => button.text().includes('Prestige Reset'))
 
     expect(resetButtons).toHaveLength(1)
     expect(resetButtons[0].attributes('disabled')).toBeDefined()
@@ -84,20 +84,22 @@ describe('SettingsPanel.vue', () => {
 
     const wrapper = mount(SettingsPanel)
 
-    const prestigeButtons = wrapper.findAll('button').filter(button =>
-      button.text().includes('Prestige Reset'),
-    )
+    const prestigeButtons = wrapper
+      .findAll('button')
+      .filter(button => button.text().includes('Prestige Reset'))
 
     expect(prestigeButtons[0].attributes('disabled')).toBeUndefined()
 
     await prestigeButtons[0].trigger('click')
-    const confirmButtons = wrapper.findAll('button').filter(button =>
-      button.text().includes('Yes, Prestige Reset'),
-    )
+    const confirmButtons = wrapper
+      .findAll('button')
+      .filter(button => button.text().includes('Yes, Prestige Reset'))
     await confirmButtons[0].trigger('click')
 
     expect(prestigeReset).toHaveBeenCalled()
-    expect(wrapper.text()).not.toContain('Prestige reset will reset your run but keep prestige progress.')
+    expect(wrapper.text()).not.toContain(
+      'Prestige reset will reset your run but keep prestige progress.'
+    )
   })
 
   it('prestige and reset confirmations are mutually exclusive', async () => {
@@ -129,7 +131,9 @@ describe('SettingsPanel.vue', () => {
     const resetBtn = wrapper.findAll('button').filter(b => b.text().includes('⚠️ Reset Game'))[0]
     await resetBtn.trigger('click')
 
-    const confirmBtn = wrapper.findAll('button').filter(b => b.text().includes('Yes, Reset Everything'))[0]
+    const confirmBtn = wrapper
+      .findAll('button')
+      .filter(b => b.text().includes('Yes, Reset Everything'))[0]
     await confirmBtn.trigger('click')
 
     expect(useGameStore().tapPrestigeAccumulator).toBe(0n)
