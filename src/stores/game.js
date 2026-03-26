@@ -18,8 +18,9 @@ import {
  * Current game version for save data migration
  * @type {string}
  */
-const GAME_VERSION = '1.1.6'
+const GAME_VERSION = '1.1.7'
 const MORSE_CHALLENGE_ADVANCE_DELAY_MS = 5000
+const MORSE_CHALLENGE_TERMINAL_STATES = ['timeout', 'wrong', 'success']
 const MAX_BULK_PURCHASE_COUNT = 10
 const OVERFLOW_FACTORY_COST = 10n ** 100n
 const MAX_PRESTIGE_LEVEL_FOR_MULTIPLIER = BigInt(Number.MAX_SAFE_INTEGER)
@@ -153,9 +154,12 @@ export const useGameStore = defineStore('game', () => {
     keyedSequence: [], // Array of 'dit' or 'dah' keyed so far
     challengeStartTime: 0, // When current challenge started
     state: 'idle', // 'idle' | 'active' | 'success' | 'timeout' | 'wrong' | 'wrong-retry'
-    triesRemaining: 3, // NEW
-    lastBonusAwarded: 0, // NEW
+    triesRemaining: 3,
+    lastBonusAwarded: 0,
   })
+
+  // Whether the Morse Keying Challenge is enabled (user preference)
+  const morseChallengeEnabled = ref(true)
 
   // Timer for evaluating morse pattern after inter-character gap
   let pendingEvalTimer = null
@@ -643,6 +647,7 @@ export const useGameStore = defineStore('game', () => {
         lastSaveTime: Date.now(),
         offlineEarnings: offlineEarnings.value,
         morseChallengeState: morseChallengeState.value,
+        morseChallengeEnabled: morseChallengeEnabled.value,
       }
       localStorage.setItem('cw-keyer-game', JSON.stringify(state))
     } catch (e) {
@@ -742,6 +747,9 @@ export const useGameStore = defineStore('game', () => {
           offlineEarnings.value = state.offlineEarnings
         }
 
+        // Restore morse challenge enabled preference
+        morseChallengeEnabled.value = state.morseChallengeEnabled ?? true
+
         // Restore morse challenge state
         if (state.morseChallengeState) {
           morseChallengeState.value = {
@@ -759,6 +767,11 @@ export const useGameStore = defineStore('game', () => {
           if (pendingEvalTimer) {
             clearTimeout(pendingEvalTimer)
             pendingEvalTimer = null
+          }
+          // If restored in a terminal state (success/timeout/wrong) and challenge is
+          // enabled, restart immediately — the advance setTimeout was lost on reload
+          if (MORSE_CHALLENGE_TERMINAL_STATES.includes(morseChallengeState.value.state) && morseChallengeEnabled.value) {
+            startMorseChallenge()
           }
         }
 
@@ -1079,6 +1092,39 @@ export const useGameStore = defineStore('game', () => {
     startMorseChallenge()
   }
 
+  /**
+   * Toggles the Morse Challenge on or off.
+   * Disabling cancels any pending timers and resets the challenge to idle.
+   * Enabling starts a fresh challenge immediately.
+   */
+  function toggleMorseChallenge() {
+    if (morseChallengeEnabled.value) {
+      if (pendingEvalTimer) {
+        clearTimeout(pendingEvalTimer)
+        pendingEvalTimer = null
+      }
+      if (pendingRetryTimer) {
+        clearTimeout(pendingRetryTimer)
+        pendingRetryTimer = null
+      }
+      morseChallengeEnabled.value = false
+      morseChallengeState.value = {
+        isActive: false,
+        currentChar: null,
+        currentPattern: '',
+        keyedSequence: [],
+        challengeStartTime: 0,
+        state: 'idle',
+        triesRemaining: 3,
+        lastBonusAwarded: 0,
+      }
+    } else {
+      morseChallengeEnabled.value = true
+      startMorseChallenge()
+    }
+    save()
+  }
+
   return {
     qsos,
     totalQsosEarned,
@@ -1118,6 +1164,8 @@ export const useGameStore = defineStore('game', () => {
     getQRQOutput,
     startMorseChallenge,
     handleMorseKeyTap,
+    morseChallengeEnabled,
+    toggleMorseChallenge,
     save,
     load,
   }
