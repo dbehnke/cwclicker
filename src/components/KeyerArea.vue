@@ -2,8 +2,7 @@
 import { ref } from 'vue'
 import { useGameStore } from '../stores/game'
 import { audioService } from '../services/audio'
-
-const DIT_DAH_THRESHOLD_MS = 200
+import { MORSE_TIMING } from '../constants/morse'
 
 const store = useGameStore()
 const startTime = ref(0)
@@ -33,7 +32,7 @@ const handleUp = () => {
   audioService.stopTone()
 
   const duration = Date.now() - startTime.value
-  const type = duration < DIT_DAH_THRESHOLD_MS ? 'dit' : 'dah'
+  const type = duration < MORSE_TIMING.DAH_MIN_MS ? 'dit' : 'dah'
   const qsoValue = type === 'dit' ? 1 : 2
 
   store.tapKeyer(type)

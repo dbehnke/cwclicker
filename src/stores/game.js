@@ -381,6 +381,18 @@ export const useGameStore = defineStore('game', () => {
       solarStormEndTime: 0,
     }
     migrationInfo.value = null
+    morseChallengeState.value = {
+      isActive: false,
+      currentChar: null,
+      currentPattern: '',
+      keyedSequence: [],
+      challengeStartTime: 0,
+      state: 'idle',
+    }
+    if (pendingEvalTimer) {
+      clearTimeout(pendingEvalTimer)
+      pendingEvalTimer = null
+    }
     save()
   }
 
@@ -620,6 +632,7 @@ export const useGameStore = defineStore('game', () => {
         purchasedUpgrades: Array.from(purchasedUpgrades.value),
         lastSaveTime: Date.now(),
         offlineEarnings: offlineEarnings.value,
+        morseChallengeState: morseChallengeState.value,
       }
       localStorage.setItem('cw-keyer-game', JSON.stringify(state))
     } catch (e) {
@@ -639,7 +652,7 @@ export const useGameStore = defineStore('game', () => {
 
         // Check for old save data (v1.0.0 or earlier - no version field)
         if (!state.version) {
-          console.log('Detected v1.0.0 save data - migrating to v1.1.0 with clean slate')
+          console.warn('Detected v1.0.0 save data - migrating to v1.1.0 with clean slate')
 
           // Store migration info for UI to display
           migrationInfo.value = {
@@ -716,6 +729,24 @@ export const useGameStore = defineStore('game', () => {
         // Restore offline earnings notification if present and user hasn't dismissed it
         if (state.offlineEarnings && state.offlineEarnings.qsos > 0) {
           offlineEarnings.value = state.offlineEarnings
+        }
+
+        // Restore morse challenge state
+        if (state.morseChallengeState) {
+          morseChallengeState.value = {
+            isActive: state.morseChallengeState.isActive || false,
+            currentChar: state.morseChallengeState.currentChar || null,
+            currentPattern: state.morseChallengeState.currentPattern || '',
+            keyedSequence: state.morseChallengeState.keyedSequence || [],
+            challengeStartTime: state.morseChallengeState.challengeStartTime || 0,
+            state: state.morseChallengeState.state || 'idle',
+          }
+          // Clear any pending inter-character gap timer from before save
+          // The component will re-evaluate on mount
+          if (pendingEvalTimer) {
+            clearTimeout(pendingEvalTimer)
+            pendingEvalTimer = null
+          }
         }
 
         // Calculate offline progress

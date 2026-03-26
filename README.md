@@ -16,6 +16,19 @@ CW Clicker is a browser idle game built around a ham radio theme. Tap the keyer 
 
 The keyer is the heart of the game. Short sends and longer sends both add QSOs, so active play always matters.
 
+### Morse Keying Challenge
+
+Earn bonus QSOs by testing your Morse code skills! A random letter appears with its Morse pattern (·−). Key the exact pattern on the keyer within 5 seconds to earn bonus QSOs equal to your current QRQ factory's per-second output. The bonus multiplier resets the challenge, so unlock better factories for higher bonuses. Wrong input or timeout just advances to the next letter—no penalty.
+
+**How to earn bonus QSOs:**
+
+1. Correct key press within 5 seconds → Bonus QSOs awarded
+2. Wrong input → Advances to next letter (no penalty)
+3. Timeout (5 sec) → Advances to next letter (no penalty)
+4. Bonus amount = QRQ factory output per second
+
+This mini-game rewards both manual skill and factory progression, making it a perfect complement to the idle mechanic.
+
 ### Factories
 
 Factories provide passive income. Each factory type has its own flavor text, output rate, and cost scaling.
@@ -46,6 +59,8 @@ The layout is built to work on desktop, tablet, and mobile.
 
 ```text
 Tap keyer -> earn QSOs -> buy factory -> unlock upgrade -> earn faster -> unlock more factories
+↑
+└── Complete Morse challenges for bonus QSOs (skill-based rewards)
 ```
 
 ## Development
