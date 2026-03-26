@@ -83,8 +83,13 @@ watch(
 )
 
 onMounted(() => {
-  // Start first challenge if not already active
-  if (!morseState.value.isActive) {
+  // Do nothing if the challenge is disabled
+  if (!store.morseChallengeEnabled) return
+
+  const s = morseState.value.state
+  // Start a fresh challenge when: not yet active, or stuck in a terminal state
+  // (timeout/wrong/success) whose advance timer was lost on page reload
+  if (!morseState.value.isActive || ['timeout', 'wrong', 'success'].includes(s)) {
     store.startMorseChallenge()
   }
 })
@@ -95,8 +100,26 @@ onUnmounted(() => {
 </script>
 
 <template>
+  <!-- Disabled state: show a minimal card with an enable button -->
   <div
-    v-if="isActive || isSuccess || isTimeout || isWrong || isWrongRetry"
+    v-if="!store.morseChallengeEnabled"
+    class="border border-gray-700 rounded px-4 py-2 flex items-center justify-between"
+  >
+    <span class="text-xs font-mono text-gray-500 uppercase tracking-widest"
+      >QRQ Morse Challenge</span
+    >
+    <button
+      class="text-xs font-mono text-terminal-green border border-terminal-green rounded px-2 py-1 hover:bg-terminal-green/10 transition-colors"
+      @click="store.toggleMorseChallenge()"
+      aria-label="Enable QRQ Morse Challenge"
+    >
+      Enable
+    </button>
+  </div>
+
+  <!-- Enabled + active state -->
+  <div
+    v-else-if="isActive || isSuccess || isTimeout || isWrong || isWrongRetry"
     class="border-2 rounded p-4 transition-colors min-h-[180px] flex flex-col"
     :class="
       isSuccess
@@ -111,26 +134,35 @@ onUnmounted(() => {
         <p class="text-terminal-amber font-bold text-lg">QRQ MORSE CHALLENGE</p>
         <p class="text-sm text-gray-400">Key the pattern for bonus QSOs!</p>
       </div>
-      <div class="text-right">
-        <p class="text-xs text-gray-400">Tries</p>
-        <p
-          class="text-lg font-mono"
-          :class="triesRemaining <= 1 ? 'text-red-400' : 'text-terminal-green'"
+      <div class="flex items-start gap-3">
+        <button
+          class="text-xs font-mono text-gray-500 border border-gray-600 rounded px-2 py-1 hover:border-red-500 hover:text-red-400 transition-colors mt-1"
+          @click="store.toggleMorseChallenge()"
+          aria-label="Disable QRQ Morse Challenge"
         >
-          {{ triesRemaining }}<span class="text-gray-500">/3</span>
-        </p>
-        <p
-          class="text-2xl font-mono"
-          :class="
-            isSuccess
-              ? 'text-terminal-green'
-              : isTimeout || isWrong || isWrongRetry
-                ? 'text-red-500'
-                : 'text-terminal-amber'
-          "
-        >
-          {{ isTimeout ? 'TIME!' : isWrong || isWrongRetry ? '✗' : formattedTime }}
-        </p>
+          Disable
+        </button>
+        <div class="text-right">
+          <p class="text-xs text-gray-400">Tries</p>
+          <p
+            class="text-lg font-mono"
+            :class="triesRemaining <= 1 ? 'text-red-400' : 'text-terminal-green'"
+          >
+            {{ triesRemaining }}<span class="text-gray-500">/3</span>
+          </p>
+          <p
+            class="text-2xl font-mono"
+            :class="
+              isSuccess
+                ? 'text-terminal-green'
+                : isTimeout || isWrong || isWrongRetry
+                  ? 'text-red-500'
+                  : 'text-terminal-amber'
+            "
+          >
+            {{ isTimeout ? 'TIME!' : isWrong || isWrongRetry ? '✗' : formattedTime }}
+          </p>
+        </div>
       </div>
     </div>
 
