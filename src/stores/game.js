@@ -929,7 +929,6 @@ export const useGameStore = defineStore('game', () => {
    */
   function handleMorseKeyTap(type) {
     const state = morseChallengeState.value
-    // Guard covers all non-active states: 'idle', 'success', 'timeout', 'wrong'
     if (state.state !== 'active') {
       return
     }
@@ -962,12 +961,21 @@ export const useGameStore = defineStore('game', () => {
       return
     }
 
-    // Check if keyed sequence diverges from the pattern prefix — advance on wrong input
+    // Check if keyed sequence diverges from the pattern prefix
     if (!pattern.slice(0, keyed.length).every((v, i) => v === keyed[i])) {
-      morseChallengeState.value.state = 'wrong'
-      setTimeout(() => {
-        advanceMorseLetter()
-      }, MORSE_CHALLENGE_ADVANCE_DELAY_MS)
+      // Wrong input — consume a try
+      if (state.triesRemaining > 1) {
+        // Retry with same letter
+        morseChallengeState.value.triesRemaining = state.triesRemaining - 1
+        morseChallengeState.value.keyedSequence = []
+        // Timer keeps running — player continues with same letter
+      } else {
+        // Last try exhausted — fail
+        morseChallengeState.value.state = 'wrong'
+        setTimeout(() => {
+          advanceMorseLetter()
+        }, MORSE_CHALLENGE_ADVANCE_DELAY_MS)
+      }
       return
     }
 
