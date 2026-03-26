@@ -150,6 +150,9 @@ export const useGameStore = defineStore('game', () => {
     state: 'idle', // 'idle' | 'active' | 'success' | 'timeout'
   })
 
+  // Timer for evaluating morse pattern after inter-character gap
+  let pendingEvalTimer = null
+
   // Offline progress tracking
   const offlineEarnings = ref(null)
 
@@ -882,9 +885,10 @@ export const useGameStore = defineStore('game', () => {
   }
 
   /**
-   * Handles a classified key event during morse challenge
-   * The caller (e.g. KeyerArea) is responsible for determining whether a tap is a dit or dah
-   * @param {'dit'|'dah'|'timeout'} type - Tap classification; 'timeout' indicates inactivity timeout
+   * Handles a classified key event during morse challenge.
+   * The caller (e.g. KeyerArea) is responsible for determining whether a tap is a dit or dah.
+   * After each correct-prefix tap, schedules an inter-character gap timer to auto-evaluate.
+   * @param {'dit'|'dah'|'timeout'} type - Tap classification; 'timeout' indicates an inactivity timeout.
    */
   function handleMorseKeyTap(type) {
     const state = morseChallengeState.value
@@ -895,7 +899,13 @@ export const useGameStore = defineStore('game', () => {
       return
     }
 
-    // Handle timeout
+    // Cancel any pending inter-character gap evaluation timer
+    if (pendingEvalTimer) {
+      clearTimeout(pendingEvalTimer)
+      pendingEvalTimer = null
+    }
+
+    // Handle timeout sentinel from the UI timer
     if (type === 'timeout') {
       morseChallengeState.value.state = 'timeout'
       setTimeout(() => {
@@ -905,51 +915,44 @@ export const useGameStore = defineStore('game', () => {
     }
 
     const now = Date.now()
-    const timeSinceLastKey = state.lastKeyTime ? now - state.lastKeyTime : Infinity
 
-    // Check for inter-character gap (if we have a sequence and enough time has passed)
-    if (state.keyedSequence.length > 0 && timeSinceLastKey >= MORSE_TIMING.INTER_GAP_MIN_MS) {
-      // Evaluate what we have so far
-      evaluateMorsePattern()
-      // Re-read state after evaluation since advanceMorseLetter may have replaced it
-      const newState = morseChallengeState.value
-      // If challenge is still active after evaluation, process current tap as first element of new sequence
-      if (newState.isActive && newState.state === 'active') {
-        newState.keyedSequence = [type]
-        newState.lastKeyTime = now
-      }
-      return
-    }
-
-    // Add to sequence
+    // Add tap to sequence
     state.keyedSequence.push(type)
     state.lastKeyTime = now
 
-    // Check if sequence matches pattern (partial or full)
+    // Map keyed sequence to symbols for comparison
     const pattern = state.currentPattern.split('')
     const keyed = state.keyedSequence.map(s => (s === 'dit' ? '·' : '−'))
 
-    // Check for exact match
+    // Check for exact match — success
     if (keyed.length === pattern.length && keyed.every((v, i) => v === pattern[i])) {
-      // Success!
       grantMorseBonus()
       return
     }
 
-    // Check if already wrong (keyed doesn't match prefix of pattern)
+    // Check if keyed sequence diverges from the pattern prefix — advance on wrong input
     if (!pattern.slice(0, keyed.length).every((v, i) => v === keyed[i])) {
-      // Wrong - just reset the sequence but don't penalize
-      state.keyedSequence = [type]
-      state.lastKeyTime = now
+      morseChallengeState.value.state = 'timeout'
+      setTimeout(() => {
+        advanceMorseLetter()
+      }, MORSE_CHALLENGE_ADVANCE_DELAY_MS)
+      return
     }
+
+    // Correct prefix so far — schedule evaluation after the inter-character gap elapses
+    pendingEvalTimer = setTimeout(() => {
+      pendingEvalTimer = null
+      evaluateMorsePattern()
+    }, MORSE_TIMING.INTER_GAP_MIN_MS)
   }
 
   /**
-   * Evaluates the current keyed sequence against the target pattern
+   * Evaluates the current keyed sequence against the target pattern.
+   * Called by the inter-character gap timer after a pause in keying.
    */
   function evaluateMorsePattern() {
     const state = morseChallengeState.value
-    if (!state.isActive) {
+    if (!state.isActive || state.state !== 'active') {
       return
     }
 
@@ -982,6 +985,10 @@ export const useGameStore = defineStore('game', () => {
    * Advances to the next letter after success or timeout
    */
   function advanceMorseLetter() {
+    if (pendingEvalTimer) {
+      clearTimeout(pendingEvalTimer)
+      pendingEvalTimer = null
+    }
     startMorseChallenge()
   }
 
