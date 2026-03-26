@@ -4,13 +4,15 @@ import { useGameStore } from '../stores/game'
 
 const store = useGameStore()
 
-const CHALLENGE_DURATION_MS = 5000
+const CHALLENGE_DURATION_MS = 20000
 const TIMER_UPDATE_INTERVAL_MS = 100
 
 const now = ref(Date.now())
 let timerInterval = null
 
 const morseState = computed(() => store.morseChallengeState)
+
+const triesRemaining = computed(() => morseState.value.triesRemaining ?? 3)
 
 const isActive = computed(() => morseState.value.isActive && morseState.value.state === 'active')
 
@@ -91,7 +93,7 @@ onUnmounted(() => {
 <template>
   <div
     v-if="isActive || isSuccess || isTimeout || isWrong"
-    class="border-2 rounded p-4 transition-colors"
+    class="border-2 rounded p-4 transition-colors min-h-[180px] flex flex-col"
     :class="
       isSuccess
         ? 'border-terminal-green bg-terminal-green/10'
@@ -106,6 +108,13 @@ onUnmounted(() => {
         <p class="text-sm text-gray-400">Key the pattern for bonus QSOs!</p>
       </div>
       <div class="text-right">
+        <p class="text-xs text-gray-400">Tries</p>
+        <p
+          class="text-lg font-mono"
+          :class="morseState.triesRemaining <= 1 ? 'text-red-400' : 'text-terminal-green'"
+        >
+          {{ morseState.triesRemaining ?? 3 }}<span class="text-gray-500">/3</span>
+        </p>
         <p
           class="text-2xl font-mono"
           :class="
@@ -151,7 +160,7 @@ onUnmounted(() => {
 
     <!-- Success message -->
     <p v-if="isSuccess" class="text-terminal-green text-center mt-2 font-bold">
-      ✓ CORRECT! Bonus QSOs awarded!
+      ✓ CORRECT! +{{ morseState.lastBonusAwarded.toFixed(1) }} QSOs!
     </p>
 
     <!-- Timeout message -->
@@ -159,9 +168,9 @@ onUnmounted(() => {
       ✗ TIME'S UP! Moving to next letter...
     </p>
 
-    <!-- Wrong input message -->
+    <!-- Wrong input message (exhausted tries) -->
     <p v-if="isWrong" class="text-red-500 text-center mt-2 font-bold">
-      ✗ WRONG! Moving to next letter...
+      ✗ OUT OF TRIES! Moving to next letter...
     </p>
   </div>
 </template>
