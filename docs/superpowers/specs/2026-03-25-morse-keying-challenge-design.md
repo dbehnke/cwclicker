@@ -16,23 +16,23 @@ Add a skill-based mini-game where players key Morse code patterns for bonus QSOs
 
 ## Morse Code Set
 
-Letters A-Z and numbers 0-9 (41 characters total).
+Letters A-Z and numbers 0-9 (36 characters total).
 
 Display format: `A = ·−` (letter, equals sign, pattern with · for dit and − for dah).
 
-Morse code reference:
+Morse code reference (using `·` for dit and `−` for dah):
 
 ```
-A: ·−    J: ·---   S: ···    1: ·----
-B: −···  K: −·−    T: −      2: ··---
-C: −·−·  L: ·−··   U: ··−    3: ···--
-D: −··   M: −−     V: ···−   4: ·····
-E: ·     N: −·     W: ·──    5: ·····
-F: ··−·  O: −──    X: −··−   6: −·····
-G: −−·   P: ·--·   Y: −·──   7: −−···
-H: ····  Q: −−·−   Z: −−··   8: −−−··
-I: ··    R: ·−·               9: −−−−·
-                                0: −−−−−
+A: ·−      J: ·−−−    S: ···     1: ·−−−−
+B: −···    K: −·−     T: −       2: ··−−−
+C: −·−·    L: ·−··    U: ··−     3: ···−−
+D: −··     M: −−      V: ···−    4: ····−
+E: ·       N: −·      W: ·−−     5: ·····
+F: ··−·    O: −−−     X: −··−    6: −····
+G: −−·     P: ·−−·    Y: −·−−    7: −−···
+H: ····    Q: −−·−    Z: −−··    8: −−−··
+I: ··      R: ·−·                9: −−−−·
+                                  0: −−−−−
 ```
 
 ## Keying Detection
