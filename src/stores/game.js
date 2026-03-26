@@ -851,7 +851,14 @@ export const useGameStore = defineStore('game', () => {
     const prestigeMult = prestigeMultiplier.value
     const lotteryMult = getLotteryMultiplier('qrq-protocol')
 
-    return baseOutput * upgradeMult * prestigeMult * lotteryMult
+    if (!Number.isFinite(output) || output <= 0) {
+      return 0
+    }
+    if (output > Number.MAX_SAFE_INTEGER) {
+      return Number.MAX_SAFE_INTEGER
+    }
+
+    return output
   }
 
   /**
@@ -888,7 +895,10 @@ export const useGameStore = defineStore('game', () => {
 
     // Handle timeout
     if (type === 'timeout') {
-      advanceMorseLetter()
+      morseChallengeState.value.state = 'timeout'
+      setTimeout(() => {
+        advanceMorseLetter()
+      }, 300)
       return
     }
 
@@ -899,6 +909,11 @@ export const useGameStore = defineStore('game', () => {
     if (state.keyedSequence.length > 0 && timeSinceLastKey >= MORSE_TIMING.INTER_GAP_MIN_MS) {
       // Evaluate what we have so far
       evaluateMorsePattern()
+      // If challenge is still active after evaluation, process current tap as first element of new sequence
+      if (state.isActive && state.state === 'active') {
+        state.keyedSequence = [type]
+        state.lastKeyTime = now
+      }
       return
     }
 
@@ -951,7 +966,7 @@ export const useGameStore = defineStore('game', () => {
   function grantMorseBonus() {
     const bonus = getQRQOutput()
     if (bonus > 0) {
-      addQSOs(BigInt(Math.floor(bonus)))
+      addPassiveQSOs(bonus)
     }
     morseChallengeState.value.state = 'success'
     setTimeout(() => {

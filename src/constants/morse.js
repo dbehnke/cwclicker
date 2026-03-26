@@ -1,7 +1,7 @@
 'use strict'
 
 /**
- * Morse code definitions for A-Z and 0-9
+ * Morse code definitions for A-Z and 0-9 (36 characters)
  * Format: '·' for dit, '−' for dah
  */
 export const MORSE_CHARS = {
@@ -14,12 +14,12 @@ export const MORSE_CHARS = {
   G: '−−·',
   H: '····',
   I: '··',
-  J: '·---',
+  J: '·−−−',
   K: '−·−',
   L: '·−··',
   M: '−−',
   N: '−·',
-  O: '---',
+  O: '−−−',
   P: '·--·',
   Q: '−−·−',
   R: '·−·',
@@ -31,11 +31,11 @@ export const MORSE_CHARS = {
   X: '−··−',
   Y: '−·--',
   Z: '−−··',
-  0: '-----',
-  1: '·----',
-  2: '··---',
-  3: '···--',
-  4: '····-',
+  0: '−−−−−',
+  1: '·−−−−',
+  2: '··−−−',
+  3: '···−−',
+  4: '····−',
   5: '·····',
   6: '−····',
   7: '−−···',
