@@ -33,6 +33,8 @@ describe('MorseChallenge', () => {
         keyedSequence: [],
         challengeStartTime: Date.now(),
         state: 'active',
+        triesRemaining: 3,
+        lastBonusAwarded: 0,
       },
       startMorseChallenge: vi.fn(),
       handleMorseKeyTap: vi.fn(),
@@ -60,25 +62,30 @@ describe('MorseChallenge', () => {
   it('renders wrong state message', () => {
     const wrapper = mountWithState({ state: 'wrong' })
 
-    expect(wrapper.text()).toContain('WRONG! Moving to next letter...')
+    expect(wrapper.text()).toContain('OUT OF TRIES! Moving to next letter...')
   })
 
   it('renders success state message with full progress bar', () => {
     const wrapper = mountWithState({ state: 'success' })
     const progressBar = wrapper.find('div.h-2.rounded.transition-all.duration-100')
 
-    expect(wrapper.text()).toContain('CORRECT! Bonus QSOs awarded!')
+    expect(wrapper.text()).toContain('CORRECT!')
+    expect(wrapper.text()).toContain('QSOs')
     expect(progressBar.attributes('style')).toContain('width: 100%')
   })
 
   it('sends timeout tap event when timer expires', async () => {
+    const fakeNow = Date.now() + 25000
+    vi.spyOn(Date, 'now').mockReturnValue(fakeNow)
+
     mountWithState({
       state: 'active',
-      challengeStartTime: Date.now() - 5000,
+      challengeStartTime: fakeNow - 21000,
     })
 
     await vi.advanceTimersByTimeAsync(100)
 
     expect(mockStore.handleMorseKeyTap).toHaveBeenCalledWith('timeout')
+    Date.now.mockRestore()
   })
 })
