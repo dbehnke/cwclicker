@@ -7,7 +7,12 @@ import {
   prestigeThresholdForLevel,
   GAME_CONSTANTS,
 } from '../constants/game'
-import { MORSE_CHARS, MORSE_CHAR_LIST, MORSE_TIMING } from '../constants/morse'
+import {
+  MORSE_CHARS,
+  MORSE_CHAR_LIST,
+  MORSE_TIMING,
+  MORSE_CHALLENGE_WRONG_RETRY_DELAY_MS,
+} from '../constants/morse'
 
 /**
  * Current game version for save data migration
@@ -147,13 +152,15 @@ export const useGameStore = defineStore('game', () => {
     currentPattern: '', // Morse pattern (e.g., '·−')
     keyedSequence: [], // Array of 'dit' or 'dah' keyed so far
     challengeStartTime: 0, // When current challenge started
-    state: 'idle', // 'idle' | 'active' | 'success' | 'timeout' | 'wrong'
+    state: 'idle', // 'idle' | 'active' | 'success' | 'timeout' | 'wrong' | 'wrong-retry'
     triesRemaining: 3, // NEW
     lastBonusAwarded: 0, // NEW
   })
 
   // Timer for evaluating morse pattern after inter-character gap
   let pendingEvalTimer = null
+  // Timer for the 2-second wrong-retry feedback delay (retry same letter)
+  let pendingRetryTimer = null
 
   // Offline progress tracking
   const offlineEarnings = ref(null)
@@ -922,6 +929,22 @@ export const useGameStore = defineStore('game', () => {
   }
 
   /**
+   * Enters the 'wrong-retry' state: shows 2-second feedback, then resets the sequence
+   * and returns to 'active' for another attempt at the same letter.
+   */
+  function startWrongRetry(triesRemaining) {
+    morseChallengeState.value.state = 'wrong-retry'
+    morseChallengeState.value.triesRemaining = triesRemaining
+    pendingRetryTimer = setTimeout(() => {
+      pendingRetryTimer = null
+      if (morseChallengeState.value.state === 'wrong-retry') {
+        morseChallengeState.value.keyedSequence = []
+        morseChallengeState.value.state = 'active'
+      }
+    }, MORSE_CHALLENGE_WRONG_RETRY_DELAY_MS)
+  }
+
+  /**
    * Handles a classified key event during morse challenge.
    * The caller (e.g. KeyerArea) is responsible for determining whether a tap is a dit or dah.
    * After each correct-prefix tap, schedules an inter-character gap timer to auto-evaluate.
@@ -929,6 +952,28 @@ export const useGameStore = defineStore('game', () => {
    */
   function handleMorseKeyTap(type) {
     const state = morseChallengeState.value
+
+    // Handle timeout sentinel — valid from both 'active' and 'wrong-retry' states
+    if (type === 'timeout') {
+      if (state.state !== 'active' && state.state !== 'wrong-retry') {
+        return
+      }
+      if (pendingRetryTimer) {
+        clearTimeout(pendingRetryTimer)
+        pendingRetryTimer = null
+      }
+      if (pendingEvalTimer) {
+        clearTimeout(pendingEvalTimer)
+        pendingEvalTimer = null
+      }
+      morseChallengeState.value.state = 'timeout'
+      setTimeout(() => {
+        advanceMorseLetter()
+      }, MORSE_CHALLENGE_ADVANCE_DELAY_MS)
+      return
+    }
+
+    // All other tap types require 'active' state
     if (state.state !== 'active') {
       return
     }
@@ -937,15 +982,6 @@ export const useGameStore = defineStore('game', () => {
     if (pendingEvalTimer) {
       clearTimeout(pendingEvalTimer)
       pendingEvalTimer = null
-    }
-
-    // Handle timeout sentinel from the UI timer
-    if (type === 'timeout') {
-      morseChallengeState.value.state = 'timeout'
-      setTimeout(() => {
-        advanceMorseLetter()
-      }, MORSE_CHALLENGE_ADVANCE_DELAY_MS)
-      return
     }
 
     // Add tap to sequence
@@ -964,13 +1000,10 @@ export const useGameStore = defineStore('game', () => {
     // Check if keyed sequence diverges from the pattern prefix
     if (!pattern.slice(0, keyed.length).every((v, i) => v === keyed[i])) {
       // Wrong input — consume a try
-      // triesRemaining > 1: at least 2 tries remain after this one fails — decrement and retry
+      // triesRemaining > 1: at least 2 tries remain — show 2-second feedback then retry same letter
       // triesRemaining === 1: this is the final try; exhausting it fails immediately
       if (state.triesRemaining > 1) {
-        // Retry with same letter
-        morseChallengeState.value.triesRemaining = state.triesRemaining - 1
-        morseChallengeState.value.keyedSequence = []
-        // Timer keeps running — player continues with same letter
+        startWrongRetry(state.triesRemaining - 1)
       } else {
         // Last try exhausted (triesRemaining was 1) — fail
         morseChallengeState.value.state = 'wrong'
@@ -991,6 +1024,7 @@ export const useGameStore = defineStore('game', () => {
   /**
    * Evaluates the current keyed sequence against the target pattern.
    * Called by the inter-character gap timer after a pause in keying.
+   * Applies the tries mechanism — retries same letter if tries remain.
    */
   function evaluateMorsePattern() {
     const state = morseChallengeState.value
@@ -1003,9 +1037,15 @@ export const useGameStore = defineStore('game', () => {
 
     if (keyed.length === pattern.length && keyed.every((v, i) => v === pattern[i])) {
       grantMorseBonus()
+    } else if (state.triesRemaining > 1) {
+      // Incomplete or wrong — still has tries: show 2-second feedback then retry same letter
+      startWrongRetry(state.triesRemaining - 1)
     } else {
-      // Timeout or incomplete - just advance
-      advanceMorseLetter()
+      // Last try exhausted — fail and advance to next letter
+      morseChallengeState.value.state = 'wrong'
+      setTimeout(() => {
+        advanceMorseLetter()
+      }, MORSE_CHALLENGE_ADVANCE_DELAY_MS)
     }
   }
 
@@ -1025,12 +1065,16 @@ export const useGameStore = defineStore('game', () => {
   }
 
   /**
-   * Advances to the next letter after success or timeout
+   * Advances to the next letter after success, timeout, or exhausted tries
    */
   function advanceMorseLetter() {
     if (pendingEvalTimer) {
       clearTimeout(pendingEvalTimer)
       pendingEvalTimer = null
+    }
+    if (pendingRetryTimer) {
+      clearTimeout(pendingRetryTimer)
+      pendingRetryTimer = null
     }
     startMorseChallenge()
   }

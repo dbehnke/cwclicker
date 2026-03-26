@@ -59,6 +59,12 @@ export const MORSE_TIMING = {
   INTER_GAP_MIN_MS: 400, // Min pause to end a character
 }
 
+/**
+ * Delay (ms) before resetting the sequence after a wrong attempt that still has tries remaining.
+ * Shows visual "wrong" feedback before the player can retry the same letter.
+ */
+export const MORSE_CHALLENGE_WRONG_RETRY_DELAY_MS = 2000
+
 export const MORSE_WPM = {
   DEFAULT: 5,
   MIN: 5,

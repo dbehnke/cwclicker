@@ -15,6 +15,10 @@ const morseState = computed(() => store.morseChallengeState)
 const triesRemaining = computed(() => morseState.value.triesRemaining ?? 3)
 
 const isActive = computed(() => morseState.value.isActive && morseState.value.state === 'active')
+const isWrongRetry = computed(() => morseState.value.state === 'wrong-retry')
+
+// Timer should run during active keying AND during wrong-retry (to detect timeout during feedback)
+const needsTimer = computed(() => isActive.value || isWrongRetry.value)
 
 const timeRemaining = computed(() => {
   if (!morseState.value.isActive) return 0
@@ -50,8 +54,8 @@ function startTimer() {
   timerInterval = setInterval(() => {
     now.value = Date.now()
 
-    // Check for timeout
-    if (isActive.value && timeRemaining.value <= 0) {
+    // Check for timeout — fire during both active and wrong-retry states
+    if ((isActive.value || isWrongRetry.value) && timeRemaining.value <= 0) {
       store.handleMorseKeyTap('timeout')
     }
   }, TIMER_UPDATE_INTERVAL_MS)
@@ -65,9 +69,9 @@ function stopTimer() {
 }
 
 watch(
-  isActive,
-  active => {
-    if (active) {
+  needsTimer,
+  running => {
+    if (running) {
       // Sync now immediately so timeRemainingPercent starts at 100% (not >100%)
       now.value = Date.now()
       startTimer()
@@ -92,12 +96,12 @@ onUnmounted(() => {
 
 <template>
   <div
-    v-if="isActive || isSuccess || isTimeout || isWrong"
+    v-if="isActive || isSuccess || isTimeout || isWrong || isWrongRetry"
     class="border-2 rounded p-4 transition-colors min-h-[180px] flex flex-col"
     :class="
       isSuccess
         ? 'border-terminal-green bg-terminal-green/10'
-        : isTimeout || isWrong
+        : isTimeout || isWrong || isWrongRetry
           ? 'border-red-500 bg-red-500/10'
           : 'border-terminal-amber bg-terminal-bg'
     "
@@ -120,12 +124,12 @@ onUnmounted(() => {
           :class="
             isSuccess
               ? 'text-terminal-green'
-              : isTimeout || isWrong
+              : isTimeout || isWrong || isWrongRetry
                 ? 'text-red-500'
                 : 'text-terminal-amber'
           "
         >
-          {{ isTimeout ? 'TIME!' : isWrong ? '✗' : formattedTime }}
+          {{ isTimeout ? 'TIME!' : isWrong || isWrongRetry ? '✗' : formattedTime }}
         </p>
       </div>
     </div>
@@ -171,6 +175,11 @@ onUnmounted(() => {
     <!-- Wrong input message (exhausted tries) -->
     <p v-if="isWrong" class="text-red-500 text-center mt-2 font-bold">
       ✗ OUT OF TRIES! Moving to next letter...
+    </p>
+
+    <!-- Wrong input message (still has tries, retrying same letter) -->
+    <p v-if="isWrongRetry" class="text-red-500 text-center mt-2 font-bold">
+      ✗ WRONG! Retrying same letter...
     </p>
   </div>
 </template>
