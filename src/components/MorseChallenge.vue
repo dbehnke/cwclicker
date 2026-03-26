@@ -16,7 +16,7 @@ const isActive = computed(() => morseState.value.isActive && morseState.value.st
 
 const timeRemaining = computed(() => {
   if (!morseState.value.isActive) return 0
-  const elapsed = now.value - morseState.value.challengeStartTime
+  const elapsed = Math.max(0, now.value - morseState.value.challengeStartTime)
   return Math.max(0, CHALLENGE_DURATION_MS - elapsed)
 })
 

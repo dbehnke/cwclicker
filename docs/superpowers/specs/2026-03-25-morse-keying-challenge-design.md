@@ -78,33 +78,41 @@ Uniform random selection from A-Z, 0-9 each round.
 1. **Idle** - No challenge active (component not visible or disabled)
 2. **Active** - Showing pattern, accepting keying, countdown running
 3. **Success** - Brief green flash (300ms), then auto-advance to next letter
-4. **Timeout** - Brief red flash (300ms), then auto-advance to next letter
+4. **Timeout** - Brief red flash (300ms), then auto-advance to next letter (timer ran out)
+5. **Wrong** - Brief red flash (300ms), then auto-advance to next letter (wrong input keyed)
 
 ## Component Interface
 
-```vue
-<MorseChallenge
-  :isActive="true"
-  :currentLetter="letterObj"
-  :timeRemaining="3.2"
-  :state="'active'" // 'idle' | 'active' | 'success' | 'timeout'
-  @correct="handleCorrect"
-  @timeout="handleTimeout"
-/>
+`MorseChallenge.vue` is store-driven — it takes no props and emits no events.
+It reads all state from `useGameStore().morseChallengeState` and calls store actions directly:
+
+```js
+// State shape (morseChallengeState ref)
+{
+  isActive: boolean,          // Whether a challenge is currently showing
+  currentChar: string | null, // Letter being challenged (e.g. 'A')
+  currentPattern: string,     // Morse pattern to key (e.g. '·−')
+  keyedSequence: string[],    // Accumulated taps: ['dit', 'dah', ...]
+  challengeStartTime: number, // Date.now() when challenge started
+  state: string,              // 'idle' | 'active' | 'success' | 'timeout' | 'wrong'
+}
+
+// Actions used by the component
+store.startMorseChallenge()          // Start a new challenge
+store.handleMorseKeyTap(type)        // type: 'dit' | 'dah' | 'timeout'
 ```
 
 ## Store Integration
 
-Add to `game.js`:
+The following were added to `game.js`:
 
-- `morseChallengeState`: ref for challenge state
-- `currentMorseLetter`: ref for current letter object
-- `keyedMorseSequence`: ref for accumulated keying
-- `lastKeyerTapTime`: ref for gap detection
-- `startMorseChallenge()`: begins a new challenge
-- `handleMorseKeyTap(type)`: processes tap, evaluates pattern
-- `evaluateMorsePattern()`: compares keyed vs target, grants bonus if correct
-- `advanceMorseLetter()`: picks next random letter, resets state
+- `morseChallengeState`: reactive ref containing the full challenge state shape above
+- `startMorseChallenge()`: picks a random letter, resets state, begins challenge
+- `handleMorseKeyTap(type)`: records a tap, evaluates prefix/match, handles timeout sentinel
+- `evaluateMorsePattern()`: called after inter-character gap; compares full keyed sequence to pattern
+- `advanceMorseLetter()`: auto-advance — calls `startMorseChallenge()` to pick the next letter
+- `grantMorseBonus()`: calls `addPassiveQSOs(bonus)` and sets state to `'success'`
+- `getQRQOutput()`: returns QRQ factory output with upgrade/prestige/lottery multipliers (capped at MAX_SAFE_INTEGER)
 
 ## Files to Create/Modify
 
