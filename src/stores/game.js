@@ -7,12 +7,14 @@ import {
   prestigeThresholdForLevel,
   GAME_CONSTANTS,
 } from '../constants/game'
+import { MORSE_CHARS, MORSE_CHAR_LIST, MORSE_TIMING } from '../constants/morse'
 
 /**
  * Current game version for save data migration
  * @type {string}
  */
 const GAME_VERSION = '1.1.5'
+const MORSE_CHALLENGE_ADVANCE_DELAY_MS = 300
 const MAX_BULK_PURCHASE_COUNT = 10
 const OVERFLOW_FACTORY_COST = 10n ** 100n
 const MAX_PRESTIGE_LEVEL_FOR_MULTIPLIER = BigInt(Number.MAX_SAFE_INTEGER)
@@ -65,7 +67,9 @@ export const useGameStore = defineStore('game', () => {
   function parseNonNegativeBigInt(value) {
     try {
       const str = String(value ?? '0')
-      if (str.length > MAX_BIGINT_DIGITS) return 0n
+      if (str.length > MAX_BIGINT_DIGITS) {
+        return 0n
+      }
       const parsed = BigInt(str)
       return parsed < 0n ? 0n : parsed
     } catch {
@@ -134,6 +138,19 @@ export const useGameStore = defineStore('game', () => {
     isSolarStorm: false,
     solarStormEndTime: 0,
   })
+
+  // Morse Keying Challenge state
+  const morseChallengeState = ref({
+    isActive: false, // Whether challenge is currently showing
+    currentChar: null, // Current character to key (e.g., 'A')
+    currentPattern: '', // Morse pattern (e.g., '·−')
+    keyedSequence: [], // Array of 'dit' or 'dah' keyed so far
+    challengeStartTime: 0, // When current challenge started
+    state: 'idle', // 'idle' | 'active' | 'success' | 'timeout' | 'wrong'
+  })
+
+  // Timer for evaluating morse pattern after inter-character gap
+  let pendingEvalTimer = null
 
   // Offline progress tracking
   const offlineEarnings = ref(null)
@@ -364,6 +381,18 @@ export const useGameStore = defineStore('game', () => {
       solarStormEndTime: 0,
     }
     migrationInfo.value = null
+    morseChallengeState.value = {
+      isActive: false,
+      currentChar: null,
+      currentPattern: '',
+      keyedSequence: [],
+      challengeStartTime: 0,
+      state: 'idle',
+    }
+    if (pendingEvalTimer) {
+      clearTimeout(pendingEvalTimer)
+      pendingEvalTimer = null
+    }
     save()
   }
 
@@ -483,15 +512,23 @@ export const useGameStore = defineStore('game', () => {
   function getAvailableUpgrades(factoryId) {
     const ownedCount = factoryCounts.value[factoryId] || 0
     const factory = FACTORIES.find(f => f.id === factoryId)
-    if (!factory) return []
+    if (!factory) {
+      return []
+    }
 
     return UPGRADES.filter(upgrade => {
       // Must be for this factory
-      if (upgrade.factoryId !== factoryId) return false
+      if (upgrade.factoryId !== factoryId) {
+        return false
+      }
       // Must meet threshold
-      if (upgrade.threshold > ownedCount) return false
+      if (upgrade.threshold > ownedCount) {
+        return false
+      }
       // Must not already be purchased
-      if (purchasedUpgrades.value.has(upgrade.id)) return false
+      if (purchasedUpgrades.value.has(upgrade.id)) {
+        return false
+      }
       return true
     })
   }
@@ -595,6 +632,7 @@ export const useGameStore = defineStore('game', () => {
         purchasedUpgrades: Array.from(purchasedUpgrades.value),
         lastSaveTime: Date.now(),
         offlineEarnings: offlineEarnings.value,
+        morseChallengeState: morseChallengeState.value,
       }
       localStorage.setItem('cw-keyer-game', JSON.stringify(state))
     } catch (e) {
@@ -614,7 +652,7 @@ export const useGameStore = defineStore('game', () => {
 
         // Check for old save data (v1.0.0 or earlier - no version field)
         if (!state.version) {
-          console.log('Detected v1.0.0 save data - migrating to v1.1.0 with clean slate')
+          console.warn('Detected v1.0.0 save data - migrating to v1.1.0 with clean slate')
 
           // Store migration info for UI to display
           migrationInfo.value = {
@@ -691,6 +729,24 @@ export const useGameStore = defineStore('game', () => {
         // Restore offline earnings notification if present and user hasn't dismissed it
         if (state.offlineEarnings && state.offlineEarnings.qsos > 0) {
           offlineEarnings.value = state.offlineEarnings
+        }
+
+        // Restore morse challenge state
+        if (state.morseChallengeState) {
+          morseChallengeState.value = {
+            isActive: state.morseChallengeState.isActive || false,
+            currentChar: state.morseChallengeState.currentChar || null,
+            currentPattern: state.morseChallengeState.currentPattern || '',
+            keyedSequence: state.morseChallengeState.keyedSequence || [],
+            challengeStartTime: state.morseChallengeState.challengeStartTime || 0,
+            state: state.morseChallengeState.state || 'idle',
+          }
+          // Clear any pending inter-character gap timer from before save
+          // The component will re-evaluate on mount
+          if (pendingEvalTimer) {
+            clearTimeout(pendingEvalTimer)
+            pendingEvalTimer = null
+          }
         }
 
         // Calculate offline progress
@@ -807,6 +863,159 @@ export const useGameStore = defineStore('game', () => {
     offlineEarnings.value = null
   }
 
+  /**
+   * Gets the QRQ Protocol factory's current output per second
+   * Includes all multipliers: upgrades, prestige, lottery
+   * @returns {number} QSOs per second
+   */
+  function getQRQOutput() {
+    const factory = FACTORIES.find(f => f.id === 'qrq-protocol')
+    if (!factory) {
+      return 0.1
+    }
+
+    const count = factoryCounts.value['qrq-protocol'] || 0
+    if (count === 0) {
+      return 0.1
+    }
+
+    const baseOutput = factory.qsosPerSecond * count
+    const upgradeMult = getUpgradeMultiplier('qrq-protocol')
+    const prestigeMult = prestigeMultiplier.value
+    const lotteryMult = getLotteryMultiplier('qrq-protocol')
+
+    const output = baseOutput * upgradeMult * prestigeMult * lotteryMult
+
+    if (!Number.isFinite(output) || output <= 0) {
+      return 0
+    }
+    if (output > Number.MAX_SAFE_INTEGER) {
+      return Number.MAX_SAFE_INTEGER
+    }
+
+    return output
+  }
+
+  /**
+   * Starts a new morse challenge with a random character
+   */
+  function startMorseChallenge() {
+    const char = MORSE_CHAR_LIST[Math.floor(Math.random() * MORSE_CHAR_LIST.length)]
+    const pattern = MORSE_CHARS[char] || ''
+
+    morseChallengeState.value = {
+      isActive: true,
+      currentChar: char,
+      currentPattern: pattern,
+      keyedSequence: [],
+      challengeStartTime: Date.now(),
+      state: 'active',
+    }
+  }
+
+  /**
+   * Handles a classified key event during morse challenge.
+   * The caller (e.g. KeyerArea) is responsible for determining whether a tap is a dit or dah.
+   * After each correct-prefix tap, schedules an inter-character gap timer to auto-evaluate.
+   * @param {'dit'|'dah'|'timeout'} type - Tap classification; 'timeout' indicates an inactivity timeout.
+   */
+  function handleMorseKeyTap(type) {
+    const state = morseChallengeState.value
+    // Guard covers all non-active states: 'idle', 'success', 'timeout', 'wrong'
+    if (state.state !== 'active') {
+      return
+    }
+
+    // Cancel any pending inter-character gap evaluation timer
+    if (pendingEvalTimer) {
+      clearTimeout(pendingEvalTimer)
+      pendingEvalTimer = null
+    }
+
+    // Handle timeout sentinel from the UI timer
+    if (type === 'timeout') {
+      morseChallengeState.value.state = 'timeout'
+      setTimeout(() => {
+        advanceMorseLetter()
+      }, MORSE_CHALLENGE_ADVANCE_DELAY_MS)
+      return
+    }
+
+    // Add tap to sequence
+    state.keyedSequence.push(type)
+
+    // Map keyed sequence to symbols for comparison
+    const pattern = state.currentPattern.split('')
+    const keyed = state.keyedSequence.map(s => (s === 'dit' ? '·' : '−'))
+
+    // Check for exact match — success
+    if (keyed.length === pattern.length && keyed.every((v, i) => v === pattern[i])) {
+      grantMorseBonus()
+      return
+    }
+
+    // Check if keyed sequence diverges from the pattern prefix — advance on wrong input
+    if (!pattern.slice(0, keyed.length).every((v, i) => v === keyed[i])) {
+      morseChallengeState.value.state = 'wrong'
+      setTimeout(() => {
+        advanceMorseLetter()
+      }, MORSE_CHALLENGE_ADVANCE_DELAY_MS)
+      return
+    }
+
+    // Correct prefix so far — schedule evaluation after the inter-character gap elapses
+    pendingEvalTimer = setTimeout(() => {
+      pendingEvalTimer = null
+      evaluateMorsePattern()
+    }, MORSE_TIMING.INTER_GAP_MIN_MS)
+  }
+
+  /**
+   * Evaluates the current keyed sequence against the target pattern.
+   * Called by the inter-character gap timer after a pause in keying.
+   */
+  function evaluateMorsePattern() {
+    const state = morseChallengeState.value
+    if (!state.isActive || state.state !== 'active') {
+      return
+    }
+
+    const pattern = state.currentPattern.split('')
+    const keyed = state.keyedSequence.map(s => (s === 'dit' ? '·' : '−'))
+
+    if (keyed.length === pattern.length && keyed.every((v, i) => v === pattern[i])) {
+      grantMorseBonus()
+    } else {
+      // Timeout or incomplete - just advance
+      advanceMorseLetter()
+    }
+  }
+
+  /**
+   * Grants the QRQ bonus for correct keying
+   */
+  function grantMorseBonus() {
+    const bonus = getQRQOutput()
+    if (bonus > 0) {
+      addPassiveQSOs(bonus)
+    }
+    morseChallengeState.value.state = 'success'
+    setTimeout(() => {
+      advanceMorseLetter()
+    }, MORSE_CHALLENGE_ADVANCE_DELAY_MS)
+  }
+
+  /**
+   * Advances to the next letter after success or timeout
+   */
+  function advanceMorseLetter() {
+    if (pendingEvalTimer) {
+      clearTimeout(pendingEvalTimer)
+      pendingEvalTimer = null
+    }
+    startMorseChallenge()
+  }
+
   return {
     qsos,
     totalQsosEarned,
@@ -818,6 +1027,7 @@ export const useGameStore = defineStore('game', () => {
     tapPrestigeAccumulator,
     audioSettings,
     lotteryState,
+    morseChallengeState,
     purchasedUpgrades,
     migrationInfo, // For UI to display migration message
     tapKeyer,
@@ -842,6 +1052,9 @@ export const useGameStore = defineStore('game', () => {
     offlineEarnings,
     calculateOfflineProgress,
     dismissOfflineEarnings,
+    getQRQOutput,
+    startMorseChallenge,
+    handleMorseKeyTap,
     save,
     load,
   }

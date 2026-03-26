@@ -304,6 +304,29 @@ describe('Game Store - Save/Load', () => {
       expect(saved.purchasedUpgrades).toEqual(['upgrade-elmer-10'])
     })
 
+    it('persists morseChallengeState to localStorage', () => {
+      const store = useGameStore()
+      store.qsos = 1000n
+      store.startMorseChallenge()
+      store.morseChallengeState.currentChar = 'K'
+      store.morseChallengeState.currentPattern = '−·−'
+      store.morseChallengeState.keyedSequence = ['dit', 'dah']
+      store.morseChallengeState.challengeStartTime = 1700000000000
+      store.morseChallengeState.state = 'active'
+
+      store.save()
+
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY))
+      expect(saved.morseChallengeState).toEqual({
+        isActive: true,
+        currentChar: 'K',
+        currentPattern: '−·−',
+        keyedSequence: ['dit', 'dah'],
+        challengeStartTime: 1700000000000,
+        state: 'active',
+      })
+    })
+
     it('restores purchased upgrades from localStorage', () => {
       const saveData = {
         version: '1.1.0',
@@ -336,6 +359,55 @@ describe('Game Store - Save/Load', () => {
       store.load()
 
       expect(store.purchasedUpgrades.size).toBe(0)
+    })
+
+    it('restores morseChallengeState from localStorage', () => {
+      const challengeState = {
+        isActive: true,
+        currentChar: 'K',
+        currentPattern: '−·−',
+        keyedSequence: ['dit', 'dah'],
+        challengeStartTime: 1700000000000,
+        state: 'active',
+      }
+      const saveData = {
+        version: '1.1.5',
+        qsos: '5000',
+        factoryCounts: {},
+        licenseLevel: 1,
+        morseChallengeState: challengeState,
+      }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(saveData))
+
+      const store = useGameStore()
+      store.load()
+
+      expect(store.morseChallengeState.isActive).toBe(true)
+      expect(store.morseChallengeState.currentChar).toBe('K')
+      expect(store.morseChallengeState.currentPattern).toBe('−·−')
+      expect(store.morseChallengeState.keyedSequence).toEqual(['dit', 'dah'])
+      expect(store.morseChallengeState.challengeStartTime).toBe(1700000000000)
+      expect(store.morseChallengeState.state).toBe('active')
+    })
+
+    it('uses default morseChallengeState when not in save', () => {
+      const saveData = {
+        version: '1.1.5',
+        qsos: '5000',
+        factoryCounts: {},
+        licenseLevel: 1,
+        // No morseChallengeState field
+      }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(saveData))
+
+      const store = useGameStore()
+      store.load()
+
+      expect(store.morseChallengeState.isActive).toBe(false)
+      expect(store.morseChallengeState.currentChar).toBeNull()
+      expect(store.morseChallengeState.currentPattern).toBe('')
+      expect(store.morseChallengeState.keyedSequence).toEqual([])
+      expect(store.morseChallengeState.state).toBe('idle')
     })
   })
 })

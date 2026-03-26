@@ -27,12 +27,12 @@ describe('Game Store', () => {
   it('warns on invalid keyer tap type and does not add QSOs', () => {
     const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
     const store = useGameStore()
-    
+
     store.tapKeyer('dot')
-    
+
     expect(consoleSpy).toHaveBeenCalledWith('Invalid keyer tap type: dot')
     expect(store.qsos).toBe(0n)
-    
+
     consoleSpy.mockRestore()
   })
 
@@ -108,6 +108,14 @@ describe('Game Store', () => {
     store.licenseLevel = 4
     store.purchasedUpgrades = new Set(['upgrade-1'])
     store.offlineEarnings = { qsos: 10, hours: 1, rate: 2 }
+    store.morseChallengeState = {
+      isActive: true,
+      currentChar: 'K',
+      currentPattern: '−·−',
+      keyedSequence: ['dit', 'dah'],
+      challengeStartTime: 1700000000000,
+      state: 'active',
+    }
 
     store.prestigeReset()
 
@@ -120,6 +128,8 @@ describe('Game Store', () => {
     expect(store.licenseLevel).toBe(1)
     expect(store.purchasedUpgrades).toEqual(new Set())
     expect(store.offlineEarnings).toBe(null)
+    expect(store.morseChallengeState.isActive).toBe(false)
+    expect(store.morseChallengeState.state).toBe('idle')
     expect(store.canPrestigeReset).toBe(false)
   })
 

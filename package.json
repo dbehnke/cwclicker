@@ -23,6 +23,7 @@
     "autoprefixer": "^10.4.27",
     "eslint": "^9.23.0",
     "eslint-plugin-vue": "^10.0.0",
+    "globals": "^15.14.0",
     "jsdom": "^29.0.0",
     "postcss": "^8.5.8",
     "prettier": "^3.2.5",
