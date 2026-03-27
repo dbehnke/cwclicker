@@ -3,7 +3,6 @@ import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
 import { createPinia, setActivePinia } from 'pinia'
 import SettingsPanel from '../SettingsPanel.vue'
 import { useGameStore } from '../../stores/game'
-import { audioService } from '../../services/audio'
 
 vi.mock('../../stores/game', () => ({
   useGameStore: vi.fn(),
