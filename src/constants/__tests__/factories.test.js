@@ -114,7 +114,7 @@ describe('FACTORIES', () => {
     });
   });
 
-  describe('General tier (3-6)', () => {
+  describe('Mid tiers (3-6)', () => {
     const generalFactories = FACTORIES.filter(f => f.tier >= 3 && f.tier <= 6);
 
     it('has 12 factories', () => {
