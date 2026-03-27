@@ -90,7 +90,7 @@ export const useGameStore = defineStore('game', () => {
    * @returns {bigint} QSO value as BigInt
    */
   const qsos = ref(0n)
-  const qsosThisRun = ref(0n) // Run-scoped earned QSOs used for progression unlocks
+  const qsosThisRun = ref(0n) // Run-scoped earned QSOs; progressive unlock logic consumes this in v1.2.0 follow-up slices
   const totalQsosEarned = ref(0n) // Total QSOs earned for prestige system
   const prestigeLevel = ref(0n)
   const prestigePoints = ref(0n)
