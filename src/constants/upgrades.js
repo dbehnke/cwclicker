@@ -1,5 +1,7 @@
 'use strict'
 
+import { FACTORIES } from './factories'
+
 /**
  * @typedef {Object} Upgrade
  * @property {string} id - Unique identifier
@@ -45,9 +47,12 @@ function generateUpgrades(
   upgradeDescriptions,
   icon = '⚡'
 ) {
+  const actualFactoryBaseCost = FACTORIES.find(factory => factory.id === factoryId)?.baseCost
+  const effectiveBaseCost = actualFactoryBaseCost ?? factoryBaseCost
+
   return UPGRADE_THRESHOLDS.slice(0, upgradeNames.length).map((threshold, index) => {
     // Cost formula: baseCost × 50 × 2^(index) using bigint math to preserve precision.
-    const cost = BigInt(factoryBaseCost) * 50n * 2n ** BigInt(index)
+    const cost = BigInt(effectiveBaseCost) * 50n * 2n ** BigInt(index)
 
     return {
       id: `${factoryId}-upgrade-${index}`,

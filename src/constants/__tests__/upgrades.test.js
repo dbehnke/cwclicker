@@ -31,11 +31,20 @@ describe('UPGRADES', () => {
     }
   })
 
+  it('derives first upgrade cost from current factory baseCost', () => {
+    for (const factory of FACTORIES) {
+      const firstUpgrade = UPGRADES.find(u => u.factoryId === factory.id && u.id.endsWith('-upgrade-0'))
+
+      expect(firstUpgrade).toBeDefined()
+      expect(firstUpgrade.baseCost).toBe(BigInt(factory.baseCost) * 50n)
+    }
+  })
+
   it('keeps late-game upgrade costs exact as bigint values under new formula', () => {
     const upgrade = UPGRADES.find(u => u.id === 'alternate-dimension-dxcc-upgrade-8')
 
     expect(upgrade).toBeDefined()
     expect(typeof upgrade.baseCost).toBe('bigint')
-    expect(upgrade.baseCost).toBe(6400000000000n)
+    expect(upgrade.baseCost).toBe(64000000000000n)
   })
 })

@@ -86,15 +86,6 @@ describe('FACTORIES', () => {
       expect(straightKey.tier).toBe(1);
     });
 
-    it('has correct data for Straight Key', () => {
-      const straightKey = FACTORIES.find(f => f.id === 'straight-key');
-      expect(straightKey).toBeDefined();
-      expect(straightKey.name).toBe('Straight Key');
-      expect(straightKey.baseCost).toBe(75);
-      expect(straightKey.qsosPerSecond).toBe(0.3);
-      expect(straightKey.tier).toBe(1);
-    });
-
     it('has correct data for Paddle Key', () => {
       const paddle = FACTORIES.find(f => f.id === 'paddle-key');
       expect(paddle).toBeDefined();
@@ -123,11 +114,11 @@ describe('FACTORIES', () => {
     });
   });
 
-  describe('General tier (4-6)', () => {
-    const generalFactories = FACTORIES.filter(f => f.tier >= 4 && f.tier <= 6);
+  describe('General tier (3-6)', () => {
+    const generalFactories = FACTORIES.filter(f => f.tier >= 3 && f.tier <= 6);
 
-    it('has 9 factories', () => {
-      expect(generalFactories).toHaveLength(9);
+    it('has 12 factories', () => {
+      expect(generalFactories).toHaveLength(12);
     });
 
     it('has correct data for Bug Catcher', () => {
