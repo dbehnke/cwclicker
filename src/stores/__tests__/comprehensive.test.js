@@ -152,30 +152,28 @@ describe('Game Store - Comprehensive Tests', () => {
       expect(store.licenseLevel).toBe(1)
     })
 
-    it('can upgrade to General with 500 QSOs', () => {
+    it('can upgrade to General with 50 million lifetime QSOs', () => {
       const store = useGameStore()
-      store.qsos = 500n
+      store.totalQsosEarned = 50_000_000n
       store.licenseLevel = 1
 
       // In App.vue, upgrade happens when button is clicked
       // This tests the store state change
       store.licenseLevel = 2
-      store.qsos -= 500n
 
       expect(store.licenseLevel).toBe(2)
-      expect(store.qsos).toBe(0n)
+      expect(store.totalQsosEarned).toBe(50_000_000n)
     })
 
-    it('can upgrade to Extra with 5000 QSOs', () => {
+    it('can upgrade to Extra with 500 million lifetime QSOs', () => {
       const store = useGameStore()
-      store.qsos = 5000n
+      store.totalQsosEarned = 500_000_000n
       store.licenseLevel = 2
 
       store.licenseLevel = 3
-      store.qsos -= 5000n
 
       expect(store.licenseLevel).toBe(3)
-      expect(store.qsos).toBe(0n)
+      expect(store.totalQsosEarned).toBe(500_000_000n)
     })
   })
 

@@ -9,7 +9,7 @@ const store = useGameStore()
 
 const availableFactories = computed(() => {
   const maxTier = getMaxTierForLicense(store.licenseLevel)
-  return FACTORIES.filter(f => f.tier <= maxTier)
+  return FACTORIES.filter(f => f.tier <= maxTier || (store.factoryCounts[f.id] || 0) > 0)
 })
 
 const totalFactoryCount = computed(() => {
