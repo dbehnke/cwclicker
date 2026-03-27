@@ -723,7 +723,7 @@ export const useGameStore = defineStore('game', () => {
 
         // Check for old save data (v1.0.0 or earlier - no version field)
         if (!state.version) {
-          console.warn('Detected v1.0.0 save data - migrating to v1.1.0 with clean slate')
+          console.warn(`Detected v1.0.0 save data - migrating to v${GAME_VERSION} with clean slate`)
 
           // Store migration info for UI to display
           migrationInfo.value = {
