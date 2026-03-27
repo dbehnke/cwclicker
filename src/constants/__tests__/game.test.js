@@ -4,10 +4,18 @@ import { calculateUpgradeCost, GAME_CONSTANTS, prestigeThresholdForLevel, PRESTI
 describe('game constants helpers', () => {
   it('calculates upgrade costs using bigint math', () => {
     const cost = calculateUpgradeCost(500000000, 8)
-    const expected = 500000000n * BigInt(GAME_CONSTANTS.UPGRADES.COST_MULTIPLIER_BASE) ** 9n
+    const expected =
+      500000000n *
+      BigInt(GAME_CONSTANTS.UPGRADES.COST_MULTIPLIER_BASE) *
+      BigInt(GAME_CONSTANTS.UPGRADES.COST_DOUBLING_BASE) ** 8n
 
     expect(typeof cost).toBe('bigint')
     expect(cost).toBe(expected)
+  })
+
+  it('uses v1.2.0 upgrade thresholds and starting multiplier constants', () => {
+    expect(GAME_CONSTANTS.UPGRADES.THRESHOLDS).toEqual([5, 10, 25, 50, 100, 150, 200, 250, 300])
+    expect(GAME_CONSTANTS.UPGRADES.MULTIPLIER_START).toBe(5)
   })
 })
 

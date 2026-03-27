@@ -35,9 +35,10 @@ export const GAME_CONSTANTS = {
 
   // Upgrade system (Cookie Clicker style)
   UPGRADES: {
-    THRESHOLDS: [1, 5, 25, 50, 100, 150, 200, 250, 300],
-    MULTIPLIER: 2, // Each upgrade doubles output
-    COST_MULTIPLIER_BASE: 10 // Cost = baseCost × 10^(tier)
+    THRESHOLDS: [5, 10, 25, 50, 100, 150, 200, 250, 300],
+    MULTIPLIER_START: 5, // First upgrade multiplier is 5x
+    COST_MULTIPLIER_BASE: 50, // Cost = baseCost × 50 × 2^tier
+    COST_DOUBLING_BASE: 2,
   },
 
   // Factory purchase
@@ -112,7 +113,11 @@ export function getUpgradeThreshold(index) {
  * Calculate upgrade cost for a factory
  */
 export function calculateUpgradeCost(factoryBaseCost, tier) {
-  return BigInt(factoryBaseCost) * BigInt(GAME_CONSTANTS.UPGRADES.COST_MULTIPLIER_BASE) ** BigInt(tier + 1)
+  return (
+    BigInt(factoryBaseCost) *
+    BigInt(GAME_CONSTANTS.UPGRADES.COST_MULTIPLIER_BASE) *
+    BigInt(GAME_CONSTANTS.UPGRADES.COST_DOUBLING_BASE) ** BigInt(tier)
+  )
 }
 
 /**
