@@ -355,8 +355,11 @@ export const useGameStore = defineStore('game', () => {
     }
 
     const sorted = [...windowedDurations].sort((a, b) => a - b)
-    const median = sorted[Math.floor(sorted.length / 2)] || MORSE_INITIAL_DIT_BASE_MS
-    const ditBase = Math.max(MORSE_MIN_PRESS_MS, Math.min(median, MORSE_TIMING.DAH_MIN_MS * 2))
+    // Use a lower-quantile estimator for dit pace so occasional dah presses
+    // do not drift the dit baseline upward and delay dah recognition.
+    const ditQuantileIndex = Math.floor((sorted.length - 1) * 0.35)
+    const quantileDit = sorted[ditQuantileIndex] || MORSE_INITIAL_DIT_BASE_MS
+    const ditBase = Math.max(MORSE_MIN_PRESS_MS, Math.min(quantileDit, MORSE_TIMING.DAH_MIN_MS * 2))
 
     const ditCeiling = ditBase * 1.9
     const dahFloor = ditBase * 2.1
