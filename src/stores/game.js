@@ -437,6 +437,8 @@ export const useGameStore = defineStore('game', () => {
       return 1.07
     } else if (tier >= 6 && tier <= 7) {
       return 1.05
+    } else if (tier >= 8 && tier <= 9) {
+      return 1.03
     }
     return 1.1
   }
@@ -770,7 +772,10 @@ export const useGameStore = defineStore('game', () => {
           }
           // If restored in a terminal state (success/timeout/wrong) and challenge is
           // enabled, restart immediately — the advance setTimeout was lost on reload
-          if (MORSE_CHALLENGE_TERMINAL_STATES.includes(morseChallengeState.value.state) && morseChallengeEnabled.value) {
+          if (
+            MORSE_CHALLENGE_TERMINAL_STATES.includes(morseChallengeState.value.state) &&
+            morseChallengeEnabled.value
+          ) {
             startMorseChallenge()
           }
         }

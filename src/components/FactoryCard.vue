@@ -45,20 +45,27 @@ const ownedCount = computed(() => {
 
 /**
  * Calculates the actual production rate for this factory type.
+ * Includes all multipliers: upgrades, prestige, and lottery.
  */
 const actualOutput = computed(() => {
   const count = ownedCount.value
   if (count === 0) return 0
   const upgradeMultiplier = store.getUpgradeMultiplier(props.factory.id)
-  return props.factory.qsosPerSecond * count * upgradeMultiplier
+  const prestigeMultiplier = store.prestigeMultiplier
+  const lotteryMultiplier = store.getLotteryMultiplier(props.factory.id)
+  return (
+    props.factory.qsosPerSecond * count * upgradeMultiplier * prestigeMultiplier * lotteryMultiplier
+  )
 })
 
 /**
- * Calculates the effective per-factory rate including upgrades.
+ * Calculates the effective per-factory rate including all multipliers.
  */
 const effectivePerFactoryRate = computed(() => {
   const upgradeMultiplier = store.getUpgradeMultiplier(props.factory.id)
-  return props.factory.qsosPerSecond * upgradeMultiplier
+  const prestigeMultiplier = store.prestigeMultiplier
+  const lotteryMultiplier = store.getLotteryMultiplier(props.factory.id)
+  return props.factory.qsosPerSecond * upgradeMultiplier * prestigeMultiplier * lotteryMultiplier
 })
 
 /**
@@ -198,13 +205,21 @@ function handleBuyUpgrade() {
     </div>
 
     <!-- Multiplier badges -->
-    <div v-if="currentMultiplier > 1 || nextUpgrade" class="mb-4 sm:hidden" data-testid="upgrade-summary-mobile">
+    <div
+      v-if="currentMultiplier > 1 || nextUpgrade"
+      class="mb-4 sm:hidden"
+      data-testid="upgrade-summary-mobile"
+    >
       <div class="text-xs text-gray-500">
         {{ upgradeProgressSummary }}
       </div>
     </div>
 
-    <div v-if="currentMultiplier > 1 || nextUpgrade" class="mb-4 hidden sm:block" data-testid="upgrade-badge-row">
+    <div
+      v-if="currentMultiplier > 1 || nextUpgrade"
+      class="mb-4 hidden sm:block"
+      data-testid="upgrade-badge-row"
+    >
       <div class="flex items-center gap-1 text-sm">
         <span class="text-gray-500">Upgrades:</span>
         <span
@@ -226,7 +241,9 @@ function handleBuyUpgrade() {
       <div class="mb-2 flex items-start justify-between gap-3">
         <div>
           <div class="text-xs uppercase text-terminal-amber">Next Upgrade</div>
-          <div class="mt-1 font-bold text-terminal-green">{{ nextUpgrade.icon }} {{ nextUpgrade.name }}</div>
+          <div class="mt-1 font-bold text-terminal-green">
+            {{ nextUpgrade.icon }} {{ nextUpgrade.name }}
+          </div>
         </div>
         <div class="text-right">
           <div class="text-terminal-green">{{ formatNumber(nextUpgrade.baseCost) }}</div>
@@ -235,7 +252,8 @@ function handleBuyUpgrade() {
             :disabled="!canAffordUpgrade"
             class="mt-1 rounded px-3 py-1 text-sm font-bold touch-manipulation"
             :class="{
-              'bg-terminal-amber text-terminal-bg hover:brightness-110 active:brightness-95': canAffordUpgrade,
+              'bg-terminal-amber text-terminal-bg hover:brightness-110 active:brightness-95':
+                canAffordUpgrade,
               'bg-gray-700 text-gray-400 opacity-50 cursor-not-allowed': !canAffordUpgrade,
             }"
           >
