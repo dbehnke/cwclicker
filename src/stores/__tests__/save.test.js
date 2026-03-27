@@ -238,6 +238,141 @@ describe('Game Store - Save/Load', () => {
       expect(store.totalQsosEarned).toBe(0n)
     })
 
+    describe('lottery storm load behavior', () => {
+      const EXPECTED_STORM_DURATION_MS = 77000
+
+      it('reloads active saved storm with full duration from load time', () => {
+        vi.useFakeTimers()
+        const now = new Date('2026-03-27T12:00:00.000Z')
+        vi.setSystemTime(now)
+
+        const saveData = {
+          version: '1.1.8',
+          qsos: '5000',
+          factoryCounts: { elmer: 1 },
+          licenseLevel: 1,
+          lotteryState: {
+            lastTriggerTime: now.getTime() - 2000,
+            isBonusAvailable: false,
+            bonusFactoryId: null,
+            bonusEndTime: 0,
+            bonusAvailableEndTime: 0,
+            phenomenonTitle: 'Solar storm',
+            isSolarStorm: true,
+            solarStormEndTime: now.getTime() + 5000,
+          },
+        }
+
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(saveData))
+        const store = useGameStore()
+        store.load()
+
+        expect(store.lotteryState.isSolarStorm).toBe(true)
+        expect(store.lotteryState.solarStormEndTime).toBe(now.getTime() + EXPECTED_STORM_DURATION_MS)
+
+        vi.useRealTimers()
+      })
+
+      it('treats equal boundary now === solarStormEndTime as expired', () => {
+        vi.useFakeTimers()
+        const now = new Date('2026-03-27T12:00:00.000Z')
+        vi.setSystemTime(now)
+
+        const saveData = {
+          version: '1.1.8',
+          qsos: '1',
+          factoryCounts: {},
+          licenseLevel: 1,
+          lotteryState: {
+            isSolarStorm: true,
+            solarStormEndTime: now.getTime(),
+          },
+        }
+
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(saveData))
+        const store = useGameStore()
+        store.load()
+
+        expect(store.lotteryState.isSolarStorm).toBe(false)
+        expect(store.lotteryState.solarStormEndTime).toBe(0)
+
+        vi.useRealTimers()
+      })
+
+      it('normalizes malformed storm fields to inactive', () => {
+        const saveData = {
+          version: '1.1.8',
+          qsos: '1',
+          factoryCounts: {},
+          licenseLevel: 1,
+          lotteryState: {
+            isSolarStorm: 'yes',
+            solarStormEndTime: 'invalid-time',
+          },
+        }
+
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(saveData))
+        const store = useGameStore()
+        store.load()
+
+        expect(store.lotteryState.isSolarStorm).toBe(false)
+        expect(store.lotteryState.solarStormEndTime).toBe(0)
+      })
+
+      it('keeps expired saved storm inactive on load', () => {
+        vi.useFakeTimers()
+        const now = new Date('2026-03-27T12:00:00.000Z')
+        vi.setSystemTime(now)
+
+        const saveData = {
+          version: '1.1.8',
+          qsos: '1',
+          factoryCounts: {},
+          licenseLevel: 1,
+          lotteryState: {
+            isSolarStorm: true,
+            solarStormEndTime: now.getTime() - 1,
+          },
+        }
+
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(saveData))
+        const store = useGameStore()
+        store.load()
+
+        expect(store.lotteryState.isSolarStorm).toBe(false)
+        expect(store.lotteryState.solarStormEndTime).toBe(0)
+
+        vi.useRealTimers()
+      })
+
+      it('does not change non-storm lottery state during load', () => {
+        const saveData = {
+          version: '1.1.8',
+          qsos: '1',
+          factoryCounts: {},
+          licenseLevel: 1,
+          lotteryState: {
+            lastTriggerTime: 123,
+            isBonusAvailable: false,
+            bonusFactoryId: null,
+            bonusEndTime: 0,
+            bonusAvailableEndTime: 0,
+            phenomenonTitle: 'No storm',
+            isSolarStorm: false,
+            solarStormEndTime: 0,
+          },
+        }
+
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(saveData))
+        const store = useGameStore()
+        store.load()
+
+        expect(store.lotteryState.isSolarStorm).toBe(false)
+        expect(store.lotteryState.solarStormEndTime).toBe(0)
+        expect(store.lotteryState.phenomenonTitle).toBe('No storm')
+      })
+    })
+
     it('preserves current state when no save exists', () => {
       const store = useGameStore()
       store.qsos = 500n
