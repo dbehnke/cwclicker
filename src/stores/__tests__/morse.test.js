@@ -27,6 +27,38 @@ describe('Morse Challenge', () => {
     })
   })
 
+  describe('classifyMorseTapDuration', () => {
+    it('is forgiving in the ambiguous zone and maps to nearest symbol', () => {
+      const store = useGameStore()
+
+      // Build baseline from clearly short taps (about 100ms)
+      for (let i = 0; i < 8; i++) {
+        expect(store.classifyMorseTapDuration(100)).toBe('dit')
+      }
+
+      // Ambiguous-ish duration should still map to nearest symbol (dit)
+      expect(store.classifyMorseTapDuration(175)).toBe('dit')
+
+      // Longer duration maps to dah
+      expect(store.classifyMorseTapDuration(260)).toBe('dah')
+    })
+
+    it('adapts to slower keying pace', () => {
+      const store = useGameStore()
+
+      // Build slower baseline around 180ms dits
+      for (let i = 0; i < 10; i++) {
+        expect(store.classifyMorseTapDuration(180)).toBe('dit')
+      }
+
+      // Under slower pace, 260ms should still be considered a dit
+      expect(store.classifyMorseTapDuration(260)).toBe('dit')
+
+      // Much longer press remains dah
+      expect(store.classifyMorseTapDuration(420)).toBe('dah')
+    })
+  })
+
   describe('handleMorseKeyTap - correct sequence', () => {
     it('sets success state when the full correct pattern is keyed (single dit: E)', () => {
       const store = useGameStore()

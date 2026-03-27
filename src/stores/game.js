@@ -18,12 +18,15 @@ import {
  * Current game version for save data migration
  * @type {string}
  */
-const GAME_VERSION = '1.1.7'
+const GAME_VERSION = '1.1.8'
 const MORSE_CHALLENGE_ADVANCE_DELAY_MS = 5000
 const MORSE_CHALLENGE_TERMINAL_STATES = ['timeout', 'wrong', 'success']
 const MAX_BULK_PURCHASE_COUNT = 10
 const OVERFLOW_FACTORY_COST = 10n ** 100n
 const MAX_PRESTIGE_LEVEL_FOR_MULTIPLIER = BigInt(Number.MAX_SAFE_INTEGER)
+const MORSE_MIN_PRESS_MS = 30
+const MORSE_PROFILE_WINDOW = 16
+const MORSE_INITIAL_DIT_BASE_MS = MORSE_TIMING.DAH_MIN_MS / 2
 
 /**
  * Manages the game's core state and progression.
@@ -160,6 +163,7 @@ export const useGameStore = defineStore('game', () => {
 
   // Whether the Morse Keying Challenge is enabled (user preference)
   const morseChallengeEnabled = ref(true)
+  const morseInputDurations = ref([])
 
   // Timer for evaluating morse pattern after inter-character gap
   let pendingEvalTimer = null
@@ -339,6 +343,37 @@ export const useGameStore = defineStore('game', () => {
     totalQsosEarned.value += bonus
   }
 
+  function classifyMorseTapDuration(durationMs) {
+    const safeDuration = Math.max(MORSE_MIN_PRESS_MS, Math.floor(durationMs || 0))
+
+    const durations = [...morseInputDurations.value, safeDuration]
+    const windowedDurations = durations.slice(-MORSE_PROFILE_WINDOW)
+    morseInputDurations.value = windowedDurations
+
+    if (windowedDurations.length < 4) {
+      return safeDuration < MORSE_TIMING.DAH_MIN_MS ? 'dit' : 'dah'
+    }
+
+    const sorted = [...windowedDurations].sort((a, b) => a - b)
+    const median = sorted[Math.floor(sorted.length / 2)] || MORSE_INITIAL_DIT_BASE_MS
+    const ditBase = Math.max(MORSE_MIN_PRESS_MS, Math.min(median, MORSE_TIMING.DAH_MIN_MS * 2))
+
+    const ditCeiling = ditBase * 1.9
+    const dahFloor = ditBase * 2.1
+
+    if (safeDuration <= ditCeiling) {
+      return 'dit'
+    }
+
+    if (safeDuration >= dahFloor) {
+      return 'dah'
+    }
+
+    const ditTarget = ditBase
+    const dahTarget = ditBase * 3
+    return Math.abs(safeDuration - ditTarget) <= Math.abs(safeDuration - dahTarget) ? 'dit' : 'dah'
+  }
+
   const eligiblePrestigeLevel = computed(() => {
     const earned = totalQsosEarned.value
 
@@ -407,6 +442,7 @@ export const useGameStore = defineStore('game', () => {
       clearTimeout(pendingEvalTimer)
       pendingEvalTimer = null
     }
+    morseInputDurations.value = []
     save()
   }
 
@@ -1169,6 +1205,7 @@ export const useGameStore = defineStore('game', () => {
     getQRQOutput,
     startMorseChallenge,
     handleMorseKeyTap,
+    classifyMorseTapDuration,
     morseChallengeEnabled,
     toggleMorseChallenge,
     save,

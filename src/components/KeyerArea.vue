@@ -1,8 +1,7 @@
 <script setup>
-import { ref } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import { useGameStore } from '../stores/game'
 import { audioService } from '../services/audio'
-import { MORSE_TIMING } from '../constants/morse'
 
 const store = useGameStore()
 const startTime = ref(0)
@@ -19,7 +18,7 @@ const handleDown = () => {
 }
 
 /**
- * Handles the keyer up event (mouseup/touchend/mouseleave).
+ * Handles the keyer up event (mouseup/touchend).
  */
 /**
  * Emits events from the component.
@@ -32,7 +31,7 @@ const handleUp = () => {
   audioService.stopTone()
 
   const duration = Date.now() - startTime.value
-  const type = duration < MORSE_TIMING.DAH_MIN_MS ? 'dit' : 'dah'
+  const type = store.classifyMorseTapDuration(duration)
   const qsoValue = type === 'dit' ? 1 : 2
 
   store.tapKeyer(type)
@@ -61,6 +60,18 @@ const handleKeyup = event => {
     handleUp()
   }
 }
+
+function handleWindowMouseUp() {
+  handleUp()
+}
+
+onMounted(() => {
+  window.addEventListener('mouseup', handleWindowMouseUp)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('mouseup', handleWindowMouseUp)
+})
 </script>
 
 <template>
@@ -71,7 +82,6 @@ const handleKeyup = event => {
     aria-label="Morse code keyer. Press for dah, quick press for dit"
     @mousedown="handleDown"
     @mouseup="handleUp"
-    @mouseleave="handleUp"
     @touchstart.prevent="handleDown"
     @touchend.prevent="handleUp"
     @keydown="handleKeydown"
