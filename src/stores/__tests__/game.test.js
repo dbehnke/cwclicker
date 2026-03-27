@@ -154,6 +154,7 @@ describe('Game Store', () => {
 
   it('applies solar storm multiplier after load-time reset', () => {
     const EXPECTED_STORM_MULTIPLIER = 0.5
+    const EXPECTED_STORM_DURATION_MS = 77000
     vi.useFakeTimers()
     const now = new Date('2026-03-27T12:00:00.000Z')
     vi.setSystemTime(now)
@@ -174,6 +175,7 @@ describe('Game Store', () => {
     store.load()
 
     expect(store.getLotteryMultiplier('elmer')).toBe(EXPECTED_STORM_MULTIPLIER)
+    expect(store.lotteryState.solarStormEndTime).toBe(now.getTime() + EXPECTED_STORM_DURATION_MS)
 
     vi.useRealTimers()
   })

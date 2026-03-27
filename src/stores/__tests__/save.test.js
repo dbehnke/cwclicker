@@ -13,6 +13,7 @@ describe('Game Store - Save/Load', () => {
 
   afterEach(() => {
     vi.restoreAllMocks()
+    vi.useRealTimers()
   })
 
   describe('save()', () => {
