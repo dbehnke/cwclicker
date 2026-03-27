@@ -79,8 +79,12 @@ const handleSolarStormStarted = () => {
 }
 
 const availableFactories = computed(() => {
+  if (typeof store.isFactoryUnlocked === 'function') {
+    return FACTORIES.filter(factory => store.isFactoryUnlocked(factory.id))
+  }
+
   const maxTier = getMaxTierForLicense(store.licenseLevel)
-  return FACTORIES.filter(f => f.tier <= maxTier || (store.factoryCounts[f.id] || 0) > 0)
+  return FACTORIES.filter(factory => factory.tier <= maxTier)
 })
 
 const totalFactoryCount = computed(() => {
