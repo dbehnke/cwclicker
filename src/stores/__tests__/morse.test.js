@@ -51,8 +51,8 @@ describe('Morse Challenge', () => {
         expect(store.classifyMorseTapDuration(180)).toBe('dit')
       }
 
-      // Under slower pace, 260ms should still be considered a dit
-      expect(store.classifyMorseTapDuration(260)).toBe('dit')
+      // Under slower pace, 190ms should still be considered a dit
+      expect(store.classifyMorseTapDuration(190)).toBe('dit')
 
       // Much longer press remains dah
       expect(store.classifyMorseTapDuration(420)).toBe('dah')
@@ -81,6 +81,33 @@ describe('Morse Challenge', () => {
 
       // Dah should still be recognized as dah, not absorbed into a rising dit baseline
       expect(store.classifyMorseTapDuration(250)).toBe('dah')
+    })
+
+    it('always classifies clearly long presses as dah even after many prior dah presses', () => {
+      const store = useGameStore()
+
+      // Build history heavily biased toward longer holds.
+      for (let i = 0; i < 16; i++) {
+        store.classifyMorseTapDuration(280)
+      }
+
+      expect(store.classifyMorseTapDuration(280)).toBe('dah')
+    })
+
+    it('can complete W (·−−) using 140/280/280 timing profile', () => {
+      const store = useGameStore()
+      store.startMorseChallenge()
+      store.morseChallengeState.currentChar = 'W'
+      store.morseChallengeState.currentPattern = '·−−'
+      store.morseChallengeState.keyedSequence = []
+      store.morseChallengeState.state = 'active'
+
+      const inputs = [140, 280, 280].map(ms => store.classifyMorseTapDuration(ms))
+      for (const type of inputs) {
+        store.handleMorseKeyTap(type)
+      }
+
+      expect(store.morseChallengeState.state).toBe('success')
     })
   })
 

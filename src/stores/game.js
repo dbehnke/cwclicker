@@ -346,6 +346,12 @@ export const useGameStore = defineStore('game', () => {
   function classifyMorseTapDuration(durationMs) {
     const safeDuration = Math.max(MORSE_MIN_PRESS_MS, Math.floor(durationMs || 0))
 
+    // Preserve classic keyer behavior: clearly long presses are always dah.
+    // This prevents adaptive drift from ever requiring extra-long holds.
+    if (safeDuration >= MORSE_TIMING.DAH_MIN_MS) {
+      return 'dah'
+    }
+
     const durations = [...morseInputDurations.value, safeDuration]
     const windowedDurations = durations.slice(-MORSE_PROFILE_WINDOW)
     morseInputDurations.value = windowedDurations
