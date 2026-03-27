@@ -123,10 +123,9 @@ describe('Game Store - Factory Logic', () => {
       expect(store.qsos).toBe(5n)
     })
 
-    it('returns false when factory is still locked by progression threshold', () => {
+    it('returns false when the next factory is not yet affordable', () => {
       const store = useGameStore()
-      store.qsos = 5000n
-      store.qsosThisRun = 99n
+      store.qsos = 999n
 
       const result = store.buyFactory('paddle-key', 1)
 
@@ -134,10 +133,9 @@ describe('Game Store - Factory Logic', () => {
       expect(store.factoryCounts['paddle-key']).toBeUndefined()
     })
 
-    it('allows buying a factory once its progression threshold is met', () => {
+    it('allows buying a factory once affordability reveals it', () => {
       const store = useGameStore()
-      store.qsos = 5000n
-      store.qsosThisRun = 100n
+      store.qsos = 1000n
 
       const result = store.buyFactory('paddle-key', 1)
 
@@ -247,25 +245,32 @@ describe('Game Store - Factory Logic', () => {
     })
   })
 
-  describe('progressive unlock thresholds', () => {
-    it('marks tier-1 factories as unlocked at run start', () => {
+  describe('affordability-based reveal progression', () => {
+    it('keeps factories hidden until affordable', () => {
       const store = useGameStore()
-      store.qsosThisRun = 0n
+      store.qsos = 0n
+      store.revealAffordableFactories()
 
-      expect(store.isFactoryUnlocked('elmer')).toBe(true)
-      expect(store.isFactoryUnlocked('straight-key')).toBe(true)
+      expect(store.isFactoryUnlocked('elmer')).toBe(false)
+      expect(store.isFactoryUnlocked('qrq-protocol')).toBe(false)
+      expect(store.isFactoryUnlocked('straight-key')).toBe(false)
     })
 
-    it('keeps tier-2 factories locked until run threshold is met', () => {
+    it('reveals only the next affordable factory chain in order', () => {
       const store = useGameStore()
-      store.qsosThisRun = 99n
+      store.qsos = 25n
+      store.revealAffordableFactories()
 
+      expect(store.isFactoryUnlocked('elmer')).toBe(true)
+      expect(store.isFactoryUnlocked('qrq-protocol')).toBe(true)
+      expect(store.isFactoryUnlocked('straight-key')).toBe(false)
       expect(store.isFactoryUnlocked('paddle-key')).toBe(false)
     })
 
-    it('unlocks tier-2 factories at 100 run QSOs', () => {
+    it('reveals higher factories once enough QSOs are available', () => {
       const store = useGameStore()
-      store.qsosThisRun = 100n
+      store.qsos = 1000n
+      store.revealAffordableFactories()
 
       expect(store.isFactoryUnlocked('paddle-key')).toBe(true)
     })
@@ -289,9 +294,9 @@ describe('Game Store - Factory Logic', () => {
 
     it('adds unlockThreshold metadata for every factory', () => {
       expect(FACTORIES.every(factory => typeof factory.unlockThreshold === 'bigint')).toBe(true)
-      expect(FACTORIES.filter(factory => factory.tier === 1).every(f => f.unlockThreshold === 0n)).toBe(
-        true,
-      )
+      expect(
+        FACTORIES.filter(factory => factory.tier === 1).every(f => f.unlockThreshold === 0n)
+      ).toBe(true)
     })
 
     it('uses the expected unlockThreshold progression by tier', () => {
