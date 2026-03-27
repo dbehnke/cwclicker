@@ -214,27 +214,33 @@ describe('Game Store - Factory Logic', () => {
 
   describe('upgrade coverage', () => {
     it('gives every factory a full 9-step upgrade chain', () => {
-      const expectedThresholds = [1, 5, 25, 50, 100, 150, 200, 250, 300]
+      const expectedThresholds = [5, 10, 25, 50, 100, 150, 200, 250, 300]
 
       for (const factory of FACTORIES) {
         const upgrades = UPGRADES.filter(upgrade => upgrade.factoryId === factory.id)
 
         expect(upgrades.length, `Expected exactly 9 upgrades for factory ${factory.id}`).toBe(9)
         expect(upgrades.map(upgrade => upgrade.threshold)).toEqual(expectedThresholds)
-        expect(upgrades.every(upgrade => upgrade.multiplier === 2)).toBe(true)
+        expect(upgrades[0].multiplier).toBe(5)
+
+        for (let i = 1; i < upgrades.length; i++) {
+          expect(upgrades[i].multiplier).toBe(upgrades[i - 1].multiplier * 2)
+          expect(upgrades[i].baseCost).toBe(upgrades[i - 1].baseCost * 2n)
+        }
       }
     })
 
     it('exposes the first bug-catcher upgrade at the threshold', () => {
       const store = useGameStore()
-      store.factoryCounts['bug-catcher'] = 1
+      store.factoryCounts['bug-catcher'] = 5
 
       const upgrades = store.getAvailableUpgrades('bug-catcher')
 
       expect(upgrades[0]).toMatchObject({
         factoryId: 'bug-catcher',
-        threshold: 1,
+        threshold: 5,
       })
+      expect(upgrades[0].multiplier).toBe(5)
       expect(upgrades[0].name).toBeDefined()
       expect(upgrades[0].baseCost).toBeGreaterThan(0n)
     })

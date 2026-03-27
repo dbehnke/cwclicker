@@ -94,10 +94,10 @@ describe('Game Store - Comprehensive Tests', () => {
 
       const upgrades = store.getAvailableUpgrades('elmer')
 
-      // Should have upgrades for threshold 1 and 5
+      // Should have first upgrade at threshold 5
       expect(upgrades.length).toBeGreaterThan(0)
-      expect(upgrades.some(u => u.threshold === 1)).toBe(true)
       expect(upgrades.some(u => u.threshold === 5)).toBe(true)
+      expect(upgrades.some(u => u.threshold === 10)).toBe(false)
     })
 
     it('does not return already purchased upgrades', () => {
@@ -107,7 +107,7 @@ describe('Game Store - Comprehensive Tests', () => {
 
       // Buy first upgrade
       const availableBefore = store.getAvailableUpgrades('elmer')
-      const firstUpgrade = availableBefore.find(u => u.threshold === 1)
+      const firstUpgrade = availableBefore.find(u => u.threshold === 5)
 
       if (firstUpgrade) {
         store.buyUpgrade(firstUpgrade.id)
@@ -125,11 +125,11 @@ describe('Game Store - Comprehensive Tests', () => {
       // No upgrades = multiplier of 1
       expect(store.getUpgradeMultiplier('elmer')).toBe(1)
 
-      // Add one upgrade (2x multiplier)
+      // Add one upgrade (5x multiplier)
       const elmerUpgrade = UPGRADES.find(u => u.factoryId === 'elmer')
       if (elmerUpgrade) {
         store.purchasedUpgrades.add(elmerUpgrade.id)
-        expect(store.getUpgradeMultiplier('elmer')).toBe(2)
+        expect(store.getUpgradeMultiplier('elmer')).toBe(5)
       }
     })
 
@@ -137,11 +137,11 @@ describe('Game Store - Comprehensive Tests', () => {
       const store = useGameStore()
       const elmerUpgrades = UPGRADES.filter(u => u.factoryId === 'elmer').slice(0, 2)
 
-      // Two upgrades = 2 × 2 = 4x
+      // Two upgrades = 5 × 10 = 50x
       elmerUpgrades.forEach(u => store.purchasedUpgrades.add(u.id))
 
       if (elmerUpgrades.length >= 2) {
-        expect(store.getUpgradeMultiplier('elmer')).toBe(4)
+        expect(store.getUpgradeMultiplier('elmer')).toBe(50)
       }
     })
   })
@@ -195,12 +195,12 @@ describe('Game Store - Comprehensive Tests', () => {
       const store = useGameStore()
       store.factoryCounts = { 'elmer': 1 } // 0.1/sec base
 
-      // Add 2x upgrade
+      // Add first 5x upgrade
       const upgrade = UPGRADES.find(u => u.factoryId === 'elmer')
       if (upgrade) {
         store.purchasedUpgrades.add(upgrade.id)
         const total = store.getTotalQSOsPerSecond()
-        expect(total).toBeCloseTo(0.2, 1) // 0.1 × 2
+        expect(total).toBeCloseTo(0.5, 1) // 0.1 × 5
       }
     })
   })
