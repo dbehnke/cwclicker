@@ -18,7 +18,7 @@ import {
  * Current game version for save data migration
  * @type {string}
  */
-const GAME_VERSION = '1.1.8'
+const GAME_VERSION = '1.1.9'
 const MORSE_CHALLENGE_ADVANCE_DELAY_MS = 5000
 const MORSE_CHALLENGE_TERMINAL_STATES = ['timeout', 'wrong', 'success']
 const MAX_BULK_PURCHASE_COUNT = 10
@@ -770,6 +770,13 @@ export const useGameStore = defineStore('game', () => {
         // Restore lottery state (check if bonus/storm has expired)
         if (state.lotteryState) {
           const now = Date.now()
+          const savedSolarStormEndTime = Number(state.lotteryState.solarStormEndTime)
+          const normalizedSolarStormEndTime = Number.isFinite(savedSolarStormEndTime)
+            ? savedSolarStormEndTime
+            : 0
+          const savedIsSolarStorm = state.lotteryState.isSolarStorm === true
+          const hadActiveStormAtLoad = savedIsSolarStorm && now < normalizedSolarStormEndTime
+
           lotteryState.value = {
             lastTriggerTime: state.lotteryState.lastTriggerTime || 0,
             isBonusAvailable:
@@ -778,9 +785,8 @@ export const useGameStore = defineStore('game', () => {
             bonusEndTime: state.lotteryState.bonusEndTime || 0,
             bonusAvailableEndTime: state.lotteryState.bonusAvailableEndTime || 0,
             phenomenonTitle: state.lotteryState.phenomenonTitle || '',
-            isSolarStorm:
-              state.lotteryState.isSolarStorm && now < state.lotteryState.solarStormEndTime,
-            solarStormEndTime: state.lotteryState.solarStormEndTime || 0,
+            isSolarStorm: hadActiveStormAtLoad,
+            solarStormEndTime: hadActiveStormAtLoad ? now + SOLAR_STORM_DURATION_MS : 0,
           }
         }
 
