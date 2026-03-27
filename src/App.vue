@@ -15,7 +15,7 @@ import SettingsPanel from './components/SettingsPanel.vue'
 import ErrorBoundary from './components/ErrorBoundary.vue'
 import OfflineProgressNotification from './components/OfflineProgressNotification.vue'
 import MigrationNotification from './components/MigrationNotification.vue'
-import { FACTORIES, getMaxTierForLicense } from './constants/factories'
+import { FACTORIES } from './constants/factories'
 import GameLoop from './components/GameLoop.vue'
 
 const store = useGameStore()
@@ -79,12 +79,19 @@ const handleSolarStormStarted = () => {
 }
 
 const availableFactories = computed(() => {
-  if (typeof store.isFactoryUnlocked === 'function') {
-    return FACTORIES.filter(factory => store.isFactoryUnlocked(factory.id))
+  if (typeof store.isFactoryUnlocked !== 'function') {
+    return []
   }
 
-  const maxTier = getMaxTierForLicense(store.licenseLevel)
-  return FACTORIES.filter(factory => factory.tier <= maxTier)
+  return FACTORIES.filter(factory => store.isFactoryUnlocked(factory.id))
+})
+
+const nextMysteryFactory = computed(() => {
+  if (typeof store.isFactoryUnlocked !== 'function') {
+    return null
+  }
+
+  return FACTORIES.find(factory => !store.isFactoryUnlocked(factory.id)) || null
 })
 
 const totalFactoryCount = computed(() => {
@@ -208,6 +215,44 @@ function handleTabKeydown(event, tabId) {
                 :factory="factory"
                 @buy="handleFactoryBuy"
               />
+
+              <div
+                v-if="nextMysteryFactory"
+                class="rounded border-2 border-terminal-green/60 bg-terminal-bg p-4 opacity-90"
+                data-testid="mystery-factory-card"
+              >
+                <div class="mb-3 flex items-start justify-between gap-3">
+                  <div class="min-w-0">
+                    <div class="flex flex-wrap items-center gap-2">
+                      <span class="text-xl">❓</span>
+                    </div>
+                    <h3 class="mt-1 text-xl font-bold text-terminal-green">???</h3>
+                  </div>
+                  <span class="text-sm text-terminal-amber">[Tier ?]</span>
+                </div>
+
+                <p class="text-sm text-gray-400 mb-3">
+                  A new signal source is nearby. Build your station to reveal it.
+                </p>
+
+                <div class="mb-4 space-y-1" data-testid="mystery-production">
+                  <div class="text-terminal-amber font-semibold">???/sec</div>
+                  <div class="text-sm text-gray-500">(??? × ?)</div>
+                </div>
+
+                <div
+                  class="mb-4 flex items-center justify-between gap-3"
+                  data-testid="mystery-action-row"
+                >
+                  <span class="text-terminal-green">???</span>
+                  <button
+                    disabled
+                    class="rounded px-4 py-1 font-bold transition-colors touch-manipulation bg-gray-700 text-gray-400 opacity-50 cursor-not-allowed"
+                  >
+                    Buy
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
 

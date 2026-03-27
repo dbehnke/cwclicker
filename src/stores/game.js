@@ -97,6 +97,7 @@ export const useGameStore = defineStore('game', () => {
   const licenseLevel = ref(1)
   const factoryCounts = ref({})
   const fractionalQSOs = ref(0) // Accumulate fractional QSOs between frames
+  const revealedFactoryIds = ref(new Set())
   const tapPrestigeAccumulator = ref(0n) // Accumulates tap prestige bonus in percentage units (scale of 100; 1 = 1%)
   const purchasedUpgrades = ref(new Set()) // Set of upgrade IDs that have been purchased
   let cachedEligiblePrestigeLevel = 0n
@@ -323,6 +324,7 @@ export const useGameStore = defineStore('game', () => {
       qsosThisRun.value += BigInt(wholeQsos)
       totalQsosEarned.value += BigInt(wholeQsos)
       fractionalQSOs.value -= wholeQsos
+      revealAffordableFactories()
     }
   }
 
@@ -344,6 +346,42 @@ export const useGameStore = defineStore('game', () => {
     qsos.value += bonus
     qsosThisRun.value += bonus
     totalQsosEarned.value += bonus
+    revealAffordableFactories()
+  }
+
+  function revealAffordableFactories() {
+    const nextRevealed = new Set(revealedFactoryIds.value)
+    let changed = false
+
+    for (const [factoryId, count] of Object.entries(factoryCounts.value)) {
+      if (count > 0 && !nextRevealed.has(factoryId)) {
+        nextRevealed.add(factoryId)
+        changed = true
+      }
+    }
+
+    while (true) {
+      const nextFactory = FACTORIES.find(factory => !nextRevealed.has(factory.id))
+      if (!nextFactory) {
+        break
+      }
+
+      const owned = factoryCounts.value[nextFactory.id] || 0
+      const cost = getFactoryCost(nextFactory.id, owned)
+
+      if (qsos.value < cost) {
+        break
+      }
+
+      nextRevealed.add(nextFactory.id)
+      changed = true
+    }
+
+    if (changed) {
+      revealedFactoryIds.value = nextRevealed
+    }
+
+    return changed
   }
 
   function classifyMorseTapDuration(durationMs) {
@@ -427,6 +465,7 @@ export const useGameStore = defineStore('game', () => {
     qsos.value = 0n
     qsosThisRun.value = 0n
     factoryCounts.value = {}
+    revealedFactoryIds.value = new Set()
     fractionalQSOs.value = 0
     tapPrestigeAccumulator.value = 0n
     purchasedUpgrades.value = new Set()
@@ -554,6 +593,8 @@ export const useGameStore = defineStore('game', () => {
       return false
     }
 
+    revealAffordableFactories()
+
     if (!isFactoryUnlocked(factoryId)) {
       return false
     }
@@ -571,6 +612,8 @@ export const useGameStore = defineStore('game', () => {
 
     qsos.value -= cost
     factoryCounts.value[factoryId] = (factoryCounts.value[factoryId] || 0) + purchaseCount
+    revealedFactoryIds.value.add(factoryId)
+    revealAffordableFactories()
 
     return true
   }
@@ -697,6 +740,7 @@ export const useGameStore = defineStore('game', () => {
         prestigePoints: prestigePoints.value.toString(),
         licenseLevel: licenseLevel.value,
         factoryCounts: factoryCounts.value,
+        revealedFactoryIds: Array.from(revealedFactoryIds.value),
         fractionalQSOs: fractionalQSOs.value,
         tapPrestigeAccumulator: tapPrestigeAccumulator.value.toString(),
         audioSettings: audioSettings.value,
@@ -769,6 +813,7 @@ export const useGameStore = defineStore('game', () => {
         }
         licenseLevel.value = state.licenseLevel || 1
         factoryCounts.value = state.factoryCounts || {}
+        revealedFactoryIds.value = new Set(state.revealedFactoryIds || [])
         fractionalQSOs.value = state.fractionalQSOs || 0
         tapPrestigeAccumulator.value = parseNonNegativeBigInt(state.tapPrestigeAccumulator)
 
@@ -877,6 +922,8 @@ export const useGameStore = defineStore('game', () => {
             }
           }
         }
+
+        revealAffordableFactories()
       }
     } catch (e) {
       console.warn('Failed to load game state:', e)
@@ -935,12 +982,7 @@ export const useGameStore = defineStore('game', () => {
       return true
     }
 
-    const maxTier = getMaxTierForLicense(licenseLevel.value)
-    if (factory.tier > maxTier) {
-      return false
-    }
-
-    return qsosThisRun.value >= (factory.unlockThreshold || 0n)
+    return revealedFactoryIds.value.has(factoryId)
   }
 
   /**
@@ -1226,6 +1268,7 @@ export const useGameStore = defineStore('game', () => {
     prestigePoints,
     licenseLevel,
     factoryCounts,
+    revealedFactoryIds,
     fractionalQSOs,
     tapPrestigeAccumulator,
     audioSettings,
@@ -1240,6 +1283,7 @@ export const useGameStore = defineStore('game', () => {
     getBulkCost,
     buyFactory,
     isFactoryUnlocked,
+    revealAffordableFactories,
     getTotalQSOsPerSecond,
     updateAudioSettings,
     activateLotteryBonus,
