@@ -63,7 +63,7 @@ describe('FACTORIES', () => {
       const qrq = FACTORIES.find(f => f.id === 'qrq-protocol');
       expect(qrq).toBeDefined();
       expect(qrq.name).toBe('QRQ Protocol');
-      expect(qrq.baseCost).toBe(15);
+      expect(qrq.baseCost).toBe(25);
       expect(qrq.qsosPerSecond).toBe(0.1);
       expect(qrq.tier).toBe(1);
     });
@@ -72,7 +72,7 @@ describe('FACTORIES', () => {
       const elmer = FACTORIES.find(f => f.id === 'elmer');
       expect(elmer).toBeDefined();
       expect(elmer.name).toBe('Elmer');
-      expect(elmer.baseCost).toBe(10);
+      expect(elmer.baseCost).toBe(15);
       expect(elmer.qsosPerSecond).toBe(0.1);
       expect(elmer.tier).toBe(1);
     });
@@ -81,7 +81,7 @@ describe('FACTORIES', () => {
       const straightKey = FACTORIES.find(f => f.id === 'straight-key');
       expect(straightKey).toBeDefined();
       expect(straightKey.name).toBe('Straight Key');
-      expect(straightKey.baseCost).toBe(50);
+      expect(straightKey.baseCost).toBe(75);
       expect(straightKey.qsosPerSecond).toBe(0.3);
       expect(straightKey.tier).toBe(1);
     });
@@ -90,7 +90,7 @@ describe('FACTORIES', () => {
       const straightKey = FACTORIES.find(f => f.id === 'straight-key');
       expect(straightKey).toBeDefined();
       expect(straightKey.name).toBe('Straight Key');
-      expect(straightKey.baseCost).toBe(50);
+      expect(straightKey.baseCost).toBe(75);
       expect(straightKey.qsosPerSecond).toBe(0.3);
       expect(straightKey.tier).toBe(1);
     });
@@ -99,7 +99,7 @@ describe('FACTORIES', () => {
       const paddle = FACTORIES.find(f => f.id === 'paddle-key');
       expect(paddle).toBeDefined();
       expect(paddle.name).toBe('Paddle Key');
-      expect(paddle.baseCost).toBe(500);
+      expect(paddle.baseCost).toBe(1000);
       expect(paddle.qsosPerSecond).toBe(1.0);
       expect(paddle.tier).toBe(2);
     });
@@ -108,7 +108,7 @@ describe('FACTORIES', () => {
       const cpo = FACTORIES.find(f => f.id === 'code-practice-oscillator');
       expect(cpo).toBeDefined();
       expect(cpo.name).toBe('Code Practice Oscillator');
-      expect(cpo.baseCost).toBe(1000);
+      expect(cpo.baseCost).toBe(2000);
       expect(cpo.qsosPerSecond).toBe(2.0);
       expect(cpo.tier).toBe(2);
     });
@@ -117,7 +117,7 @@ describe('FACTORIES', () => {
       const dipole = FACTORIES.find(f => f.id === 'dipole-antenna');
       expect(dipole).toBeDefined();
       expect(dipole.name).toBe('Dipole Antenna');
-      expect(dipole.baseCost).toBe(2000);
+      expect(dipole.baseCost).toBe(4000);
       expect(dipole.qsosPerSecond).toBe(4.0);
       expect(dipole.tier).toBe(2);
     });
@@ -134,7 +134,7 @@ describe('FACTORIES', () => {
       const bugCatcher = FACTORIES.find(f => f.id === 'bug-catcher');
       expect(bugCatcher).toBeDefined();
       expect(bugCatcher.name).toBe('Bug Catcher');
-      expect(bugCatcher.baseCost).toBe(3500);
+      expect(bugCatcher.baseCost).toBe(7000);
       expect(bugCatcher.qsosPerSecond).toBe(6.0);
       expect(bugCatcher.tier).toBe(3);
     });
@@ -143,7 +143,7 @@ describe('FACTORIES', () => {
       const vertical = FACTORIES.find(f => f.id === 'vertical-antenna');
       expect(vertical).toBeDefined();
       expect(vertical.name).toBe('Vertical Antenna');
-      expect(vertical.baseCost).toBe(5000);
+      expect(vertical.baseCost).toBe(10000);
       expect(vertical.qsosPerSecond).toBe(8.0);
       expect(vertical.tier).toBe(3);
     });
@@ -152,7 +152,7 @@ describe('FACTORIES', () => {
       const amp = FACTORIES.find(f => f.id === 'linear-amplifier');
       expect(amp).toBeDefined();
       expect(amp.name).toBe('Linear Amplifier');
-      expect(amp.baseCost).toBe(10000);
+      expect(amp.baseCost).toBe(20000);
       expect(amp.qsosPerSecond).toBe(15.0);
       expect(amp.tier).toBe(3);
     });
@@ -161,7 +161,7 @@ describe('FACTORIES', () => {
       const beam = FACTORIES.find(f => f.id === 'beam-antenna');
       expect(beam).toBeDefined();
       expect(beam.name).toBe('Beam Antenna');
-      expect(beam.baseCost).toBe(25000);
+      expect(beam.baseCost).toBe(75000);
       expect(beam.qsosPerSecond).toBe(30.0);
       expect(beam.tier).toBe(4);
     });
@@ -170,7 +170,7 @@ describe('FACTORIES', () => {
       const ragchew = FACTORIES.find(f => f.id === 'ragchew-net');
       expect(ragchew).toBeDefined();
       expect(ragchew.name).toBe('Ragchew Net');
-      expect(ragchew.baseCost).toBe(35000);
+      expect(ragchew.baseCost).toBe(100000);
       expect(ragchew.qsosPerSecond).toBe(45.0);
       expect(ragchew.tier).toBe(4);
     });
@@ -179,7 +179,7 @@ describe('FACTORIES', () => {
       const tower = FACTORIES.find(f => f.id === 'tower-installation');
       expect(tower).toBeDefined();
       expect(tower.name).toBe('Tower Installation');
-      expect(tower.baseCost).toBe(50000);
+      expect(tower.baseCost).toBe(150000);
       expect(tower.qsosPerSecond).toBe(60.0);
       expect(tower.tier).toBe(4);
     });
@@ -188,7 +188,7 @@ describe('FACTORIES', () => {
       const contest = FACTORIES.find(f => f.id === 'contest-station');
       expect(contest).toBeDefined();
       expect(contest.name).toBe('Contest Station');
-      expect(contest.baseCost).toBe(100000);
+      expect(contest.baseCost).toBe(400000);
       expect(contest.qsosPerSecond).toBe(120.0);
       expect(contest.tier).toBe(5);
     });
@@ -197,7 +197,7 @@ describe('FACTORIES', () => {
       const paperLogbook = FACTORIES.find(f => f.id === 'paper-logbook');
       expect(paperLogbook).toBeDefined();
       expect(paperLogbook.name).toBe('Paper Logbook');
-      expect(paperLogbook.baseCost).toBe(175000);
+      expect(paperLogbook.baseCost).toBe(700000);
       expect(paperLogbook.qsosPerSecond).toBe(180.0);
       expect(paperLogbook.tier).toBe(5);
     });
@@ -206,7 +206,7 @@ describe('FACTORIES', () => {
       const cluster = FACTORIES.find(f => f.id === 'dx-cluster');
       expect(cluster).toBeDefined();
       expect(cluster.name).toBe('DX Cluster');
-      expect(cluster.baseCost).toBe(250000);
+      expect(cluster.baseCost).toBe(1000000);
       expect(cluster.qsosPerSecond).toBe(250.0);
       expect(cluster.tier).toBe(5);
     });
@@ -215,7 +215,7 @@ describe('FACTORIES', () => {
       const hamfest = FACTORIES.find(f => f.id === 'hamfest');
       expect(hamfest).toBeDefined();
       expect(hamfest.name).toBe('Hamfest');
-      expect(hamfest.baseCost).toBe(500000);
+      expect(hamfest.baseCost).toBe(3000000);
       expect(hamfest.qsosPerSecond).toBe(500.0);
       expect(hamfest.tier).toBe(6);
     });
@@ -224,7 +224,7 @@ describe('FACTORIES', () => {
       const printer = FACTORIES.find(f => f.id === 'qsl-card-printer');
       expect(printer).toBeDefined();
       expect(printer.name).toBe('QSL Card Printer');
-      expect(printer.baseCost).toBe(1000000);
+      expect(printer.baseCost).toBe(6000000);
       expect(printer.qsosPerSecond).toBe(1000.0);
       expect(printer.tier).toBe(6);
     });
@@ -233,7 +233,7 @@ describe('FACTORIES', () => {
       const remote = FACTORIES.find(f => f.id === 'remote-station');
       expect(remote).toBeDefined();
       expect(remote.name).toBe('Remote Station');
-      expect(remote.baseCost).toBe(2500000);
+      expect(remote.baseCost).toBe(15000000);
       expect(remote.qsosPerSecond).toBe(2500.0);
       expect(remote.tier).toBe(6);
     });
@@ -250,7 +250,7 @@ describe('FACTORIES', () => {
       const ft8 = FACTORIES.find(f => f.id === 'ft8-bot');
       expect(ft8).toBeDefined();
       expect(ft8.name).toBe('FT8 Bot');
-      expect(ft8.baseCost).toBe(5000000);
+      expect(ft8.baseCost).toBe(40000000);
       expect(ft8.qsosPerSecond).toBe(5000.0);
       expect(ft8.tier).toBe(7);
     });
@@ -259,7 +259,7 @@ describe('FACTORIES', () => {
       const digitalInterface = FACTORIES.find(f => f.id === 'digital-interface');
       expect(digitalInterface).toBeDefined();
       expect(digitalInterface.name).toBe('Digital Interface');
-      expect(digitalInterface.baseCost).toBe(7500000);
+      expect(digitalInterface.baseCost).toBe(60000000);
       expect(digitalInterface.qsosPerSecond).toBe(7500.0);
       expect(digitalInterface.tier).toBe(7);
     });
@@ -268,7 +268,7 @@ describe('FACTORIES', () => {
       const cluster = FACTORIES.find(f => f.id === 'cluster-spotting-network');
       expect(cluster).toBeDefined();
       expect(cluster.name).toBe('Cluster Spotting Network');
-      expect(cluster.baseCost).toBe(10000000);
+      expect(cluster.baseCost).toBe(80000000);
       expect(cluster.qsosPerSecond).toBe(10000.0);
       expect(cluster.tier).toBe(7);
     });
@@ -277,7 +277,7 @@ describe('FACTORIES', () => {
       const eme = FACTORIES.find(f => f.id === 'eme-moonbounce');
       expect(eme).toBeDefined();
       expect(eme.name).toBe('EME Moonbounce');
-      expect(eme.baseCost).toBe(25000000);
+      expect(eme.baseCost).toBe(200000000);
       expect(eme.qsosPerSecond).toBe(25000.0);
       expect(eme.tier).toBe(8);
     });
@@ -286,7 +286,7 @@ describe('FACTORIES', () => {
       const lunar = FACTORIES.find(f => f.id === 'lunar-repeater');
       expect(lunar).toBeDefined();
       expect(lunar.name).toBe('Lunar Repeater');
-      expect(lunar.baseCost).toBe(37500000);
+      expect(lunar.baseCost).toBe(300000000);
       expect(lunar.qsosPerSecond).toBe(37500.0);
       expect(lunar.tier).toBe(8);
     });
@@ -295,7 +295,7 @@ describe('FACTORIES', () => {
       const sat = FACTORIES.find(f => f.id === 'satellite-constellation');
       expect(sat).toBeDefined();
       expect(sat.name).toBe('Satellite Constellation');
-      expect(sat.baseCost).toBe(50000000);
+      expect(sat.baseCost).toBe(400000000);
       expect(sat.qsosPerSecond).toBe(50000.0);
       expect(sat.tier).toBe(8);
     });
@@ -304,7 +304,7 @@ describe('FACTORIES', () => {
       const iono = FACTORIES.find(f => f.id === 'ionospheric-modification');
       expect(iono).toBeDefined();
       expect(iono.name).toBe('Ionospheric Modification');
-      expect(iono.baseCost).toBe(100000000);
+      expect(iono.baseCost).toBe(1000000000);
       expect(iono.qsosPerSecond).toBe(100000.0);
       expect(iono.tier).toBe(9);
     });
@@ -313,7 +313,7 @@ describe('FACTORIES', () => {
       const timeTravel = FACTORIES.find(f => f.id === 'time-travel-dx');
       expect(timeTravel).toBeDefined();
       expect(timeTravel.name).toBe('Time Travel DX');
-      expect(timeTravel.baseCost).toBe(250000000);
+      expect(timeTravel.baseCost).toBe(2500000000);
       expect(timeTravel.qsosPerSecond).toBe(250000.0);
       expect(timeTravel.tier).toBe(9);
     });
@@ -322,9 +322,19 @@ describe('FACTORIES', () => {
       const alternate = FACTORIES.find(f => f.id === 'alternate-dimension-dxcc');
       expect(alternate).toBeDefined();
       expect(alternate.name).toBe('Alternate Dimension DXCC');
-      expect(alternate.baseCost).toBe(500000000);
+      expect(alternate.baseCost).toBe(5000000000);
       expect(alternate.qsosPerSecond).toBe(500000.0);
       expect(alternate.tier).toBe(9);
+    });
+
+    it('keeps early/mid/late rebalance anchors explicit', () => {
+      const elmer = FACTORIES.find(f => f.id === 'elmer');
+      const beam = FACTORIES.find(f => f.id === 'beam-antenna');
+      const alternate = FACTORIES.find(f => f.id === 'alternate-dimension-dxcc');
+
+      expect(elmer.baseCost).toBe(15);
+      expect(beam.baseCost).toBe(75000);
+      expect(alternate.baseCost).toBe(5000000000);
     });
   });
 

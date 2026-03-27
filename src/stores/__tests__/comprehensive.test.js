@@ -19,18 +19,18 @@ describe('Game Store - Comprehensive Tests', () => {
       store.qsos = 100n
 
       const cost = store.getFactoryCost('elmer', 0)
-      expect(cost).toBe(10n)
+      expect(cost).toBe(15n)
     })
 
     it('calculates increasing costs with 10% scaling for tier 1-2', () => {
       const store = useGameStore()
 
-      // First Elmer: 10
-      expect(store.getFactoryCost('elmer', 0)).toBe(10n)
-      // Second Elmer: 10 * 1.10 = 11
-      expect(store.getFactoryCost('elmer', 1)).toBe(11n)
-      // Third Elmer: 10 * 1.10^2 = 12
-      expect(store.getFactoryCost('elmer', 2)).toBe(12n)
+      // First Elmer: 15
+      expect(store.getFactoryCost('elmer', 0)).toBe(15n)
+      // Second Elmer: floor(15 * 1.10) = 16
+      expect(store.getFactoryCost('elmer', 1)).toBe(16n)
+      // Third Elmer: floor(15 * 1.10^2) = 18
+      expect(store.getFactoryCost('elmer', 2)).toBe(18n)
     })
 
     it('calculates bulk cost with 5% discount', () => {
@@ -52,8 +52,8 @@ describe('Game Store - Comprehensive Tests', () => {
       const result = store.buyFactory('elmer', 1)
 
       expect(result).toBe(true)
-      // Cost is 10 but with 5% bulk discount applied: 10 * 0.95 = 9.5 -> 9
-      expect(store.qsos).toBe(91n)
+      // Cost is 15 but with 5% bulk discount applied: 15 * 0.95 = 14.25 -> 14
+      expect(store.qsos).toBe(86n)
       expect(store.factoryCounts['elmer']).toBe(1)
     })
 
