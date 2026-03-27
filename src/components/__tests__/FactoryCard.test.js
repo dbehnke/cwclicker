@@ -21,6 +21,8 @@ describe('FactoryCard.vue', () => {
       factoryCounts: {},
       getFactoryCost: () => 10n,
       getUpgradeMultiplier: () => 1,
+      getLotteryMultiplier: () => 1,
+      prestigeMultiplier: 1,
       getAvailableUpgrades: () => [],
       purchasedUpgrades: new Set(),
       buyUpgrade: () => {},
