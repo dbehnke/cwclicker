@@ -203,6 +203,21 @@ describe('Game Store - Comprehensive Tests', () => {
         expect(total).toBeCloseTo(0.5, 1) // 0.1 × 5
       }
     })
+
+    it('caps extreme upgraded output instead of dropping to zero', () => {
+      const store = useGameStore()
+      store.factoryCounts = { 'alternate-dimension-dxcc': 1000000 }
+
+      const maxUpgradeIds = UPGRADES.filter(u => u.factoryId === 'alternate-dimension-dxcc').map(
+        u => u.id,
+      )
+      maxUpgradeIds.forEach(id => store.purchasedUpgrades.add(id))
+
+      const total = store.getTotalQSOsPerSecond()
+
+      expect(total).toBeGreaterThan(0)
+      expect(total).toBe(Number.MAX_SAFE_INTEGER)
+    })
   })
 
   describe('Save/Load Functionality', () => {

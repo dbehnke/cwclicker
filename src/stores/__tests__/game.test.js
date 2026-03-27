@@ -158,13 +158,13 @@ describe('Game Store', () => {
     expect(store.eligiblePrestigeLevel).toBe(root - 1n)
   })
 
-  it('clamps non-finite passive output to zero', () => {
+  it('caps extreme passive output to Number.MAX_SAFE_INTEGER', () => {
     const store = useGameStore()
 
     store.factoryCounts = { elmer: Number.MAX_SAFE_INTEGER }
     store.prestigeLevel = 9007199254740991n
 
-    expect(store.getTotalQSOsPerSecond()).toBe(0)
+    expect(store.getTotalQSOsPerSecond()).toBe(Number.MAX_SAFE_INTEGER)
   })
 
   it('applies solar storm multiplier after load-time reset', () => {

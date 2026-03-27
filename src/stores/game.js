@@ -665,7 +665,7 @@ export const useGameStore = defineStore('game', () => {
    * Gets the total upgrade multiplier for a factory.
    * Uses cached computed property for O(1) lookup instead of O(n) scan.
    * @param {string} factoryId - The factory ID.
-   * @returns {number} The multiplier (1.0 if no upgrades, 2.0, 4.0, 8.0, etc. with upgrades).
+   * @returns {number} The multiplier (1.0 if no upgrades, 5.0, 10.0, 20.0, etc. per purchased tier).
    */
   function getUpgradeMultiplier(factoryId) {
     return upgradeMultipliers.value[factoryId] || 1
@@ -899,22 +899,20 @@ export const useGameStore = defineStore('game', () => {
           upgradeMultiplier *
           prestigeMultiplier.value
 
-        if (
-          !Number.isFinite(contribution) ||
-          contribution < 0 ||
-          contribution > Number.MAX_SAFE_INTEGER
-        ) {
+        if (Number.isNaN(contribution) || contribution < 0) {
           continue
         }
 
-        total += contribution
-        if (!Number.isFinite(total) || total > Number.MAX_SAFE_INTEGER) {
-          return 0
-        }
+        const boundedContribution =
+          !Number.isFinite(contribution) || contribution > Number.MAX_SAFE_INTEGER
+            ? Number.MAX_SAFE_INTEGER
+            : contribution
+
+        total = Math.min(Number.MAX_SAFE_INTEGER, total + boundedContribution)
       }
     }
 
-    return Number.isFinite(total) && total > 0 && total <= Number.MAX_SAFE_INTEGER ? total : 0
+    return total > 0 ? total : 0
   }
 
   /**
