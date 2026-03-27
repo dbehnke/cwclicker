@@ -20,6 +20,7 @@ describe('FactoryCard.vue', () => {
       qsos: 100n,
       factoryCounts: {},
       getFactoryCost: () => 10n,
+      isFactoryUnlocked: () => true,
       getUpgradeMultiplier: () => 1,
       getLotteryMultiplier: () => 1,
       prestigeMultiplier: 1,
@@ -251,6 +252,47 @@ describe('FactoryCard.vue', () => {
 
     const buyButton = wrapper.find('button')
     expect(buyButton.attributes('disabled')).toBeDefined()
+  })
+
+  it('disables buy button when factory is locked even if affordable', async () => {
+    mockStore({
+      qsos: 100n,
+      isFactoryUnlocked: () => false,
+    })
+
+    const wrapper = mount(FactoryCard, {
+      props: {
+        factory: elmerFactory,
+      },
+    })
+
+    const buyButton = wrapper.find('button')
+    expect(buyButton.attributes('disabled')).toBeDefined()
+
+    await buyButton.trigger('click')
+    expect(wrapper.emitted('buy')).toBeFalsy()
+  })
+
+  it('masks locked factory name and shows unlock progress message', () => {
+    mockStore({
+      qsos: 100n,
+      qsosThisRun: 60n,
+      isFactoryUnlocked: () => false,
+    })
+
+    const lockedFactory = {
+      ...elmerFactory,
+      unlockThreshold: 100n,
+    }
+
+    const wrapper = mount(FactoryCard, {
+      props: {
+        factory: lockedFactory,
+      },
+    })
+
+    expect(wrapper.text()).toContain('???')
+    expect(wrapper.text()).toContain('Earn 40 more QSOs this run to unlock.')
   })
 
   it('emits buy event on click when affordable', async () => {

@@ -7,6 +7,7 @@
  * @property {number} baseCost - Initial cost in QSOs
  * @property {number} qsosPerSecond - Passive generation rate
  * @property {number} tier - License tier (1-9)
+ * @property {bigint} unlockThreshold - Run-scoped earned QSOs required to unlock
  * @property {string} description - Satirical description
  */
 
@@ -19,7 +20,7 @@ const TIER_1_FACTORIES = [
     id: 'elmer',
     name: 'Elmer',
     icon: '👨‍🏫',
-    baseCost: 10,
+    baseCost: 15,
     qsosPerSecond: 0.1,
     tier: 1,
     description: "Old timers who help you get on the air. 'Just listen for a bit, son.'",
@@ -28,7 +29,7 @@ const TIER_1_FACTORIES = [
     id: 'qrq-protocol',
     name: 'QRQ Protocol',
     icon: '⏱️',
-    baseCost: 15,
+    baseCost: 25,
     qsosPerSecond: 0.1,
     tier: 1,
     description: 'QRQ? QRQ? Yes, please! Each unit autoclicks the keyer every 10 seconds.',
@@ -37,7 +38,7 @@ const TIER_1_FACTORIES = [
     id: 'straight-key',
     name: 'Straight Key',
     icon: '🔑',
-    baseCost: 50,
+    baseCost: 75,
     qsosPerSecond: 0.3,
     tier: 1,
     description: "Purists who insist 'real hams use straight keys.' Click... click... click...",
@@ -53,7 +54,7 @@ const TIER_2_FACTORIES = [
     id: 'paddle-key',
     name: 'Paddle Key',
     icon: '🎮',
-    baseCost: 500,
+    baseCost: 1000,
     qsosPerSecond: 1.0,
     tier: 2,
     description: 'iambic what now? Just squeeze both paddles for SOS and hope for the best.',
@@ -62,7 +63,7 @@ const TIER_2_FACTORIES = [
     id: 'code-practice-oscillator',
     name: 'Code Practice Oscillator',
     icon: '📻',
-    baseCost: 1000,
+    baseCost: 2000,
     qsosPerSecond: 2.0,
     tier: 2,
     description: "Your neighbors love hearing 'CQ CQ CQ' at 2 AM. It's not annoying at all.",
@@ -71,7 +72,7 @@ const TIER_2_FACTORIES = [
     id: 'dipole-antenna',
     name: 'Dipole Antenna',
     icon: '🔽',
-    baseCost: 2000,
+    baseCost: 4000,
     qsosPerSecond: 4.0,
     tier: 2,
     description: "Just throw some wire in a tree. HOA? What HOA? I don't see any HOA.",
@@ -87,7 +88,7 @@ const TIER_3_FACTORIES = [
     id: 'bug-catcher',
     name: 'Bug Catcher',
     icon: '🪲',
-    baseCost: 3500,
+    baseCost: 7000,
     qsosPerSecond: 6.0,
     tier: 3,
     description:
@@ -97,7 +98,7 @@ const TIER_3_FACTORIES = [
     id: 'vertical-antenna',
     name: 'Vertical Antenna',
     icon: '📍',
-    baseCost: 5000,
+    baseCost: 10000,
     qsosPerSecond: 8.0,
     tier: 3,
     description: 'Radiates equally poorly in all directions. But hey, no rotator needed!',
@@ -106,7 +107,7 @@ const TIER_3_FACTORIES = [
     id: 'linear-amplifier',
     name: 'Linear Amplifier',
     icon: '🔊',
-    baseCost: 10000,
+    baseCost: 20000,
     qsosPerSecond: 15.0,
     tier: 3,
     description: "When your signal just isn't strong enough to interfere with your neighbor's TV.",
@@ -122,7 +123,7 @@ const TIER_4_FACTORIES = [
     id: 'beam-antenna',
     name: 'Beam Antenna',
     icon: '📡',
-    baseCost: 25000,
+    baseCost: 75000,
     qsosPerSecond: 30.0,
     tier: 4,
     description:
@@ -132,7 +133,7 @@ const TIER_4_FACTORIES = [
     id: 'ragchew-net',
     name: 'Ragchew Net',
     icon: '💬',
-    baseCost: 35000,
+    baseCost: 100000,
     qsosPerSecond: 45.0,
     tier: 4,
     description:
@@ -142,7 +143,7 @@ const TIER_4_FACTORIES = [
     id: 'tower-installation',
     name: 'Tower Installation',
     icon: '🗼',
-    baseCost: 50000,
+    baseCost: 150000,
     qsosPerSecond: 60.0,
     tier: 4,
     description:
@@ -159,7 +160,7 @@ const TIER_5_FACTORIES = [
     id: 'contest-station',
     name: 'Contest Station',
     icon: '🏆',
-    baseCost: 100000,
+    baseCost: 400000,
     qsosPerSecond: 120.0,
     tier: 5,
     description:
@@ -169,7 +170,7 @@ const TIER_5_FACTORIES = [
     id: 'paper-logbook',
     name: 'Paper Logbook',
     icon: '📓',
-    baseCost: 175000,
+    baseCost: 700000,
     qsosPerSecond: 180.0,
     tier: 5,
     description:
@@ -179,7 +180,7 @@ const TIER_5_FACTORIES = [
     id: 'dx-cluster',
     name: 'DX Cluster',
     icon: '🌍',
-    baseCost: 250000,
+    baseCost: 1000000,
     qsosPerSecond: 250.0,
     tier: 5,
     description: "Real-time spots of rare stations you'll never actually hear yourself.",
@@ -195,7 +196,7 @@ const TIER_6_FACTORIES = [
     id: 'hamfest',
     name: 'Hamfest',
     icon: '🎪',
-    baseCost: 500000,
+    baseCost: 3000000,
     qsosPerSecond: 500.0,
     tier: 6,
     description:
@@ -205,7 +206,7 @@ const TIER_6_FACTORIES = [
     id: 'qsl-card-printer',
     name: 'QSL Card Printer',
     icon: '🖨️',
-    baseCost: 1000000,
+    baseCost: 6000000,
     qsosPerSecond: 1000.0,
     tier: 6,
     description:
@@ -215,7 +216,7 @@ const TIER_6_FACTORIES = [
     id: 'remote-station',
     name: 'Remote Station',
     icon: '🏝️',
-    baseCost: 2500000,
+    baseCost: 15000000,
     qsosPerSecond: 2500.0,
     tier: 6,
     description:
@@ -232,7 +233,7 @@ const TIER_7_FACTORIES = [
     id: 'ft8-bot',
     name: 'FT8 Bot',
     icon: '🤖',
-    baseCost: 5000000,
+    baseCost: 40000000,
     qsosPerSecond: 5000.0,
     tier: 7,
     description:
@@ -242,7 +243,7 @@ const TIER_7_FACTORIES = [
     id: 'digital-interface',
     name: 'Digital Interface',
     icon: '💻',
-    baseCost: 7500000,
+    baseCost: 60000000,
     qsosPerSecond: 7500.0,
     tier: 7,
     description:
@@ -252,7 +253,7 @@ const TIER_7_FACTORIES = [
     id: 'cluster-spotting-network',
     name: 'Cluster Spotting Network',
     icon: '🌐',
-    baseCost: 10000000,
+    baseCost: 80000000,
     qsosPerSecond: 10000.0,
     tier: 7,
     description:
@@ -269,7 +270,7 @@ const TIER_8_FACTORIES = [
     id: 'eme-moonbounce',
     name: 'EME Moonbounce',
     icon: '🌙',
-    baseCost: 25000000,
+    baseCost: 200000000,
     qsosPerSecond: 25000.0,
     tier: 8,
     description:
@@ -279,7 +280,7 @@ const TIER_8_FACTORIES = [
     id: 'lunar-repeater',
     name: 'Lunar Repeater',
     icon: '🌍',
-    baseCost: 37500000,
+    baseCost: 300000000,
     qsosPerSecond: 37500.0,
     tier: 8,
     description:
@@ -289,7 +290,7 @@ const TIER_8_FACTORIES = [
     id: 'satellite-constellation',
     name: 'Satellite Constellation',
     icon: '🛰️',
-    baseCost: 50000000,
+    baseCost: 400000000,
     qsosPerSecond: 50000.0,
     tier: 8,
     description: 'Launch your own satellites because the ISS repeater is always busy.',
@@ -305,7 +306,7 @@ const TIER_9_FACTORIES = [
     id: 'ionospheric-modification',
     name: 'Ionospheric Modification',
     icon: '⚡',
-    baseCost: 100000000,
+    baseCost: 1000000000,
     qsosPerSecond: 100000.0,
     tier: 9,
     description: 'HAARP called. They want their conspiracy theories back. 73 from Alaska!',
@@ -314,7 +315,7 @@ const TIER_9_FACTORIES = [
     id: 'time-travel-dx',
     name: 'Time Travel DX',
     icon: '⏳',
-    baseCost: 250000000,
+    baseCost: 2500000000,
     qsosPerSecond: 250000.0,
     tier: 9,
     description:
@@ -324,7 +325,7 @@ const TIER_9_FACTORIES = [
     id: 'alternate-dimension-dxcc',
     name: 'Alternate Dimension DXCC',
     icon: '🔮',
-    baseCost: 500000000,
+    baseCost: 5000000000,
     qsosPerSecond: 500000.0,
     tier: 9,
     description:
@@ -336,7 +337,7 @@ const TIER_9_FACTORIES = [
  * All factory definitions
  * @type {Factory[]}
  */
-export const FACTORIES = [
+const FACTORY_DEFINITIONS = [
   ...TIER_1_FACTORIES,
   ...TIER_2_FACTORIES,
   ...TIER_3_FACTORIES,
@@ -347,6 +348,32 @@ export const FACTORIES = [
   ...TIER_8_FACTORIES,
   ...TIER_9_FACTORIES,
 ]
+
+/**
+ * Tier unlock thresholds for progression mode.
+ * Unlocking is based on run-scoped earned QSOs.
+ * @type {Record<number, bigint>}
+ */
+export const TIER_UNLOCK_THRESHOLDS = {
+  1: 0n,
+  2: 100n,
+  3: 1000n,
+  4: 10000n,
+  5: 100000n,
+  6: 1000000n,
+  7: 10000000n,
+  8: 100000000n,
+  9: 1000000000n,
+}
+
+/**
+ * All factory definitions with unlock metadata.
+ * @type {Factory[]}
+ */
+export const FACTORIES = FACTORY_DEFINITIONS.map(factory => ({
+  ...factory,
+  unlockThreshold: TIER_UNLOCK_THRESHOLDS[factory.tier] ?? 0n,
+}))
 
 /**
  * Tier scaling constants

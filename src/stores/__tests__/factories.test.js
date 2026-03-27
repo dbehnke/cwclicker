@@ -1,7 +1,7 @@
 import { setActivePinia, createPinia } from 'pinia'
 import { useGameStore } from '../game'
 import { describe, it, expect, beforeEach } from 'vitest'
-import { FACTORIES } from '../../constants/factories'
+import { FACTORIES, TIER_UNLOCK_THRESHOLDS } from '../../constants/factories'
 import { UPGRADES } from '../../constants/upgrades'
 
 describe('Game Store - Factory Logic', () => {
@@ -71,25 +71,26 @@ describe('Game Store - Factory Logic', () => {
       const store = useGameStore()
       const elmer = FACTORIES.find(f => f.id === 'elmer')
 
-      expect(store.getFactoryCost('elmer', 0)).toBe(10n)
-      expect(store.getFactoryCost('elmer', 1)).toBe(11n)
-      expect(store.getFactoryCost('elmer', 5)).toBe(16n)
+      expect(elmer.baseCost).toBe(15)
+      expect(store.getFactoryCost('elmer', 0)).toBe(15n)
+      expect(store.getFactoryCost('elmer', 1)).toBe(16n)
+      expect(store.getFactoryCost('elmer', 5)).toBe(24n)
     })
 
     it('calculates cost for tier 3-5 with 7% scaling (vertical-antenna)', () => {
       const store = useGameStore()
 
-      expect(store.getFactoryCost('vertical-antenna', 0)).toBe(5000n)
-      expect(store.getFactoryCost('vertical-antenna', 1)).toBe(5350n)
-      expect(store.getFactoryCost('vertical-antenna', 5)).toBe(7012n)
+      expect(store.getFactoryCost('vertical-antenna', 0)).toBe(10000n)
+      expect(store.getFactoryCost('vertical-antenna', 1)).toBe(10700n)
+      expect(store.getFactoryCost('vertical-antenna', 5)).toBe(14025n)
     })
 
     it('calculates cost for tier 6-7 with 5% scaling (ft8-bot)', () => {
       const store = useGameStore()
 
-      expect(store.getFactoryCost('ft8-bot', 0)).toBe(5000000n)
-      expect(store.getFactoryCost('ft8-bot', 1)).toBe(5250000n)
-      expect(store.getFactoryCost('ft8-bot', 5)).toBe(6381407n)
+      expect(store.getFactoryCost('ft8-bot', 0)).toBe(40000000n)
+      expect(store.getFactoryCost('ft8-bot', 1)).toBe(42000000n)
+      expect(store.getFactoryCost('ft8-bot', 5)).toBe(51051262n)
     })
 
     it('returns a prohibitively high cost when growth overflows Number range', () => {
@@ -107,8 +108,8 @@ describe('Game Store - Factory Logic', () => {
 
       expect(result).toBe(true)
       expect(store.factoryCounts['elmer']).toBe(1)
-      // Single purchase uses getBulkCost which applies 5% discount: 10 * 95 / 100 = 9
-      expect(store.qsos).toBe(91n)
+      // Single purchase uses getBulkCost which applies 5% discount: 15 * 95 / 100 = 14
+      expect(store.qsos).toBe(86n)
     })
 
     it('returns false when not enough QSOs', () => {
@@ -120,6 +121,28 @@ describe('Game Store - Factory Logic', () => {
       expect(result).toBe(false)
       expect(store.factoryCounts['elmer']).toBeUndefined()
       expect(store.qsos).toBe(5n)
+    })
+
+    it('returns false when factory is still locked by progression threshold', () => {
+      const store = useGameStore()
+      store.qsos = 5000n
+      store.qsosThisRun = 99n
+
+      const result = store.buyFactory('paddle-key', 1)
+
+      expect(result).toBe(false)
+      expect(store.factoryCounts['paddle-key']).toBeUndefined()
+    })
+
+    it('allows buying a factory once its progression threshold is met', () => {
+      const store = useGameStore()
+      store.qsos = 5000n
+      store.qsosThisRun = 100n
+
+      const result = store.buyFactory('paddle-key', 1)
+
+      expect(result).toBe(true)
+      expect(store.factoryCounts['paddle-key']).toBe(1)
     })
 
     it('buys multiple factories at once', () => {
@@ -154,22 +177,22 @@ describe('Game Store - Factory Logic', () => {
       const store = useGameStore()
 
       // Buying 2 elmer factories
-      // Cost 0: 10
-      // Cost 1: 10 * 1.10 = 11
-      // Sum: 21
-      // Discounted: 21 * 95 / 100 = 19 (integer division)
+      // Cost 0: 15
+      // Cost 1: floor(15 * 1.10) = 16
+      // Sum: 31
+      // Discounted: 31 * 95 / 100 = 29 (integer division)
       const bulkCost = store.getBulkCost('elmer', 2)
-      expect(bulkCost).toBe(19n)
+      expect(bulkCost).toBe(29n)
     })
 
     it('applies 5% discount to larger purchases', () => {
       const store = useGameStore()
 
       // Manual sum of 5 elmer factories
-      // 10 + 11 + 12 + 13 + 14 = 60 (floored values)
-      // With 5% discount: 60 * 95 / 100 = 57
+      // 15 + 16 + 18 + 19 + 21 = 89 (floored values)
+      // With 5% discount: 89 * 95 / 100 = 84
       const bulkCost = store.getBulkCost('elmer', 5)
-      expect(bulkCost).toBe(57n)
+      expect(bulkCost).toBe(84n)
     })
 
     it('caps excessively large bulk counts at 10', () => {
@@ -192,29 +215,108 @@ describe('Game Store - Factory Logic', () => {
 
   describe('upgrade coverage', () => {
     it('gives every factory a full 9-step upgrade chain', () => {
-      const expectedThresholds = [1, 5, 25, 50, 100, 150, 200, 250, 300]
+      const expectedThresholds = [5, 10, 25, 50, 100, 150, 200, 250, 300]
 
       for (const factory of FACTORIES) {
         const upgrades = UPGRADES.filter(upgrade => upgrade.factoryId === factory.id)
 
         expect(upgrades.length, `Expected exactly 9 upgrades for factory ${factory.id}`).toBe(9)
         expect(upgrades.map(upgrade => upgrade.threshold)).toEqual(expectedThresholds)
-        expect(upgrades.every(upgrade => upgrade.multiplier === 2)).toBe(true)
+        expect(upgrades[0].multiplier).toBe(5)
+
+        for (let i = 1; i < upgrades.length; i++) {
+          expect(upgrades[i].multiplier).toBe(upgrades[i - 1].multiplier * 2)
+          expect(upgrades[i].baseCost).toBe(upgrades[i - 1].baseCost * 2n)
+        }
       }
     })
 
     it('exposes the first bug-catcher upgrade at the threshold', () => {
       const store = useGameStore()
-      store.factoryCounts['bug-catcher'] = 1
+      store.factoryCounts['bug-catcher'] = 5
 
       const upgrades = store.getAvailableUpgrades('bug-catcher')
 
       expect(upgrades[0]).toMatchObject({
         factoryId: 'bug-catcher',
-        threshold: 1,
+        threshold: 5,
       })
+      expect(upgrades[0].multiplier).toBe(5)
       expect(upgrades[0].name).toBeDefined()
       expect(upgrades[0].baseCost).toBeGreaterThan(0n)
+    })
+  })
+
+  describe('progressive unlock thresholds', () => {
+    it('marks tier-1 factories as unlocked at run start', () => {
+      const store = useGameStore()
+      store.qsosThisRun = 0n
+
+      expect(store.isFactoryUnlocked('elmer')).toBe(true)
+      expect(store.isFactoryUnlocked('straight-key')).toBe(true)
+    })
+
+    it('keeps tier-2 factories locked until run threshold is met', () => {
+      const store = useGameStore()
+      store.qsosThisRun = 99n
+
+      expect(store.isFactoryUnlocked('paddle-key')).toBe(false)
+    })
+
+    it('unlocks tier-2 factories at 100 run QSOs', () => {
+      const store = useGameStore()
+      store.qsosThisRun = 100n
+
+      expect(store.isFactoryUnlocked('paddle-key')).toBe(true)
+    })
+
+    it('keeps already-owned factories unlocked', () => {
+      const store = useGameStore()
+      store.qsosThisRun = 0n
+      store.factoryCounts['paddle-key'] = 1
+
+      expect(store.isFactoryUnlocked('paddle-key')).toBe(true)
+    })
+
+    it('keeps already-owned factories unlocked even below license tier visibility', () => {
+      const store = useGameStore()
+      store.licenseLevel = 1
+      store.factoryCounts['beam-antenna'] = 1
+      store.qsosThisRun = 0n
+
+      expect(store.isFactoryUnlocked('beam-antenna')).toBe(true)
+    })
+
+    it('adds unlockThreshold metadata for every factory', () => {
+      expect(FACTORIES.every(factory => typeof factory.unlockThreshold === 'bigint')).toBe(true)
+      expect(FACTORIES.filter(factory => factory.tier === 1).every(f => f.unlockThreshold === 0n)).toBe(
+        true,
+      )
+    })
+
+    it('uses the expected unlockThreshold progression by tier', () => {
+      const expectedThresholdByTier = {
+        1: 0n,
+        2: 100n,
+        3: 1000n,
+        4: 10000n,
+        5: 100000n,
+        6: 1000000n,
+        7: 10000000n,
+        8: 100000000n,
+        9: 1000000000n,
+      }
+
+      for (const factory of FACTORIES) {
+        expect(factory.unlockThreshold).toBe(expectedThresholdByTier[factory.tier])
+      }
+    })
+
+    it('defaults unknown tier unlock threshold to 0', () => {
+      const unknownTier = 99
+      const threshold = TIER_UNLOCK_THRESHOLDS[unknownTier] ?? 0n
+
+      expect(threshold).toBe(0n)
     })
   })
 })

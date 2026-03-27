@@ -196,4 +196,27 @@ describe('FactoryList.vue', () => {
     // Tier 4+ should be filtered
     expect(wrapper.text()).not.toContain('Tower Installation') // tier 4
   })
+
+  it('keeps owned factories visible even when above current license tier', () => {
+    useGameStore.mockReturnValue({
+      qsos: 0n,
+      licenseLevel: 1,
+      factoryCounts: { 'beam-antenna': 1 },
+      getFactoryCost: () => 10n,
+      getTotalQSOsPerSecond: () => 0,
+      getBulkCost: () => 100n,
+      getUpgradeMultiplier: () => 1,
+      getLotteryMultiplier: () => 1,
+      prestigeMultiplier: 1,
+      getAvailableUpgrades: () => [],
+      purchasedUpgrades: new Set(),
+      buyUpgrade: () => {},
+      save: () => {},
+      isFactoryUnlocked: id => id === 'beam-antenna',
+    })
+
+    const wrapper = mount(FactoryList)
+
+    expect(wrapper.text()).toContain('Beam Antenna')
+  })
 })

@@ -19,18 +19,18 @@ describe('Game Store - Comprehensive Tests', () => {
       store.qsos = 100n
 
       const cost = store.getFactoryCost('elmer', 0)
-      expect(cost).toBe(10n)
+      expect(cost).toBe(15n)
     })
 
     it('calculates increasing costs with 10% scaling for tier 1-2', () => {
       const store = useGameStore()
 
-      // First Elmer: 10
-      expect(store.getFactoryCost('elmer', 0)).toBe(10n)
-      // Second Elmer: 10 * 1.10 = 11
-      expect(store.getFactoryCost('elmer', 1)).toBe(11n)
-      // Third Elmer: 10 * 1.10^2 = 12
-      expect(store.getFactoryCost('elmer', 2)).toBe(12n)
+      // First Elmer: 15
+      expect(store.getFactoryCost('elmer', 0)).toBe(15n)
+      // Second Elmer: floor(15 * 1.10) = 16
+      expect(store.getFactoryCost('elmer', 1)).toBe(16n)
+      // Third Elmer: floor(15 * 1.10^2) = 18
+      expect(store.getFactoryCost('elmer', 2)).toBe(18n)
     })
 
     it('calculates bulk cost with 5% discount', () => {
@@ -52,8 +52,8 @@ describe('Game Store - Comprehensive Tests', () => {
       const result = store.buyFactory('elmer', 1)
 
       expect(result).toBe(true)
-      // Cost is 10 but with 5% bulk discount applied: 10 * 0.95 = 9.5 -> 9
-      expect(store.qsos).toBe(91n)
+      // Cost is 15 but with 5% bulk discount applied: 15 * 0.95 = 14.25 -> 14
+      expect(store.qsos).toBe(86n)
       expect(store.factoryCounts['elmer']).toBe(1)
     })
 
@@ -94,10 +94,10 @@ describe('Game Store - Comprehensive Tests', () => {
 
       const upgrades = store.getAvailableUpgrades('elmer')
 
-      // Should have upgrades for threshold 1 and 5
+      // Should have first upgrade at threshold 5
       expect(upgrades.length).toBeGreaterThan(0)
-      expect(upgrades.some(u => u.threshold === 1)).toBe(true)
       expect(upgrades.some(u => u.threshold === 5)).toBe(true)
+      expect(upgrades.some(u => u.threshold === 10)).toBe(false)
     })
 
     it('does not return already purchased upgrades', () => {
@@ -107,7 +107,7 @@ describe('Game Store - Comprehensive Tests', () => {
 
       // Buy first upgrade
       const availableBefore = store.getAvailableUpgrades('elmer')
-      const firstUpgrade = availableBefore.find(u => u.threshold === 1)
+      const firstUpgrade = availableBefore.find(u => u.threshold === 5)
 
       if (firstUpgrade) {
         store.buyUpgrade(firstUpgrade.id)
@@ -125,11 +125,11 @@ describe('Game Store - Comprehensive Tests', () => {
       // No upgrades = multiplier of 1
       expect(store.getUpgradeMultiplier('elmer')).toBe(1)
 
-      // Add one upgrade (2x multiplier)
+      // Add one upgrade (5x multiplier)
       const elmerUpgrade = UPGRADES.find(u => u.factoryId === 'elmer')
       if (elmerUpgrade) {
         store.purchasedUpgrades.add(elmerUpgrade.id)
-        expect(store.getUpgradeMultiplier('elmer')).toBe(2)
+        expect(store.getUpgradeMultiplier('elmer')).toBe(5)
       }
     })
 
@@ -137,11 +137,11 @@ describe('Game Store - Comprehensive Tests', () => {
       const store = useGameStore()
       const elmerUpgrades = UPGRADES.filter(u => u.factoryId === 'elmer').slice(0, 2)
 
-      // Two upgrades = 2 × 2 = 4x
+      // Two upgrades = 5 × 10 = 50x
       elmerUpgrades.forEach(u => store.purchasedUpgrades.add(u.id))
 
       if (elmerUpgrades.length >= 2) {
-        expect(store.getUpgradeMultiplier('elmer')).toBe(4)
+        expect(store.getUpgradeMultiplier('elmer')).toBe(50)
       }
     })
   })
@@ -152,30 +152,28 @@ describe('Game Store - Comprehensive Tests', () => {
       expect(store.licenseLevel).toBe(1)
     })
 
-    it('can upgrade to General with 500 QSOs', () => {
+    it('can upgrade to General with 50 million lifetime QSOs', () => {
       const store = useGameStore()
-      store.qsos = 500n
+      store.totalQsosEarned = 50_000_000n
       store.licenseLevel = 1
 
       // In App.vue, upgrade happens when button is clicked
       // This tests the store state change
       store.licenseLevel = 2
-      store.qsos -= 500n
 
       expect(store.licenseLevel).toBe(2)
-      expect(store.qsos).toBe(0n)
+      expect(store.totalQsosEarned).toBe(50_000_000n)
     })
 
-    it('can upgrade to Extra with 5000 QSOs', () => {
+    it('can upgrade to Extra with 500 million lifetime QSOs', () => {
       const store = useGameStore()
-      store.qsos = 5000n
+      store.totalQsosEarned = 500_000_000n
       store.licenseLevel = 2
 
       store.licenseLevel = 3
-      store.qsos -= 5000n
 
       expect(store.licenseLevel).toBe(3)
-      expect(store.qsos).toBe(0n)
+      expect(store.totalQsosEarned).toBe(500_000_000n)
     })
   })
 
@@ -195,13 +193,28 @@ describe('Game Store - Comprehensive Tests', () => {
       const store = useGameStore()
       store.factoryCounts = { 'elmer': 1 } // 0.1/sec base
 
-      // Add 2x upgrade
+      // Add first 5x upgrade
       const upgrade = UPGRADES.find(u => u.factoryId === 'elmer')
       if (upgrade) {
         store.purchasedUpgrades.add(upgrade.id)
         const total = store.getTotalQSOsPerSecond()
-        expect(total).toBeCloseTo(0.2, 1) // 0.1 × 2
+        expect(total).toBeCloseTo(0.5, 1) // 0.1 × 5
       }
+    })
+
+    it('caps extreme upgraded output instead of dropping to zero', () => {
+      const store = useGameStore()
+      store.factoryCounts = { 'alternate-dimension-dxcc': 1000000 }
+
+      const maxUpgradeIds = UPGRADES.filter(u => u.factoryId === 'alternate-dimension-dxcc').map(
+        u => u.id,
+      )
+      maxUpgradeIds.forEach(id => store.purchasedUpgrades.add(id))
+
+      const total = store.getTotalQSOsPerSecond()
+
+      expect(total).toBeGreaterThan(0)
+      expect(total).toBe(Number.MAX_SAFE_INTEGER)
     })
   })
 

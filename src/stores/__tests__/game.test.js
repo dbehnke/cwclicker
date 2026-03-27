@@ -10,6 +10,7 @@ describe('Game Store', () => {
   it('initializes with 0 QSOs', () => {
     const store = useGameStore()
     expect(store.qsos).toBe(0n)
+    expect(store.qsosThisRun).toBe(0n)
   })
 
   it('adds QSOs when keyer is tapped (dit = 1)', () => {
@@ -74,11 +75,23 @@ describe('Game Store', () => {
 
     store.tapKeyer('dit')
     expect(store.qsos).toBe(1n)
+    expect(store.qsosThisRun).toBe(1n)
     expect(store.totalQsosEarned).toBe(27_000_000_001n)
 
     store.tapKeyer('dah')
     expect(store.qsos).toBe(3n)
+    expect(store.qsosThisRun).toBe(3n)
     expect(store.totalQsosEarned).toBe(27_000_000_003n)
+  })
+
+  it('tracks passive factory earnings in qsosThisRun', () => {
+    const store = useGameStore()
+
+    store.addPassiveQSOs(2.4)
+
+    expect(store.qsos).toBe(2n)
+    expect(store.qsosThisRun).toBe(2n)
+    expect(store.totalQsosEarned).toBe(2n)
   })
 
   it('accumulates tap prestige bonus across repeated small taps', () => {
@@ -103,6 +116,7 @@ describe('Game Store', () => {
     store.prestigeLevel = 1n
     store.prestigePoints = 4n
     store.qsos = 123n
+    store.qsosThisRun = 456n
     store.factoryCounts = { cwkeyer: 2 }
     store.fractionalQSOs = 0.75
     store.licenseLevel = 4
@@ -123,6 +137,7 @@ describe('Game Store', () => {
     expect(store.prestigePoints).toBe(6n)
     expect(store.totalQsosEarned).toBe(27_000_000_000n)
     expect(store.qsos).toBe(0n)
+    expect(store.qsosThisRun).toBe(0n)
     expect(store.factoryCounts).toEqual({})
     expect(store.fractionalQSOs).toBe(0)
     expect(store.licenseLevel).toBe(1)
@@ -130,6 +145,8 @@ describe('Game Store', () => {
     expect(store.offlineEarnings).toBe(null)
     expect(store.morseChallengeState.isActive).toBe(false)
     expect(store.morseChallengeState.state).toBe('idle')
+    expect(store.morseChallengeState.triesRemaining).toBe(3)
+    expect(store.morseChallengeState.lastBonusAwarded).toBe(0)
     expect(store.canPrestigeReset).toBe(false)
   })
 
@@ -143,13 +160,13 @@ describe('Game Store', () => {
     expect(store.eligiblePrestigeLevel).toBe(root - 1n)
   })
 
-  it('clamps non-finite passive output to zero', () => {
+  it('caps extreme passive output to Number.MAX_SAFE_INTEGER', () => {
     const store = useGameStore()
 
     store.factoryCounts = { elmer: Number.MAX_SAFE_INTEGER }
     store.prestigeLevel = 9007199254740991n
 
-    expect(store.getTotalQSOsPerSecond()).toBe(0)
+    expect(store.getTotalQSOsPerSecond()).toBe(Number.MAX_SAFE_INTEGER)
   })
 
   it('applies solar storm multiplier after load-time reset', () => {

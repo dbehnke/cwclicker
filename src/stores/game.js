@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { FACTORIES } from '../constants/factories'
+import { FACTORIES, getMaxTierForLicense } from '../constants/factories'
 import { UPGRADES } from '../constants/upgrades'
 import {
   PRESTIGE_QSOS_PER_LEVEL,
@@ -18,7 +18,7 @@ import {
  * Current game version for save data migration
  * @type {string}
  */
-const GAME_VERSION = '1.1.9'
+const GAME_VERSION = '1.2.0'
 const MORSE_CHALLENGE_ADVANCE_DELAY_MS = 5000
 const MORSE_CHALLENGE_TERMINAL_STATES = ['timeout', 'wrong', 'success']
 const MAX_BULK_PURCHASE_COUNT = 10
@@ -90,6 +90,7 @@ export const useGameStore = defineStore('game', () => {
    * @returns {bigint} QSO value as BigInt
    */
   const qsos = ref(0n)
+  const qsosThisRun = ref(0n) // Run-scoped earned QSOs; progressive unlock logic consumes this in v1.2.0 follow-up slices
   const totalQsosEarned = ref(0n) // Total QSOs earned for prestige system
   const prestigeLevel = ref(0n)
   const prestigePoints = ref(0n)
@@ -319,6 +320,7 @@ export const useGameStore = defineStore('game', () => {
     const wholeQsos = Math.floor(fractionalQSOs.value)
     if (wholeQsos > 0) {
       qsos.value = qsos.value + BigInt(wholeQsos)
+      qsosThisRun.value += BigInt(wholeQsos)
       totalQsosEarned.value += BigInt(wholeQsos)
       fractionalQSOs.value -= wholeQsos
     }
@@ -340,6 +342,7 @@ export const useGameStore = defineStore('game', () => {
     const bonus = tapPrestigeAccumulator.value / 100n
     tapPrestigeAccumulator.value %= 100n
     qsos.value += bonus
+    qsosThisRun.value += bonus
     totalQsosEarned.value += bonus
   }
 
@@ -422,6 +425,7 @@ export const useGameStore = defineStore('game', () => {
     prestigeLevel.value = eligibleLevel > prestigeLevel.value ? eligibleLevel : prestigeLevel.value
 
     qsos.value = 0n
+    qsosThisRun.value = 0n
     factoryCounts.value = {}
     fractionalQSOs.value = 0
     tapPrestigeAccumulator.value = 0n
@@ -446,6 +450,8 @@ export const useGameStore = defineStore('game', () => {
       keyedSequence: [],
       challengeStartTime: 0,
       state: 'idle',
+      triesRemaining: 3,
+      lastBonusAwarded: 0,
     }
     if (pendingEvalTimer) {
       clearTimeout(pendingEvalTimer)
@@ -545,6 +551,10 @@ export const useGameStore = defineStore('game', () => {
     const factory = FACTORIES.find(f => f.id === factoryId)
     if (!factory) {
       console.warn(`Factory not found: ${factoryId}`)
+      return false
+    }
+
+    if (!isFactoryUnlocked(factoryId)) {
       return false
     }
 
@@ -657,7 +667,7 @@ export const useGameStore = defineStore('game', () => {
    * Gets the total upgrade multiplier for a factory.
    * Uses cached computed property for O(1) lookup instead of O(n) scan.
    * @param {string} factoryId - The factory ID.
-   * @returns {number} The multiplier (1.0 if no upgrades, 2.0, 4.0, 8.0, etc. with upgrades).
+   * @returns {number} The multiplier (1.0 if no upgrades, 5.0, 10.0, 20.0, etc. per purchased tier).
    */
   function getUpgradeMultiplier(factoryId) {
     return upgradeMultipliers.value[factoryId] || 1
@@ -681,6 +691,7 @@ export const useGameStore = defineStore('game', () => {
       const state = {
         version: GAME_VERSION,
         qsos: qsos.value.toString(),
+        qsosThisRun: qsosThisRun.value.toString(),
         totalQsosEarned: totalQsosEarned.value.toString(),
         prestigeLevel: prestigeLevel.value.toString(),
         prestigePoints: prestigePoints.value.toString(),
@@ -714,7 +725,7 @@ export const useGameStore = defineStore('game', () => {
 
         // Check for old save data (v1.0.0 or earlier - no version field)
         if (!state.version) {
-          console.warn('Detected v1.0.0 save data - migrating to v1.1.0 with clean slate')
+          console.warn(`Detected v1.0.0 save data - migrating to v${GAME_VERSION} with clean slate`)
 
           // Store migration info for UI to display
           migrationInfo.value = {
@@ -734,6 +745,9 @@ export const useGameStore = defineStore('game', () => {
         }
 
         qsos.value = parseNonNegativeBigInt(state.qsos || '0')
+        qsosThisRun.value = parseNonNegativeBigInt(
+          state.qsosThisRun ?? state.totalQsosEarned ?? state.qsos ?? '0'
+        )
         setTotalQsosEarned(parseNonNegativeBigInt(state.totalQsosEarned || state.qsos || '0'))
         const hasPrestigeLevelField = 'prestigeLevel' in state
         const hasPrestigePointsField = 'prestigePoints' in state
@@ -849,6 +863,7 @@ export const useGameStore = defineStore('game', () => {
 
               if (offlineQsos > 0 && Number.isSafeInteger(offlineQsos)) {
                 qsos.value = qsos.value + BigInt(offlineQsos)
+                qsosThisRun.value += BigInt(offlineQsos)
                 totalQsosEarned.value += BigInt(offlineQsos)
 
                 // Store offline earnings info for UI display
@@ -888,22 +903,44 @@ export const useGameStore = defineStore('game', () => {
           upgradeMultiplier *
           prestigeMultiplier.value
 
-        if (
-          !Number.isFinite(contribution) ||
-          contribution < 0 ||
-          contribution > Number.MAX_SAFE_INTEGER
-        ) {
+        if (Number.isNaN(contribution) || contribution < 0) {
           continue
         }
 
-        total += contribution
-        if (!Number.isFinite(total) || total > Number.MAX_SAFE_INTEGER) {
-          return 0
-        }
+        const boundedContribution =
+          !Number.isFinite(contribution) || contribution > Number.MAX_SAFE_INTEGER
+            ? Number.MAX_SAFE_INTEGER
+            : contribution
+
+        total = Math.min(Number.MAX_SAFE_INTEGER, total + boundedContribution)
       }
     }
 
-    return Number.isFinite(total) && total > 0 && total <= Number.MAX_SAFE_INTEGER ? total : 0
+    return total > 0 ? total : 0
+  }
+
+  /**
+   * Returns whether a factory is unlocked for the current run.
+   * Owned factories remain unlocked after prestige fallback/migration edge cases.
+   * @param {string} factoryId - The factory ID.
+   * @returns {boolean} True when unlocked.
+   */
+  function isFactoryUnlocked(factoryId) {
+    const factory = FACTORIES.find(f => f.id === factoryId)
+    if (!factory) {
+      return false
+    }
+
+    if ((factoryCounts.value[factoryId] || 0) > 0) {
+      return true
+    }
+
+    const maxTier = getMaxTierForLicense(licenseLevel.value)
+    if (factory.tier > maxTier) {
+      return false
+    }
+
+    return qsosThisRun.value >= (factory.unlockThreshold || 0n)
   }
 
   /**
@@ -1183,6 +1220,7 @@ export const useGameStore = defineStore('game', () => {
 
   return {
     qsos,
+    qsosThisRun,
     totalQsosEarned,
     prestigeLevel,
     prestigePoints,
@@ -1201,6 +1239,7 @@ export const useGameStore = defineStore('game', () => {
     getFactoryCost,
     getBulkCost,
     buyFactory,
+    isFactoryUnlocked,
     getTotalQSOsPerSecond,
     updateAudioSettings,
     activateLotteryBonus,

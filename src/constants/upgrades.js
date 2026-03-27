@@ -1,5 +1,7 @@
 'use strict'
 
+import { FACTORIES } from './factories'
+
 /**
  * @typedef {Object} Upgrade
  * @property {string} id - Unique identifier
@@ -7,12 +9,12 @@
  * @property {string} name - Display name
  * @property {number} threshold - Number of factories required to unlock
  * @property {bigint} baseCost - Base cost in QSOs
- * @property {number} multiplier - Output multiplier (usually 2)
+ * @property {number} multiplier - Output multiplier for this upgrade tier
  * @property {string} description - Satirical description
  */
 
-// Cookie Clicker-style upgrade thresholds: 1, 5, 25, 50, 100, 150, 200, 250, 300...
-const UPGRADE_THRESHOLDS = [1, 5, 25, 50, 100, 150, 200, 250, 300]
+// Cookie Clicker-style upgrade thresholds: 5, 10, 25, 50, 100, 150, 200, 250, 300...
+const UPGRADE_THRESHOLDS = [5, 10, 25, 50, 100, 150, 200, 250, 300]
 
 /**
  * License unlock costs (for future use - currently handled by tier visibility)
@@ -27,7 +29,8 @@ export const LICENSE_COSTS = {
 
 /**
  * Generate upgrades for a factory following Cookie Clicker pattern
- * Each upgrade doubles output (2x) and costs baseCost × 10^(threshold tier)
+ * Each upgrade doubles its own tier multiplier (5x, 10x, 20x...) and costs
+ * baseCost × 50 × 2^(tier index).
  * @param {string} factoryId - Factory ID
  * @param {string} _factoryName - Factory name (unused; kept for readability)
  * @param {number} factoryBaseCost - Factory base cost
@@ -44,9 +47,12 @@ function generateUpgrades(
   upgradeDescriptions,
   icon = '⚡'
 ) {
+  const actualFactoryBaseCost = FACTORIES.find(factory => factory.id === factoryId)?.baseCost
+  const effectiveBaseCost = actualFactoryBaseCost ?? factoryBaseCost
+
   return UPGRADE_THRESHOLDS.slice(0, upgradeNames.length).map((threshold, index) => {
-    // Cost formula: baseCost × 10^(index + 1) using bigint math to preserve precision.
-    const cost = BigInt(factoryBaseCost) * 10n ** BigInt(index + 1)
+    // Cost formula: baseCost × 50 × 2^(index) using bigint math to preserve precision.
+    const cost = BigInt(effectiveBaseCost) * 50n * 2n ** BigInt(index)
 
     return {
       id: `${factoryId}-upgrade-${index}`,
@@ -54,7 +60,7 @@ function generateUpgrades(
       name: upgradeNames[index],
       threshold: threshold,
       baseCost: cost,
-      multiplier: 2,
+      multiplier: 5 * 2 ** index,
       description: upgradeDescriptions[index],
       icon: icon,
     }
