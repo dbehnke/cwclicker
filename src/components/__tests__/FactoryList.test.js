@@ -71,6 +71,35 @@ describe('FactoryList.vue', () => {
     expect(wrapper.text()).not.toContain('FT8 Bot') // tier 7 is filtered
   })
 
+  it('hides locked factories instead of rendering ??? placeholders', () => {
+    useGameStore.mockReturnValue({
+      qsos: 1n,
+      licenseLevel: 1,
+      factoryCounts: {},
+      getFactoryCost: () => 10n,
+      getTotalQSOsPerSecond: () => 0,
+      getBulkCost: () => 100n,
+      getUpgradeMultiplier: () => 1,
+      getLotteryMultiplier: () => 1,
+      prestigeMultiplier: 1,
+      getAvailableUpgrades: () => [],
+      purchasedUpgrades: new Set(),
+      buyUpgrade: () => {},
+      save: () => {},
+      isFactoryUnlocked: id => ['elmer', 'qrq-protocol', 'straight-key'].includes(id),
+    })
+
+    const wrapper = mount(FactoryList)
+
+    expect(wrapper.text()).toContain('Elmer')
+    expect(wrapper.text()).toContain('QRQ Protocol')
+    expect(wrapper.text()).toContain('Straight Key')
+    expect(wrapper.text()).not.toContain('Paddle Key')
+    expect(wrapper.text()).not.toContain('Code Practice Oscillator')
+    expect(wrapper.text()).not.toContain('Dipole Antenna')
+    expect(wrapper.text()).not.toContain('???')
+  })
+
   it('shows total QSOs per second', () => {
     useGameStore.mockReturnValue({
       qsos: 1000n,
