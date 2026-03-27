@@ -33,9 +33,15 @@ const cost10 = computed(() => {
   return store.getBulkCost(props.factory.id, 10)
 })
 
-const canAfford1 = computed(() => store.qsos >= cost1.value)
-const canAfford5 = computed(() => store.qsos >= cost5.value)
-const canAfford10 = computed(() => store.qsos >= cost10.value)
+const isUnlocked = computed(() => {
+  if (!props.factory) return false
+  if (typeof store.isFactoryUnlocked !== 'function') return true
+  return store.isFactoryUnlocked(props.factory.id)
+})
+
+const canAfford1 = computed(() => isUnlocked.value && store.qsos >= cost1.value)
+const canAfford5 = computed(() => isUnlocked.value && store.qsos >= cost5.value)
+const canAfford10 = computed(() => isUnlocked.value && store.qsos >= cost10.value)
 
 const handleBuy = count => {
   emit('buy', { factory: props.factory, count })

@@ -36,6 +36,16 @@ const canAfford = computed(() => {
   return store.qsos >= currentCost.value
 })
 
+const isUnlocked = computed(() => {
+  if (typeof store.isFactoryUnlocked !== 'function') {
+    return true
+  }
+
+  return store.isFactoryUnlocked(props.factory.id)
+})
+
+const canBuy = computed(() => canAfford.value && isUnlocked.value)
+
 /**
  * Gets the number of factories currently owned.
  */
@@ -80,7 +90,7 @@ const qsosNeeded = computed(() => {
  * Handles the buy button click.
  */
 const handleBuy = () => {
-  if (canAfford.value) {
+  if (canBuy.value) {
     emit('buy', { factory: props.factory, count: 1 })
   }
 }
@@ -193,11 +203,11 @@ function handleBuyUpgrade() {
       <span class="text-terminal-green">{{ formatNumber(currentCost) }}</span>
       <button
         @click="handleBuy"
-        :disabled="!canAfford"
+        :disabled="!canBuy"
         class="rounded px-4 py-1 font-bold transition-colors touch-manipulation"
         :class="{
-          'bg-terminal-green text-terminal-bg hover:brightness-110 active:brightness-95': canAfford,
-          'bg-gray-700 text-gray-400 opacity-50 cursor-not-allowed': !canAfford,
+          'bg-terminal-green text-terminal-bg hover:brightness-110 active:brightness-95': canBuy,
+          'bg-gray-700 text-gray-400 opacity-50 cursor-not-allowed': !canBuy,
         }"
       >
         Buy

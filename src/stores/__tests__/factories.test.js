@@ -277,5 +277,23 @@ describe('Game Store - Factory Logic', () => {
         true,
       )
     })
+
+    it('uses the expected unlockThreshold progression by tier', () => {
+      const expectedThresholdByTier = {
+        1: 0n,
+        2: 100n,
+        3: 1000n,
+        4: 10000n,
+        5: 100000n,
+        6: 1000000n,
+        7: 10000000n,
+        8: 100000000n,
+        9: 1000000000n,
+      }
+
+      for (const factory of FACTORIES) {
+        expect(factory.unlockThreshold).toBe(expectedThresholdByTier[factory.tier])
+      }
+    })
   })
 })

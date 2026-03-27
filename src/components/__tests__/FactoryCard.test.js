@@ -20,6 +20,7 @@ describe('FactoryCard.vue', () => {
       qsos: 100n,
       factoryCounts: {},
       getFactoryCost: () => 10n,
+      isFactoryUnlocked: () => true,
       getUpgradeMultiplier: () => 1,
       getLotteryMultiplier: () => 1,
       prestigeMultiplier: 1,
@@ -251,6 +252,25 @@ describe('FactoryCard.vue', () => {
 
     const buyButton = wrapper.find('button')
     expect(buyButton.attributes('disabled')).toBeDefined()
+  })
+
+  it('disables buy button when factory is locked even if affordable', async () => {
+    mockStore({
+      qsos: 100n,
+      isFactoryUnlocked: () => false,
+    })
+
+    const wrapper = mount(FactoryCard, {
+      props: {
+        factory: elmerFactory,
+      },
+    })
+
+    const buyButton = wrapper.find('button')
+    expect(buyButton.attributes('disabled')).toBeDefined()
+
+    await buyButton.trigger('click')
+    expect(wrapper.emitted('buy')).toBeFalsy()
   })
 
   it('emits buy event on click when affordable', async () => {
