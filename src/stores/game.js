@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { FACTORIES } from '../constants/factories'
+import { FACTORIES, getMaxTierForLicense } from '../constants/factories'
 import { UPGRADES } from '../constants/upgrades'
 import {
   PRESTIGE_QSOS_PER_LEVEL,
@@ -552,6 +552,10 @@ export const useGameStore = defineStore('game', () => {
       return false
     }
 
+    if (!isFactoryUnlocked(factoryId)) {
+      return false
+    }
+
     const purchaseCount = normalizePurchaseCount(count)
     if (purchaseCount <= 0) {
       return false
@@ -914,6 +918,30 @@ export const useGameStore = defineStore('game', () => {
   }
 
   /**
+   * Returns whether a factory is unlocked for the current run.
+   * Owned factories remain unlocked after prestige fallback/migration edge cases.
+   * @param {string} factoryId - The factory ID.
+   * @returns {boolean} True when unlocked.
+   */
+  function isFactoryUnlocked(factoryId) {
+    const factory = FACTORIES.find(f => f.id === factoryId)
+    if (!factory) {
+      return false
+    }
+
+    const maxTier = getMaxTierForLicense(licenseLevel.value)
+    if (factory.tier > maxTier) {
+      return false
+    }
+
+    if ((factoryCounts.value[factoryId] || 0) > 0) {
+      return true
+    }
+
+    return qsosThisRun.value >= (factory.unlockThreshold || 0n)
+  }
+
+  /**
    * Updates audio settings and saves state.
    * @param {Object} settings - The new audio settings
    */
@@ -1209,6 +1237,7 @@ export const useGameStore = defineStore('game', () => {
     getFactoryCost,
     getBulkCost,
     buyFactory,
+    isFactoryUnlocked,
     getTotalQSOsPerSecond,
     updateAudioSettings,
     activateLotteryBonus,

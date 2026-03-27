@@ -122,6 +122,28 @@ describe('Game Store - Factory Logic', () => {
       expect(store.qsos).toBe(5n)
     })
 
+    it('returns false when factory is still locked by progression threshold', () => {
+      const store = useGameStore()
+      store.qsos = 5000n
+      store.qsosThisRun = 99n
+
+      const result = store.buyFactory('paddle-key', 1)
+
+      expect(result).toBe(false)
+      expect(store.factoryCounts['paddle-key']).toBeUndefined()
+    })
+
+    it('allows buying a factory once its progression threshold is met', () => {
+      const store = useGameStore()
+      store.qsos = 5000n
+      store.qsosThisRun = 100n
+
+      const result = store.buyFactory('paddle-key', 1)
+
+      expect(result).toBe(true)
+      expect(store.factoryCounts['paddle-key']).toBe(1)
+    })
+
     it('buys multiple factories at once', () => {
       const store = useGameStore()
       store.qsos = 100n
@@ -215,6 +237,45 @@ describe('Game Store - Factory Logic', () => {
       })
       expect(upgrades[0].name).toBeDefined()
       expect(upgrades[0].baseCost).toBeGreaterThan(0n)
+    })
+  })
+
+  describe('progressive unlock thresholds', () => {
+    it('marks tier-1 factories as unlocked at run start', () => {
+      const store = useGameStore()
+      store.qsosThisRun = 0n
+
+      expect(store.isFactoryUnlocked('elmer')).toBe(true)
+      expect(store.isFactoryUnlocked('straight-key')).toBe(true)
+    })
+
+    it('keeps tier-2 factories locked until run threshold is met', () => {
+      const store = useGameStore()
+      store.qsosThisRun = 99n
+
+      expect(store.isFactoryUnlocked('paddle-key')).toBe(false)
+    })
+
+    it('unlocks tier-2 factories at 100 run QSOs', () => {
+      const store = useGameStore()
+      store.qsosThisRun = 100n
+
+      expect(store.isFactoryUnlocked('paddle-key')).toBe(true)
+    })
+
+    it('keeps already-owned factories unlocked', () => {
+      const store = useGameStore()
+      store.qsosThisRun = 0n
+      store.factoryCounts['paddle-key'] = 1
+
+      expect(store.isFactoryUnlocked('paddle-key')).toBe(true)
+    })
+
+    it('adds unlockThreshold metadata for every factory', () => {
+      expect(FACTORIES.every(factory => typeof factory.unlockThreshold === 'bigint')).toBe(true)
+      expect(FACTORIES.filter(factory => factory.tier === 1).every(f => f.unlockThreshold === 0n)).toBe(
+        true,
+      )
     })
   })
 })

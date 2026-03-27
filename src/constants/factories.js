@@ -7,6 +7,7 @@
  * @property {number} baseCost - Initial cost in QSOs
  * @property {number} qsosPerSecond - Passive generation rate
  * @property {number} tier - License tier (1-9)
+ * @property {bigint} unlockThreshold - Run-scoped earned QSOs required to unlock
  * @property {string} description - Satirical description
  */
 
@@ -336,7 +337,7 @@ const TIER_9_FACTORIES = [
  * All factory definitions
  * @type {Factory[]}
  */
-export const FACTORIES = [
+const FACTORY_DEFINITIONS = [
   ...TIER_1_FACTORIES,
   ...TIER_2_FACTORIES,
   ...TIER_3_FACTORIES,
@@ -347,6 +348,32 @@ export const FACTORIES = [
   ...TIER_8_FACTORIES,
   ...TIER_9_FACTORIES,
 ]
+
+/**
+ * Tier unlock thresholds for progression mode.
+ * Unlocking is based on run-scoped earned QSOs.
+ * @type {Record<number, bigint>}
+ */
+export const TIER_UNLOCK_THRESHOLDS = {
+  1: 0n,
+  2: 100n,
+  3: 1000n,
+  4: 10000n,
+  5: 100000n,
+  6: 1000000n,
+  7: 10000000n,
+  8: 100000000n,
+  9: 1000000000n,
+}
+
+/**
+ * All factory definitions with unlock metadata.
+ * @type {Factory[]}
+ */
+export const FACTORIES = FACTORY_DEFINITIONS.map(factory => ({
+  ...factory,
+  unlockThreshold: TIER_UNLOCK_THRESHOLDS[factory.tier] ?? 0n,
+}))
 
 /**
  * Tier scaling constants
