@@ -278,6 +278,15 @@ describe('Game Store - Factory Logic', () => {
       expect(store.isFactoryUnlocked('paddle-key')).toBe(true)
     })
 
+    it('keeps already-owned factories unlocked even below license tier visibility', () => {
+      const store = useGameStore()
+      store.licenseLevel = 1
+      store.factoryCounts['beam-antenna'] = 1
+      store.qsosThisRun = 0n
+
+      expect(store.isFactoryUnlocked('beam-antenna')).toBe(true)
+    })
+
     it('adds unlockThreshold metadata for every factory', () => {
       expect(FACTORIES.every(factory => typeof factory.unlockThreshold === 'bigint')).toBe(true)
       expect(FACTORIES.filter(factory => factory.tier === 1).every(f => f.unlockThreshold === 0n)).toBe(

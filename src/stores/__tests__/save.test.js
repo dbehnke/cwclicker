@@ -131,10 +131,11 @@ describe('Game Store - Save/Load', () => {
       expect(store.qsosThisRun).toBe(65432n)
     })
 
-    it('defaults qsosThisRun to qsos for saves without qsosThisRun', () => {
+    it('defaults qsosThisRun to totalQsosEarned for saves without qsosThisRun', () => {
       const saveData = {
         version: '1.1.0',
         qsos: '111',
+        totalQsosEarned: '222',
         factoryCounts: {},
         licenseLevel: 1,
       }
@@ -144,7 +145,7 @@ describe('Game Store - Save/Load', () => {
       store.load()
 
       expect(store.qsos).toBe(111n)
-      expect(store.qsosThisRun).toBe(111n)
+      expect(store.qsosThisRun).toBe(222n)
     })
 
     it('restores license level from localStorage', () => {

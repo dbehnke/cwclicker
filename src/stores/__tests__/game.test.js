@@ -145,6 +145,8 @@ describe('Game Store', () => {
     expect(store.offlineEarnings).toBe(null)
     expect(store.morseChallengeState.isActive).toBe(false)
     expect(store.morseChallengeState.state).toBe('idle')
+    expect(store.morseChallengeState.triesRemaining).toBe(3)
+    expect(store.morseChallengeState.lastBonusAwarded).toBe(0)
     expect(store.canPrestigeReset).toBe(false)
   })
 

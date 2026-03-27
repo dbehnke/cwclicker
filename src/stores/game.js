@@ -450,6 +450,8 @@ export const useGameStore = defineStore('game', () => {
       keyedSequence: [],
       challengeStartTime: 0,
       state: 'idle',
+      triesRemaining: 3,
+      lastBonusAwarded: 0,
     }
     if (pendingEvalTimer) {
       clearTimeout(pendingEvalTimer)
@@ -743,7 +745,9 @@ export const useGameStore = defineStore('game', () => {
         }
 
         qsos.value = parseNonNegativeBigInt(state.qsos || '0')
-        qsosThisRun.value = parseNonNegativeBigInt(state.qsosThisRun ?? state.qsos ?? '0')
+        qsosThisRun.value = parseNonNegativeBigInt(
+          state.qsosThisRun ?? state.totalQsosEarned ?? state.qsos ?? '0'
+        )
         setTotalQsosEarned(parseNonNegativeBigInt(state.totalQsosEarned || state.qsos || '0'))
         const hasPrestigeLevelField = 'prestigeLevel' in state
         const hasPrestigePointsField = 'prestigePoints' in state
@@ -927,13 +931,13 @@ export const useGameStore = defineStore('game', () => {
       return false
     }
 
+    if ((factoryCounts.value[factoryId] || 0) > 0) {
+      return true
+    }
+
     const maxTier = getMaxTierForLicense(licenseLevel.value)
     if (factory.tier > maxTier) {
       return false
-    }
-
-    if ((factoryCounts.value[factoryId] || 0) > 0) {
-      return true
     }
 
     return qsosThisRun.value >= (factory.unlockThreshold || 0n)
