@@ -151,4 +151,30 @@ describe('Game Store', () => {
 
     expect(store.getTotalQSOsPerSecond()).toBe(0)
   })
+
+  it('applies solar storm multiplier after load-time reset', () => {
+    const EXPECTED_STORM_MULTIPLIER = 0.5
+    vi.useFakeTimers()
+    const now = new Date('2026-03-27T12:00:00.000Z')
+    vi.setSystemTime(now)
+
+    const saveData = {
+      version: '1.1.8',
+      qsos: '10',
+      factoryCounts: { elmer: 1 },
+      licenseLevel: 1,
+      lotteryState: {
+        isSolarStorm: true,
+        solarStormEndTime: now.getTime() + 1000,
+      },
+    }
+    localStorage.setItem('cw-keyer-game', JSON.stringify(saveData))
+
+    const store = useGameStore()
+    store.load()
+
+    expect(store.getLotteryMultiplier('elmer')).toBe(EXPECTED_STORM_MULTIPLIER)
+
+    vi.useRealTimers()
+  })
 })
