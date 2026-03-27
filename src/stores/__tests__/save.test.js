@@ -35,12 +35,14 @@ describe('Game Store - Save/Load', () => {
     it('persists QSOs to localStorage as string', () => {
       const store = useGameStore()
       store.qsos = 12345n
+      store.qsosThisRun = 23456n
 
       store.save()
 
       const saved = JSON.parse(localStorage.getItem(STORAGE_KEY))
       // QSOs are saved as strings for BigInt compatibility
       expect(saved.qsos).toBe('12345')
+      expect(saved.qsosThisRun).toBe('23456')
     })
 
     it('persists license level to localStorage', () => {
@@ -116,6 +118,7 @@ describe('Game Store - Save/Load', () => {
       const saveData = {
         version: '1.1.0',
         qsos: '54321',
+        qsosThisRun: '65432',
         factoryCounts: {},
         licenseLevel: 1,
       }
@@ -125,6 +128,23 @@ describe('Game Store - Save/Load', () => {
       store.load()
 
       expect(store.qsos).toBe(54321n)
+      expect(store.qsosThisRun).toBe(65432n)
+    })
+
+    it('defaults qsosThisRun to qsos for saves without qsosThisRun', () => {
+      const saveData = {
+        version: '1.1.0',
+        qsos: '111',
+        factoryCounts: {},
+        licenseLevel: 1,
+      }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(saveData))
+
+      const store = useGameStore()
+      store.load()
+
+      expect(store.qsos).toBe(111n)
+      expect(store.qsosThisRun).toBe(111n)
     })
 
     it('restores license level from localStorage', () => {

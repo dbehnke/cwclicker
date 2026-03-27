@@ -18,7 +18,7 @@ import {
  * Current game version for save data migration
  * @type {string}
  */
-const GAME_VERSION = '1.1.9'
+const GAME_VERSION = '1.2.0'
 const MORSE_CHALLENGE_ADVANCE_DELAY_MS = 5000
 const MORSE_CHALLENGE_TERMINAL_STATES = ['timeout', 'wrong', 'success']
 const MAX_BULK_PURCHASE_COUNT = 10
@@ -90,6 +90,7 @@ export const useGameStore = defineStore('game', () => {
    * @returns {bigint} QSO value as BigInt
    */
   const qsos = ref(0n)
+  const qsosThisRun = ref(0n) // Run-scoped earned QSOs used for progression unlocks
   const totalQsosEarned = ref(0n) // Total QSOs earned for prestige system
   const prestigeLevel = ref(0n)
   const prestigePoints = ref(0n)
@@ -319,6 +320,7 @@ export const useGameStore = defineStore('game', () => {
     const wholeQsos = Math.floor(fractionalQSOs.value)
     if (wholeQsos > 0) {
       qsos.value = qsos.value + BigInt(wholeQsos)
+      qsosThisRun.value += BigInt(wholeQsos)
       totalQsosEarned.value += BigInt(wholeQsos)
       fractionalQSOs.value -= wholeQsos
     }
@@ -340,6 +342,7 @@ export const useGameStore = defineStore('game', () => {
     const bonus = tapPrestigeAccumulator.value / 100n
     tapPrestigeAccumulator.value %= 100n
     qsos.value += bonus
+    qsosThisRun.value += bonus
     totalQsosEarned.value += bonus
   }
 
@@ -422,6 +425,7 @@ export const useGameStore = defineStore('game', () => {
     prestigeLevel.value = eligibleLevel > prestigeLevel.value ? eligibleLevel : prestigeLevel.value
 
     qsos.value = 0n
+    qsosThisRun.value = 0n
     factoryCounts.value = {}
     fractionalQSOs.value = 0
     tapPrestigeAccumulator.value = 0n
@@ -681,6 +685,7 @@ export const useGameStore = defineStore('game', () => {
       const state = {
         version: GAME_VERSION,
         qsos: qsos.value.toString(),
+        qsosThisRun: qsosThisRun.value.toString(),
         totalQsosEarned: totalQsosEarned.value.toString(),
         prestigeLevel: prestigeLevel.value.toString(),
         prestigePoints: prestigePoints.value.toString(),
@@ -734,6 +739,7 @@ export const useGameStore = defineStore('game', () => {
         }
 
         qsos.value = parseNonNegativeBigInt(state.qsos || '0')
+        qsosThisRun.value = parseNonNegativeBigInt(state.qsosThisRun ?? state.qsos ?? '0')
         setTotalQsosEarned(parseNonNegativeBigInt(state.totalQsosEarned || state.qsos || '0'))
         const hasPrestigeLevelField = 'prestigeLevel' in state
         const hasPrestigePointsField = 'prestigePoints' in state
@@ -849,6 +855,7 @@ export const useGameStore = defineStore('game', () => {
 
               if (offlineQsos > 0 && Number.isSafeInteger(offlineQsos)) {
                 qsos.value = qsos.value + BigInt(offlineQsos)
+                qsosThisRun.value += BigInt(offlineQsos)
                 totalQsosEarned.value += BigInt(offlineQsos)
 
                 // Store offline earnings info for UI display
@@ -1183,6 +1190,7 @@ export const useGameStore = defineStore('game', () => {
 
   return {
     qsos,
+    qsosThisRun,
     totalQsosEarned,
     prestigeLevel,
     prestigePoints,
