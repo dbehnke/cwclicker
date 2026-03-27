@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { calculateUpgradeCost, GAME_CONSTANTS, prestigeThresholdForLevel, PRESTIGE_QSOS_PER_LEVEL } from '../game'
+import {
+  calculateUpgradeCost,
+  GAME_CONSTANTS,
+  getTierMultiplier,
+  prestigeThresholdForLevel,
+  PRESTIGE_QSOS_PER_LEVEL,
+} from '../game'
 
 describe('game constants helpers', () => {
   it('calculates upgrade costs using bigint math', () => {
@@ -16,6 +22,19 @@ describe('game constants helpers', () => {
   it('uses v1.2.0 upgrade thresholds and starting multiplier constants', () => {
     expect(GAME_CONSTANTS.UPGRADES.THRESHOLDS).toEqual([5, 10, 25, 50, 100, 150, 200, 250, 300])
     expect(GAME_CONSTANTS.UPGRADES.MULTIPLIER_START).toBe(5)
+  })
+
+  it('keeps license constants aligned with v1.2.0 progression model', () => {
+    expect(GAME_CONSTANTS.LICENSE.TECHNICIAN_MAX_TIER).toBe(3)
+    expect(GAME_CONSTANTS.LICENSE.GENERAL_MAX_TIER).toBe(6)
+    expect(GAME_CONSTANTS.LICENSE.EXTRA_MAX_TIER).toBe(9)
+    expect(GAME_CONSTANTS.LICENSE.GENERAL_COST).toBe(50000000)
+    expect(GAME_CONSTANTS.LICENSE.EXTRA_COST).toBe(500000000)
+  })
+
+  it('supports tier-8/9 scaling in shared helper', () => {
+    expect(getTierMultiplier(8)).toBe(1.03)
+    expect(getTierMultiplier(9)).toBe(1.03)
   })
 })
 

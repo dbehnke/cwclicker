@@ -51,18 +51,19 @@ export const GAME_CONSTANTS = {
 
   // License progression
   LICENSE: {
-    TECHNICIAN_MAX_TIER: 2,
-    GENERAL_MAX_TIER: 5,
-    EXTRA_MAX_TIER: 7,
-    GENERAL_COST: 500,
-    EXTRA_COST: 5000
+    TECHNICIAN_MAX_TIER: 3,
+    GENERAL_MAX_TIER: 6,
+    EXTRA_MAX_TIER: 9,
+    GENERAL_COST: 50000000,
+    EXTRA_COST: 500000000,
   },
 
   // Cost scaling by tier
   COST_SCALING: {
     TIER_1_2: 1.10, // 10%
     TIER_3_5: 1.07, // 7%
-    TIER_6_7: 1.05 // 5%
+    TIER_6_7: 1.05, // 5%
+    TIER_8_9: 1.03, // 3%
   },
 
   // Game loop
@@ -98,6 +99,8 @@ export function getTierMultiplier(tier) {
     return GAME_CONSTANTS.COST_SCALING.TIER_3_5
   } else if (tier >= 6 && tier <= 7) {
     return GAME_CONSTANTS.COST_SCALING.TIER_6_7
+  } else if (tier >= 8 && tier <= 9) {
+    return GAME_CONSTANTS.COST_SCALING.TIER_8_9
   }
   return GAME_CONSTANTS.COST_SCALING.TIER_1_2
 }
