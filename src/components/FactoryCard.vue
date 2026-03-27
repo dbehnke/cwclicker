@@ -53,6 +53,26 @@ const ownedCount = computed(() => {
   return store.factoryCounts[props.factory.id] || 0
 })
 
+const runQsos = computed(() => {
+  return typeof store.qsosThisRun === 'bigint' ? store.qsosThisRun : 0n
+})
+
+const qsosToUnlock = computed(() => {
+  const threshold = typeof props.factory.unlockThreshold === 'bigint' ? props.factory.unlockThreshold : 0n
+  const remaining = threshold - runQsos.value
+  return remaining > 0n ? remaining : 0n
+})
+
+const displayName = computed(() => (isUnlocked.value ? props.factory.name : '???'))
+
+const displayDescription = computed(() => {
+  if (isUnlocked.value) {
+    return props.factory.description
+  }
+
+  return `Earn ${formatNumber(qsosToUnlock.value)} more QSOs this run to unlock.`
+})
+
 /**
  * Calculates the actual production rate for this factory type.
  * Includes all multipliers: upgrades, prestige, and lottery.
@@ -184,12 +204,12 @@ function handleBuyUpgrade() {
             Owned {{ ownedCount }}
           </span>
         </div>
-        <h3 class="mt-1 text-xl font-bold text-terminal-green">{{ factory.name }}</h3>
+        <h3 class="mt-1 text-xl font-bold text-terminal-green">{{ displayName }}</h3>
       </div>
       <span class="text-sm text-terminal-amber">[Tier {{ factory.tier }}]</span>
     </div>
 
-    <p class="text-sm text-gray-400 mb-3">{{ factory.description }}</p>
+    <p class="text-sm text-gray-400 mb-3">{{ displayDescription }}</p>
 
     <!-- Production info -->
     <div class="mb-4 space-y-1" data-testid="factory-production">

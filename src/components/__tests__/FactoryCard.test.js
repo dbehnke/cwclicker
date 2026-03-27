@@ -273,6 +273,28 @@ describe('FactoryCard.vue', () => {
     expect(wrapper.emitted('buy')).toBeFalsy()
   })
 
+  it('masks locked factory name and shows unlock progress message', () => {
+    mockStore({
+      qsos: 100n,
+      qsosThisRun: 60n,
+      isFactoryUnlocked: () => false,
+    })
+
+    const lockedFactory = {
+      ...elmerFactory,
+      unlockThreshold: 100n,
+    }
+
+    const wrapper = mount(FactoryCard, {
+      props: {
+        factory: lockedFactory,
+      },
+    })
+
+    expect(wrapper.text()).toContain('???')
+    expect(wrapper.text()).toContain('Earn 40 more QSOs this run to unlock.')
+  })
+
   it('emits buy event on click when affordable', async () => {
     mockStore()
 
