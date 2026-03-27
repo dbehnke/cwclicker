@@ -391,7 +391,6 @@ describe('Morse Challenge', () => {
     it('advances to next letter when last try is exhausted via incomplete sequence', () => {
       const store = useGameStore()
       store.startMorseChallenge()
-      const firstChar = store.morseChallengeState.currentChar
       store.morseChallengeState.currentChar = 'A'
       store.morseChallengeState.currentPattern = '·−'
       store.morseChallengeState.keyedSequence = []

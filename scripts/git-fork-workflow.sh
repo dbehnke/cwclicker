@@ -32,7 +32,8 @@ git-feature() {
 
 # Push feature branch to fork
 git-push-feature() {
-  local branch_name=$(git branch --show-current)
+  local branch_name
+  branch_name=$(git branch --show-current)
   echo "📤 Pushing $branch_name to fork..."
   git push -u $FORK_REMOTE "$branch_name"
   echo "✅ Pushed to fork. Create PR with: git-pr"
@@ -40,7 +41,8 @@ git-push-feature() {
 
 # Create PR using gh CLI
 git-pr() {
-  local branch_name=$(git branch --show-current)
+  local branch_name
+  branch_name=$(git branch --show-current)
   local repo="dbehnke/cwclicker"
   
   echo "📋 Creating PR for $branch_name..."

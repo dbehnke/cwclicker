@@ -38,7 +38,7 @@ function getGitVersion() {
     }
 
     return { commitsSinceTag, shortSha, dirtySuffix }
-  } catch (error) {
+  } catch {
     return { commitsSinceTag: '0', shortSha: 'unknown', dirtySuffix: '' }
   }
 }
