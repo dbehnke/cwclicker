@@ -261,4 +261,25 @@ describe('MultiBuyPanel.vue', () => {
       expect(button.attributes('disabled')).toBeDefined()
     })
   })
+
+  it('does not emit buy when locked', async () => {
+    useGameStore.mockReturnValue({
+      qsos: 1000n,
+      factoryCounts: {},
+      getFactoryCost: () => 10n,
+      getBulkCost: (id, count) => BigInt(Math.floor(count * 10 * 0.95)),
+      isFactoryUnlocked: () => false,
+    })
+
+    const wrapper = mount(MultiBuyPanel, {
+      props: {
+        multiBuyAvailable: true,
+        factory: elmerFactory,
+      },
+    })
+
+    const firstButton = wrapper.findAll('button')[0]
+    await firstButton.trigger('click')
+    expect(wrapper.emitted('buy')).toBeFalsy()
+  })
 })

@@ -44,6 +44,7 @@ const canAfford5 = computed(() => isUnlocked.value && store.qsos >= cost5.value)
 const canAfford10 = computed(() => isUnlocked.value && store.qsos >= cost10.value)
 
 const handleBuy = count => {
+  if (!isUnlocked.value) return
   emit('buy', { factory: props.factory, count })
 }
 

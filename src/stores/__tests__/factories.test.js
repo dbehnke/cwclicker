@@ -1,7 +1,7 @@
 import { setActivePinia, createPinia } from 'pinia'
 import { useGameStore } from '../game'
 import { describe, it, expect, beforeEach } from 'vitest'
-import { FACTORIES } from '../../constants/factories'
+import { FACTORIES, TIER_UNLOCK_THRESHOLDS } from '../../constants/factories'
 import { UPGRADES } from '../../constants/upgrades'
 
 describe('Game Store - Factory Logic', () => {
@@ -294,6 +294,13 @@ describe('Game Store - Factory Logic', () => {
       for (const factory of FACTORIES) {
         expect(factory.unlockThreshold).toBe(expectedThresholdByTier[factory.tier])
       }
+    })
+
+    it('defaults unknown tier unlock threshold to 0', () => {
+      const unknownTier = 99
+      const threshold = TIER_UNLOCK_THRESHOLDS[unknownTier] ?? 0n
+
+      expect(threshold).toBe(0n)
     })
   })
 })
