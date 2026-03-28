@@ -286,6 +286,82 @@ describe('Game Store - Factory Logic', () => {
       expect(store.isFactoryUnlocked('paddle-key')).toBe(true)
     })
 
+    it('keeps general and extra batches hidden at license level 1 even with very high QSOs', () => {
+      const store = useGameStore()
+      store.licenseLevel = 1
+      store.qsos = 10_000_000_000n
+
+      store.revealAffordableFactories()
+
+      expect(store.isFactoryUnlocked('beam-antenna')).toBe(false)
+      expect(store.isFactoryUnlocked('ft8-bot')).toBe(false)
+    })
+
+    it('keeps tier-7 locked at license 2 and unlocks it after upgrading to license 3', () => {
+      const store = useGameStore()
+      store.licenseLevel = 2
+      store.qsos = 10_000_000_000n
+
+      store.revealAffordableFactories()
+      expect(store.isFactoryUnlocked('ft8-bot')).toBe(false)
+
+      store.licenseLevel = 3
+      store.revealAffordableFactories()
+      expect(store.isFactoryUnlocked('ft8-bot')).toBe(true)
+    })
+
+    it('reveals newly unlocked general batch sequentially and affordability-gated after upgrade', () => {
+      const store = useGameStore()
+      const firstGeneral = FACTORIES.find(factory => factory.id === 'beam-antenna')
+      const blockedGeneral = FACTORIES.find(factory => factory.id === 'tower-installation')
+
+      expect(firstGeneral).toBeDefined()
+      expect(blockedGeneral).toBeDefined()
+
+      const firstGeneralCost = store.getFactoryCost(firstGeneral.id, 0)
+      const blockedGeneralCost = store.getFactoryCost(blockedGeneral.id, 0)
+
+      expect(blockedGeneralCost).toBeGreaterThan(firstGeneralCost)
+
+      store.licenseLevel = 1
+      store.qsos = blockedGeneralCost - 1n
+
+      store.revealAffordableFactories()
+      expect(store.isFactoryUnlocked(firstGeneral.id)).toBe(false)
+
+      store.licenseLevel = 2
+      store.revealAffordableFactories()
+
+      expect(store.isFactoryUnlocked(firstGeneral.id)).toBe(true)
+      expect(store.isFactoryUnlocked(blockedGeneral.id)).toBe(false)
+    })
+
+    it('reveals newly unlocked extra batch sequentially and affordability-gated after upgrade', () => {
+      const store = useGameStore()
+      const firstExtra = FACTORIES.find(factory => factory.id === 'ft8-bot')
+      const blockedExtra = FACTORIES.find(factory => factory.id === 'eme-moonbounce')
+
+      expect(firstExtra).toBeDefined()
+      expect(blockedExtra).toBeDefined()
+
+      const firstExtraCost = store.getFactoryCost(firstExtra.id, 0)
+      const blockedExtraCost = store.getFactoryCost(blockedExtra.id, 0)
+
+      expect(blockedExtraCost).toBeGreaterThan(firstExtraCost)
+
+      store.licenseLevel = 2
+      store.qsos = blockedExtraCost - 1n
+
+      store.revealAffordableFactories()
+      expect(store.isFactoryUnlocked(firstExtra.id)).toBe(false)
+
+      store.licenseLevel = 3
+      store.revealAffordableFactories()
+
+      expect(store.isFactoryUnlocked(firstExtra.id)).toBe(true)
+      expect(store.isFactoryUnlocked(blockedExtra.id)).toBe(false)
+    })
+
     it('keeps already-owned factories unlocked', () => {
       const store = useGameStore()
       store.qsosThisRun = 0n

@@ -18,7 +18,7 @@ import {
  * Current game version for save data migration
  * @type {string}
  */
-const GAME_VERSION = '1.2.1'
+const GAME_VERSION = '1.2.2'
 const MORSE_CHALLENGE_ADVANCE_DELAY_MS = 5000
 const MORSE_CHALLENGE_TERMINAL_STATES = ['timeout', 'wrong', 'success']
 const MAX_BULK_PURCHASE_COUNT = 10
@@ -351,6 +351,7 @@ export const useGameStore = defineStore('game', () => {
 
   function revealAffordableFactories() {
     const nextRevealed = new Set(revealedFactoryIds.value)
+    const revealPool = FACTORIES.filter(factory => factory.tier <= maxUnlockedTier.value)
     let changed = false
 
     for (const [factoryId, count] of Object.entries(factoryCounts.value)) {
@@ -361,7 +362,7 @@ export const useGameStore = defineStore('game', () => {
     }
 
     while (true) {
-      const nextFactory = FACTORIES.find(factory => !nextRevealed.has(factory.id))
+      const nextFactory = revealPool.find(factory => !nextRevealed.has(factory.id))
       if (!nextFactory) {
         break
       }
@@ -445,6 +446,18 @@ export const useGameStore = defineStore('game', () => {
   })
 
   const canPrestigeReset = computed(() => eligiblePrestigeLevel.value > prestigeLevel.value)
+  const isGeneralUnlocked = computed(() => licenseLevel.value >= 2)
+  const isExtraUnlocked = computed(() => licenseLevel.value >= 3)
+  const maxUnlockedTier = computed(() => {
+    if (isExtraUnlocked.value) {
+      return 9
+    }
+    if (isGeneralUnlocked.value) {
+      return 6
+    }
+
+    return getMaxTierForLicense(1)
+  })
 
   const prestigeMultiplier = computed(() => {
     const safePrestigeLevel =
@@ -1038,6 +1051,10 @@ export const useGameStore = defineStore('game', () => {
 
     if ((factoryCounts.value[factoryId] || 0) > 0) {
       return true
+    }
+
+    if (factory.tier > maxUnlockedTier.value) {
+      return false
     }
 
     return revealedFactoryIds.value.has(factoryId)

@@ -10,84 +10,54 @@ vi.mock('../../stores/game', () => ({
 }))
 
 describe('FactoryList.vue', () => {
+  const createStoreMock = overrides => ({
+    qsos: 1000n,
+    licenseLevel: 1,
+    factoryCounts: {},
+    getFactoryCost: () => 10n,
+    getTotalQSOsPerSecond: () => 0,
+    getBulkCost: () => 100n,
+    getUpgradeMultiplier: () => 1,
+    getLotteryMultiplier: () => 1,
+    prestigeMultiplier: 1,
+    getAvailableUpgrades: () => [],
+    purchasedUpgrades: new Set(),
+    buyUpgrade: () => {},
+    buyFactory: vi.fn(),
+    save: () => {},
+    isFactoryUnlocked: () => false,
+    ...overrides,
+  })
+
   beforeEach(() => {
     setActivePinia(createPinia())
     vi.clearAllMocks()
   })
 
-  it('renders all factories for current license tier', () => {
-    useGameStore.mockReturnValue({
-      qsos: 1000n,
-      licenseLevel: 2,
-      factoryCounts: {},
-      getFactoryCost: () => 10n,
-      getTotalQSOsPerSecond: () => 0,
-      getBulkCost: () => 100n,
-      getUpgradeMultiplier: () => 1,
-      getLotteryMultiplier: () => 1,
-      prestigeMultiplier: 1,
-      getAvailableUpgrades: () => [],
-      purchasedUpgrades: new Set(),
-      buyUpgrade: () => {},
-      save: () => {},
-    })
+  it('renders only factories that store marks as unlocked', () => {
+    const unlockedIds = ['elmer', 'qrq-protocol', 'straight-key']
+    useGameStore.mockReturnValue(
+      createStoreMock({
+        isFactoryUnlocked: id => unlockedIds.includes(id),
+      })
+    )
 
     const wrapper = mount(FactoryList)
 
-    // Should show tier 1 and tier 2 factories (6 total)
-    const availableFactories = FACTORIES.filter(f => f.tier <= 2)
-    expect(availableFactories.length).toBe(6)
-
-    availableFactories.forEach(factory => {
+    FACTORIES.filter(factory => unlockedIds.includes(factory.id)).forEach(factory => {
       expect(wrapper.text()).toContain(factory.name)
     })
-  })
-
-  it('filters out factories above license tier', () => {
-    useGameStore.mockReturnValue({
-      qsos: 10000n,
-      licenseLevel: 2,
-      factoryCounts: {},
-      getFactoryCost: () => 10n,
-      getTotalQSOsPerSecond: () => 0,
-      getBulkCost: () => 100n,
-      getUpgradeMultiplier: () => 1,
-      getLotteryMultiplier: () => 1,
-      prestigeMultiplier: 1,
-      getAvailableUpgrades: () => [],
-      purchasedUpgrades: new Set(),
-      buyUpgrade: () => {},
-      save: () => {},
-    })
-
-    const wrapper = mount(FactoryList)
-
-    // License level 2 (General) shows tiers 1-6, filters out tier 7+
-    expect(wrapper.text()).toContain('Elmer') // tier 1
-    expect(wrapper.text()).toContain('Straight Key') // tier 1
-    expect(wrapper.text()).toContain('Paddle Key') // tier 2
-    expect(wrapper.text()).toContain('Vertical Antenna') // tier 3
-    expect(wrapper.text()).toContain('Hamfest') // tier 6 is visible
-    expect(wrapper.text()).not.toContain('FT8 Bot') // tier 7 is filtered
+    expect(wrapper.text()).not.toContain('Beam Antenna')
+    expect(wrapper.text()).not.toContain('FT8 Bot')
   })
 
   it('hides locked factories instead of rendering ??? placeholders', () => {
-    useGameStore.mockReturnValue({
-      qsos: 1n,
-      licenseLevel: 1,
-      factoryCounts: {},
-      getFactoryCost: () => 10n,
-      getTotalQSOsPerSecond: () => 0,
-      getBulkCost: () => 100n,
-      getUpgradeMultiplier: () => 1,
-      getLotteryMultiplier: () => 1,
-      prestigeMultiplier: 1,
-      getAvailableUpgrades: () => [],
-      purchasedUpgrades: new Set(),
-      buyUpgrade: () => {},
-      save: () => {},
-      isFactoryUnlocked: id => ['elmer', 'qrq-protocol', 'straight-key'].includes(id),
-    })
+    useGameStore.mockReturnValue(
+      createStoreMock({
+        qsos: 1n,
+        isFactoryUnlocked: id => ['elmer', 'qrq-protocol', 'straight-key'].includes(id),
+      })
+    )
 
     const wrapper = mount(FactoryList)
 
@@ -101,21 +71,13 @@ describe('FactoryList.vue', () => {
   })
 
   it('shows total QSOs per second', () => {
-    useGameStore.mockReturnValue({
-      qsos: 1000n,
-      licenseLevel: 1,
-      factoryCounts: { elmer: 2, 'straight-key': 1 },
-      getFactoryCost: () => 10n,
-      getTotalQSOsPerSecond: () => 2.5,
-      getBulkCost: () => 100n,
-      getUpgradeMultiplier: () => 1,
-      getLotteryMultiplier: () => 1,
-      prestigeMultiplier: 1,
-      getAvailableUpgrades: () => [],
-      purchasedUpgrades: new Set(),
-      buyUpgrade: () => {},
-      save: () => {},
-    })
+    useGameStore.mockReturnValue(
+      createStoreMock({
+        factoryCounts: { elmer: 2, 'straight-key': 1 },
+        getTotalQSOsPerSecond: () => 2.5,
+        isFactoryUnlocked: id => ['elmer', 'straight-key'].includes(id),
+      })
+    )
 
     const wrapper = mount(FactoryList)
 
@@ -123,21 +85,15 @@ describe('FactoryList.vue', () => {
   })
 
   it('shows MultiBuyPanel when 10+ total factories owned', () => {
-    useGameStore.mockReturnValue({
-      qsos: 10000n,
-      licenseLevel: 2,
-      factoryCounts: { elmer: 5, 'straight-key': 5 },
-      getFactoryCost: () => 10n,
-      getTotalQSOsPerSecond: () => 4,
-      getBulkCost: () => 100n,
-      getUpgradeMultiplier: () => 1,
-      getLotteryMultiplier: () => 1,
-      prestigeMultiplier: 1,
-      getAvailableUpgrades: () => [],
-      purchasedUpgrades: new Set(),
-      buyUpgrade: () => {},
-      save: () => {},
-    })
+    useGameStore.mockReturnValue(
+      createStoreMock({
+        qsos: 10000n,
+        licenseLevel: 2,
+        factoryCounts: { elmer: 5, 'straight-key': 5 },
+        getTotalQSOsPerSecond: () => 4,
+        isFactoryUnlocked: id => ['elmer', 'straight-key'].includes(id),
+      })
+    )
 
     const wrapper = mount(FactoryList)
 
@@ -147,21 +103,14 @@ describe('FactoryList.vue', () => {
   })
 
   it('hides MultiBuyPanel when less than 10 factories owned', () => {
-    useGameStore.mockReturnValue({
-      qsos: 1000n,
-      licenseLevel: 2,
-      factoryCounts: { elmer: 3, 'straight-key': 2 },
-      getFactoryCost: () => 10n,
-      getTotalQSOsPerSecond: () => 2,
-      getBulkCost: () => 100n,
-      getUpgradeMultiplier: () => 1,
-      getLotteryMultiplier: () => 1,
-      prestigeMultiplier: 1,
-      getAvailableUpgrades: () => [],
-      purchasedUpgrades: new Set(),
-      buyUpgrade: () => {},
-      save: () => {},
-    })
+    useGameStore.mockReturnValue(
+      createStoreMock({
+        licenseLevel: 2,
+        factoryCounts: { elmer: 3, 'straight-key': 2 },
+        getTotalQSOsPerSecond: () => 2,
+        isFactoryUnlocked: id => ['elmer', 'straight-key'].includes(id),
+      })
+    )
 
     const wrapper = mount(FactoryList)
 
@@ -170,22 +119,13 @@ describe('FactoryList.vue', () => {
 
   it('handles buy event from FactoryCard', async () => {
     const mockBuyFactory = vi.fn()
-    useGameStore.mockReturnValue({
-      qsos: 1000n,
-      licenseLevel: 1,
-      factoryCounts: {},
-      getFactoryCost: () => 10n,
-      getTotalQSOsPerSecond: () => 0,
-      getBulkCost: () => 100,
-      buyFactory: mockBuyFactory,
-      getUpgradeMultiplier: () => 1,
-      getLotteryMultiplier: () => 1,
-      prestigeMultiplier: 1,
-      getAvailableUpgrades: () => [],
-      purchasedUpgrades: new Set(),
-      buyUpgrade: () => {},
-      save: () => {},
-    })
+    useGameStore.mockReturnValue(
+      createStoreMock({
+        getBulkCost: () => 100,
+        buyFactory: mockBuyFactory,
+        isFactoryUnlocked: id => id === 'elmer',
+      })
+    )
 
     const wrapper = mount(FactoryList)
 
@@ -199,50 +139,27 @@ describe('FactoryList.vue', () => {
     expect(mockBuyFactory).toHaveBeenCalled()
   })
 
-  it('shows factories for invalid license level using fallback tier 3', () => {
-    useGameStore.mockReturnValue({
-      qsos: 0n,
-      licenseLevel: 0, // Invalid level, falls back to tier 3 max
-      factoryCounts: {},
-      getFactoryCost: () => 10n,
-      getTotalQSOsPerSecond: () => 0,
-      getBulkCost: () => 100n,
-      getUpgradeMultiplier: () => 1,
-      getLotteryMultiplier: () => 1,
-      prestigeMultiplier: 1,
-      getAvailableUpgrades: () => [],
-      purchasedUpgrades: new Set(),
-      buyUpgrade: () => {},
-      save: () => {},
-    })
+  it('does not render revealed locked-batch ids unless store predicate allows them', () => {
+    useGameStore.mockReturnValue(
+      createStoreMock({
+        isFactoryUnlocked: id => id === 'elmer',
+      })
+    )
 
     const wrapper = mount(FactoryList)
 
-    // Fallback shows tiers 1-3, so factories should be visible
-    expect(wrapper.text()).toContain('Elmer') // tier 1
-    expect(wrapper.text()).toContain('Straight Key') // tier 1
-    expect(wrapper.text()).toContain('Vertical Antenna') // tier 3
-    // Tier 4+ should be filtered
-    expect(wrapper.text()).not.toContain('Tower Installation') // tier 4
+    expect(wrapper.text()).toContain('Elmer')
+    expect(wrapper.text()).not.toContain('Beam Antenna')
   })
 
-  it('keeps owned factories visible even when above current license tier', () => {
-    useGameStore.mockReturnValue({
-      qsos: 0n,
-      licenseLevel: 1,
-      factoryCounts: { 'beam-antenna': 1 },
-      getFactoryCost: () => 10n,
-      getTotalQSOsPerSecond: () => 0,
-      getBulkCost: () => 100n,
-      getUpgradeMultiplier: () => 1,
-      getLotteryMultiplier: () => 1,
-      prestigeMultiplier: 1,
-      getAvailableUpgrades: () => [],
-      purchasedUpgrades: new Set(),
-      buyUpgrade: () => {},
-      save: () => {},
-      isFactoryUnlocked: id => id === 'beam-antenna',
-    })
+  it('keeps owned factories visible when store predicate returns true', () => {
+    useGameStore.mockReturnValue(
+      createStoreMock({
+        licenseLevel: 1,
+        factoryCounts: { 'beam-antenna': 1 },
+        isFactoryUnlocked: id => id === 'beam-antenna',
+      })
+    )
 
     const wrapper = mount(FactoryList)
 
