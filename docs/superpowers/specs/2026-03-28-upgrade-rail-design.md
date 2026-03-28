@@ -9,7 +9,7 @@ simplifying factory cards to focus on factory buying.
 
 - Add a centralized `UpgradeRail` component above the factory list in `Store`.
 - Show a first-row priority set of 5 upgrade icons.
-- Prioritize row content as: affordable upgrades, then near-affordable upgrades, then recently
+- Prioritize row content as: affordable upgrades, then available-not-affordable upgrades, then recently
   purchased upgrades.
 - Add inline expandable grid for additional upgrades.
 - Use compact number formatting (`1.01M` style) everywhere in rail UI.
@@ -116,7 +116,7 @@ Priority row fill algorithm (up to 5):
 2. `isAvailable && !isAffordable` sorted by lowest `costDelta`
 3. recently purchased sorted descending by purchase time
 
-Deterministic tie-breakers for all sorts:
+Deterministic tie-breakers for all sorts (including recent fallback and timestamp ties):
 
 1. lower `baseCost`
 2. factory order by `FACTORIES` index
@@ -145,7 +145,7 @@ Save/load impact:
 - Backward compatible default when field is missing.
 - Legacy saves without `upgradePurchaseMeta` use deterministic fallback for "recently purchased":
   - treat purchased upgrades as `purchasedAt = 0`
-  - sort by `UPGRADES` declaration order (descending) for stable display
+  - apply standard tie-breakers (baseCost, FACTORIES index, UPGRADES index)
 
 ## Formatting Rules
 
@@ -167,14 +167,40 @@ Save/load impact:
 
 - Hover icon: show tooltip (name, flavor, multiplier, threshold, formatted cost).
 - Click icon:
-  - affordable -> open details and allow buy (plus optional quick-buy in tooltip)
+  - affordable -> open details and allow buy
   - not affordable -> open details with disabled CTA and formatted shortfall
+
+Post-purchase behavior (desktop):
+
+- Successful purchase from details CTA closes details panel and returns focus to the purchased icon tile.
+- Tooltip does not contain a buy control in v1.3.0.
 
 ### Mobile
 
 - Tap icon:
   - always opens detail sheet
   - buy occurs only by tapping sheet CTA (no single-tap direct buy)
+
+## Store API Contract
+
+`UpgradeRail` reads:
+
+- `store.qsos`
+- `store.factoryCounts`
+- `store.purchasedUpgrades`
+- `store.upgradePurchaseMeta`
+
+`UpgradeRail` writes:
+
+- `store.buyUpgrade(upgradeId)` (single canonical purchase path)
+- `store.save()` (or purchase action internally persists; implementation may keep save centralized in store)
+
+Store purchase responsibilities:
+
+- `buyUpgrade` remains the canonical mutation point.
+- On successful purchase, store updates both:
+  - `purchasedUpgrades`
+  - `upgradePurchaseMeta[upgradeId] = Date.now()`
 
 ## Testing Strategy
 
