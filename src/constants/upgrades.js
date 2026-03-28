@@ -29,7 +29,7 @@ export const LICENSE_COSTS = {
 
 /**
  * Generate upgrades for a factory following Cookie Clicker pattern
- * Each upgrade doubles its own tier multiplier (5x, 10x, 20x...) and costs
+ * Each upgrade doubles its own tier multiplier (2x, 4x, 8x...) and costs
  * baseCost × 50 × 2^(tier index).
  * @param {string} factoryId - Factory ID
  * @param {string} _factoryName - Factory name (unused; kept for readability)
@@ -60,7 +60,7 @@ function generateUpgrades(
       name: upgradeNames[index],
       threshold: threshold,
       baseCost: cost,
-      multiplier: 5 * 2 ** index,
+      multiplier: 2 ** (index + 1),
       description: upgradeDescriptions[index],
       icon: icon,
     }

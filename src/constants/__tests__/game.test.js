@@ -19,9 +19,9 @@ describe('game constants helpers', () => {
     expect(cost).toBe(expected)
   })
 
-  it('uses v1.2.0 upgrade thresholds and starting multiplier constants', () => {
+  it('uses v1.2.0 upgrade thresholds and powers-of-two multiplier constants', () => {
     expect(GAME_CONSTANTS.UPGRADES.THRESHOLDS).toEqual([5, 10, 25, 50, 100, 150, 200, 250, 300])
-    expect(GAME_CONSTANTS.UPGRADES.MULTIPLIER_START).toBe(5)
+    expect(GAME_CONSTANTS.UPGRADES.MULTIPLIER_START).toBe(2)
   })
 
   it('keeps license constants aligned with v1.2.0 progression model', () => {

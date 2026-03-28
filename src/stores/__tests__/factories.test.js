@@ -220,7 +220,7 @@ describe('Game Store - Factory Logic', () => {
 
         expect(upgrades.length, `Expected exactly 9 upgrades for factory ${factory.id}`).toBe(9)
         expect(upgrades.map(upgrade => upgrade.threshold)).toEqual(expectedThresholds)
-        expect(upgrades[0].multiplier).toBe(5)
+        expect(upgrades[0].multiplier).toBe(2)
 
         for (let i = 1; i < upgrades.length; i++) {
           expect(upgrades[i].multiplier).toBe(upgrades[i - 1].multiplier * 2)
@@ -239,9 +239,20 @@ describe('Game Store - Factory Logic', () => {
         factoryId: 'bug-catcher',
         threshold: 5,
       })
-      expect(upgrades[0].multiplier).toBe(5)
+      expect(upgrades[0].multiplier).toBe(2)
       expect(upgrades[0].name).toBeDefined()
       expect(upgrades[0].baseCost).toBeGreaterThan(0n)
+    })
+
+    it('uses highest purchased upgrade multiplier for stacked tiers', () => {
+      const store = useGameStore()
+      const elmerUpgradeIds = UPGRADES.filter(upgrade => upgrade.factoryId === 'elmer')
+        .slice(0, 3)
+        .map(upgrade => upgrade.id)
+
+      store.purchasedUpgrades = new Set(elmerUpgradeIds)
+
+      expect(store.getUpgradeMultiplier('elmer')).toBe(8)
     })
   })
 
