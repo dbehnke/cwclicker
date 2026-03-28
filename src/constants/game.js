@@ -11,14 +11,14 @@ export const GAME_CONSTANTS = {
     DEFAULT_FREQUENCY: 600,
     DEFAULT_VOLUME: 0.5,
     MAX_GAIN: 0.3, // Prevent clipping
-    FADE_TIME: 0.01 // seconds
+    FADE_TIME: 0.01, // seconds
   },
 
   // Keyer settings
   KEYER: {
     DIT_DAH_THRESHOLD_MS: 200,
     DIT_VALUE: 1,
-    DAH_VALUE: 2
+    DAH_VALUE: 2,
   },
 
   // Lottery/Rare DX system
@@ -30,13 +30,13 @@ export const GAME_CONSTANTS = {
     BUTTON_DURATION_MS: 10000, // 10 seconds to click
     SOLAR_STORM_CHANCE: 0.15, // 15%
     SOLAR_STORM_MULTIPLIER: 0.5, // 50% reduction
-    SOLAR_STORM_DURATION_MS: 77000 // 77 seconds
+    SOLAR_STORM_DURATION_MS: 77000, // 77 seconds
   },
 
   // Upgrade system (Cookie Clicker style)
   UPGRADES: {
     THRESHOLDS: [5, 10, 25, 50, 100, 150, 200, 250, 300],
-    MULTIPLIER_START: 5, // First upgrade multiplier is 5x
+    MULTIPLIER_START: 2, // First upgrade multiplier is 2x
     COST_MULTIPLIER_BASE: 50, // Cost = baseCost × 50 × 2^tier
     COST_DOUBLING_BASE: 2,
   },
@@ -46,7 +46,7 @@ export const GAME_CONSTANTS = {
     BULK_DISCOUNT: 0.95, // 5% discount
     MULTI_BUY_UNLOCK_COUNT: 10,
     MAX_BULK_ITERATIONS: 100000,
-    MAX_BULK_BINARY_SEARCH: 100000
+    MAX_BULK_BINARY_SEARCH: 100000,
   },
 
   // License progression
@@ -60,7 +60,7 @@ export const GAME_CONSTANTS = {
 
   // Cost scaling by tier
   COST_SCALING: {
-    TIER_1_2: 1.10, // 10%
+    TIER_1_2: 1.1, // 10%
     TIER_3_5: 1.07, // 7%
     TIER_6_7: 1.05, // 5%
     TIER_8_9: 1.03, // 3%
@@ -68,14 +68,14 @@ export const GAME_CONSTANTS = {
 
   // Game loop
   GAME_LOOP: {
-    SAVE_INTERVAL_SECONDS: 30
+    SAVE_INTERVAL_SECONDS: 30,
   },
 
   // UI
   UI: {
     MAX_INDICATORS: 5,
     FADE_DURATION_MS: 2000,
-    INDICATOR_ANIMATION_MS: 100
+    INDICATOR_ANIMATION_MS: 100,
   },
 
   // Save/Import
@@ -83,8 +83,8 @@ export const GAME_CONSTANTS = {
     STORAGE_KEY: 'cw-keyer-game',
     MAX_BASE64_LENGTH: 100000, // 100KB
     MAX_DECODED_LENGTH: 50000, // 50KB
-    MAX_BIGINT_DIGITS: 50 // Maximum digit length for BigInt fields to prevent DoS
-  }
+    MAX_BIGINT_DIGITS: 50, // Maximum digit length for BigInt fields to prevent DoS
+  },
 }
 
 export const PRESTIGE_QSOS_PER_LEVEL = 1_000_000_000n

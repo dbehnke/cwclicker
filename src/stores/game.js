@@ -699,7 +699,10 @@ export const useGameStore = defineStore('game', () => {
     for (const upgradeId of purchasedUpgrades.value) {
       const upgrade = UPGRADES.find(u => u.id === upgradeId)
       if (upgrade) {
-        multipliers[upgrade.factoryId] = (multipliers[upgrade.factoryId] || 1) * upgrade.multiplier
+        multipliers[upgrade.factoryId] = Math.max(
+          multipliers[upgrade.factoryId] || 1,
+          upgrade.multiplier
+        )
       }
     }
 

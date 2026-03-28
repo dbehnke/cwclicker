@@ -5,11 +5,11 @@ import { UPGRADES } from '../upgrades'
 import { FACTORIES } from '../factories'
 
 describe('UPGRADES', () => {
-  it('uses first upgrade threshold of 5 and first multiplier of 5', () => {
+  it('uses first upgrade threshold of 5 and first multiplier of 2', () => {
     const elmerUpgrades = UPGRADES.filter(u => u.factoryId === 'elmer')
 
     expect(elmerUpgrades[0].threshold).toBe(5)
-    expect(elmerUpgrades[0].multiplier).toBe(5)
+    expect(elmerUpgrades[0].multiplier).toBe(2)
   })
 
   it('keeps multipliers and costs doubling by tier', () => {
@@ -33,7 +33,9 @@ describe('UPGRADES', () => {
 
   it('derives first upgrade cost from current factory baseCost', () => {
     for (const factory of FACTORIES) {
-      const firstUpgrade = UPGRADES.find(u => u.factoryId === factory.id && u.id.endsWith('-upgrade-0'))
+      const firstUpgrade = UPGRADES.find(
+        u => u.factoryId === factory.id && u.id.endsWith('-upgrade-0')
+      )
 
       expect(firstUpgrade).toBeDefined()
       expect(firstUpgrade.baseCost).toBe(BigInt(factory.baseCost) * 50n)

@@ -90,7 +90,7 @@ describe('Game Store - Comprehensive Tests', () => {
 
     it('returns available upgrades for owned factory', () => {
       const store = useGameStore()
-      store.factoryCounts = { 'elmer': 5 }
+      store.factoryCounts = { elmer: 5 }
 
       const upgrades = store.getAvailableUpgrades('elmer')
 
@@ -102,7 +102,7 @@ describe('Game Store - Comprehensive Tests', () => {
 
     it('does not return already purchased upgrades', () => {
       const store = useGameStore()
-      store.factoryCounts = { 'elmer': 10 }
+      store.factoryCounts = { elmer: 10 }
       store.qsos = 100000n
 
       // Buy first upgrade
@@ -125,23 +125,23 @@ describe('Game Store - Comprehensive Tests', () => {
       // No upgrades = multiplier of 1
       expect(store.getUpgradeMultiplier('elmer')).toBe(1)
 
-      // Add one upgrade (5x multiplier)
+      // Add one upgrade (2x multiplier)
       const elmerUpgrade = UPGRADES.find(u => u.factoryId === 'elmer')
       if (elmerUpgrade) {
         store.purchasedUpgrades.add(elmerUpgrade.id)
-        expect(store.getUpgradeMultiplier('elmer')).toBe(5)
+        expect(store.getUpgradeMultiplier('elmer')).toBe(2)
       }
     })
 
-    it('multipliers stack multiplicatively', () => {
+    it('uses the highest purchased tier multiplier', () => {
       const store = useGameStore()
       const elmerUpgrades = UPGRADES.filter(u => u.factoryId === 'elmer').slice(0, 2)
 
-      // Two upgrades = 5 × 10 = 50x
+      // Two upgrades purchased -> highest tier should be 4x
       elmerUpgrades.forEach(u => store.purchasedUpgrades.add(u.id))
 
       if (elmerUpgrades.length >= 2) {
-        expect(store.getUpgradeMultiplier('elmer')).toBe(50)
+        expect(store.getUpgradeMultiplier('elmer')).toBe(4)
       }
     })
   })
@@ -181,8 +181,8 @@ describe('Game Store - Comprehensive Tests', () => {
     it('calculates total QSOs per second correctly', () => {
       const store = useGameStore()
       store.factoryCounts = {
-        'elmer': 2, // 0.1 × 2 = 0.2
-        'straight-key': 1 // 0.3 × 1 = 0.3
+        elmer: 2, // 0.1 × 2 = 0.2
+        'straight-key': 1, // 0.3 × 1 = 0.3
       }
 
       const total = store.getTotalQSOsPerSecond()
@@ -191,30 +191,30 @@ describe('Game Store - Comprehensive Tests', () => {
 
     it('applies upgrade multipliers to total', () => {
       const store = useGameStore()
-      store.factoryCounts = { 'elmer': 1 } // 0.1/sec base
+      store.factoryCounts = { elmer: 1 } // 0.1/sec base
 
-      // Add first 5x upgrade
+      // Add first 2x upgrade
       const upgrade = UPGRADES.find(u => u.factoryId === 'elmer')
       if (upgrade) {
         store.purchasedUpgrades.add(upgrade.id)
         const total = store.getTotalQSOsPerSecond()
-        expect(total).toBeCloseTo(0.5, 1) // 0.1 × 5
+        expect(total).toBeCloseTo(0.2, 1) // 0.1 × 2
       }
     })
 
-    it('caps extreme upgraded output instead of dropping to zero', () => {
+    it('calculates extreme upgraded output from highest tier multiplier', () => {
       const store = useGameStore()
       store.factoryCounts = { 'alternate-dimension-dxcc': 1000000 }
 
       const maxUpgradeIds = UPGRADES.filter(u => u.factoryId === 'alternate-dimension-dxcc').map(
-        u => u.id,
+        u => u.id
       )
       maxUpgradeIds.forEach(id => store.purchasedUpgrades.add(id))
 
       const total = store.getTotalQSOsPerSecond()
 
       expect(total).toBeGreaterThan(0)
-      expect(total).toBe(Number.MAX_SAFE_INTEGER)
+      expect(total).toBe(256000000000000)
     })
   })
 
@@ -223,14 +223,14 @@ describe('Game Store - Comprehensive Tests', () => {
       const store = useGameStore()
       store.qsos = 12345n
       store.licenseLevel = 2
-      store.factoryCounts = { 'elmer': 5, 'straight-key': 2 }
+      store.factoryCounts = { elmer: 5, 'straight-key': 2 }
 
       store.save()
 
       const saved = JSON.parse(localStorage.getItem('cw-keyer-game'))
       expect(saved.qsos).toBe('12345')
       expect(saved.licenseLevel).toBe(2)
-      expect(saved.factoryCounts).toEqual({ 'elmer': 5, 'straight-key': 2 })
+      expect(saved.factoryCounts).toEqual({ elmer: 5, 'straight-key': 2 })
     })
 
     it('loads game state from localStorage', () => {
@@ -238,7 +238,7 @@ describe('Game Store - Comprehensive Tests', () => {
         version: '1.1.0',
         qsos: '99999',
         licenseLevel: 3,
-        factoryCounts: { 'elmer': 100 },
+        factoryCounts: { elmer: 100 },
         fractionalQSOs: 0.5,
         audioSettings: { volume: 0.8, frequency: 800, isMuted: false },
         lotteryState: {
@@ -249,9 +249,9 @@ describe('Game Store - Comprehensive Tests', () => {
           bonusAvailableEndTime: 0,
           phenomenonTitle: '',
           isSolarStorm: false,
-          solarStormEndTime: 0
+          solarStormEndTime: 0,
         },
-        purchasedUpgrades: []
+        purchasedUpgrades: [],
       }
       localStorage.setItem('cw-keyer-game', JSON.stringify(saveData))
 

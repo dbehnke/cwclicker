@@ -181,6 +181,35 @@ describe('FactoryCard.vue', () => {
     expect(summary.text()).toContain('7 more')
   })
 
+  it('maps an 8x multiplier to 8x active badge state', () => {
+    mockStore({
+      factoryCounts: { elmer: 25 },
+      getUpgradeMultiplier: () => 8,
+      getAvailableUpgrades: () => [elmerUpgrade],
+    })
+
+    const wrapper = mount(FactoryCard, {
+      props: {
+        factory: elmerFactory,
+      },
+    })
+
+    const badgeRow = wrapper.get('[data-testid="upgrade-badge-row"]')
+    expect(badgeRow.text()).toContain('32x')
+
+    const activeBadges = badgeRow
+      .findAll('span')
+      .filter(node => node.classes().includes('bg-terminal-green'))
+      .map(node => node.text())
+
+    expect(activeBadges).toContain('1x')
+    expect(activeBadges).toContain('2x')
+    expect(activeBadges).toContain('4x')
+    expect(activeBadges).toContain('8x')
+    expect(activeBadges).not.toContain('16x')
+    expect(activeBadges).not.toContain('32x')
+  })
+
   it('exposes aria-expanded on upgrade details toggle', async () => {
     mockStore({
       factoryCounts: { elmer: 1 },
