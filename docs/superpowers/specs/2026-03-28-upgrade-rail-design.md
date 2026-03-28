@@ -83,9 +83,21 @@ Responsibilities:
 Suggested internal computed groups:
 
 - `readyToBuy`
-- `almostThere`
+- `almostThere` (`isAvailable && !isAffordable`)
 - `recentlyPurchased`
 - `lockedByThreshold` (always rendered as collapsed-by-default group)
+
+Section rendering order is fixed:
+
+1. Ready to Buy
+2. Almost There
+3. Recently Purchased
+4. Locked by Factory Count
+
+Group visibility rules:
+
+- `readyToBuy`, `almostThere`, `recentlyPurchased` render only when non-empty.
+- `lockedByThreshold` renders only when non-empty and defaults collapsed.
 
 ### Updated: `src/App.vue`
 
@@ -108,6 +120,13 @@ For each upgrade, compute:
 - `isAvailable` (threshold met and not purchased)
 - `isAffordable` (`store.qsos >= baseCost`)
 - `costDelta` (`max(baseCost - qsos, 0)`)
+
+Group definitions:
+
+- `readyToBuy`: `isAvailable && isAffordable`
+- `almostThere`: `isAvailable && !isAffordable`
+- `recentlyPurchased`: `isPurchased`
+- `lockedByThreshold`: `!isAvailable && !isPurchased`
 
 Priority row fill algorithm (up to 5):
 
@@ -182,6 +201,12 @@ Post-purchase behavior (desktop):
 
 ## Store API Contract
 
+Pure ranking/selection boundary:
+
+- Add pure helper `buildUpgradeRailModel({ upgrades, factories, qsos, factoryCounts, purchasedUpgrades, upgradePurchaseMeta })`.
+- Helper returns grouped arrays and priority row IDs with deterministic ordering.
+- `UpgradeRail.vue` owns presentation and interaction state only.
+
 `UpgradeRail` reads:
 
 - `store.qsos`
@@ -206,6 +231,8 @@ Failure handling:
 
 - If `buyUpgrade` returns false (stale affordability/state race), rail closes no UI automatically and
   refreshes computed state to reflect current affordability.
+- Rail shows inline status text in details panel: `Could not purchase upgrade. Your QSOs changed.`
+- Inline status text clears on next successful purchase or when details panel closes.
 
 ## Testing Strategy
 
