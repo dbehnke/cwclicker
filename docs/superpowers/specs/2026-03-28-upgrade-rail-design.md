@@ -30,7 +30,6 @@ simplifying factory cards to focus on factory buying.
   - Mobile: tap opens detail sheet.
 - Purchase model:
   - Affordable upgrades can be bought directly from the detail sheet CTA.
-  - Desktop only: affordable upgrades may also be bought via an inline quick-buy control in tooltip.
   - Non-affordable upgrades show disabled CTA with formatted cost gap.
 - Expand model:
   - In-place expansion under the first row.
@@ -193,7 +192,7 @@ Post-purchase behavior (desktop):
 `UpgradeRail` writes:
 
 - `store.buyUpgrade(upgradeId)` (single canonical purchase path)
-- `store.save()` (or purchase action internally persists; implementation may keep save centralized in store)
+- `store.save()` after successful purchase (UI-managed persistence for v1.3.0)
 
 Store purchase responsibilities:
 
@@ -201,6 +200,12 @@ Store purchase responsibilities:
 - On successful purchase, store updates both:
   - `purchasedUpgrades`
   - `upgradePurchaseMeta[upgradeId] = Date.now()`
+- `UpgradeRail` persists immediately by calling `store.save()` when `buyUpgrade` returns success.
+
+Failure handling:
+
+- If `buyUpgrade` returns false (stale affordability/state race), rail closes no UI automatically and
+  refreshes computed state to reflect current affordability.
 
 ## Testing Strategy
 
@@ -208,6 +213,8 @@ Store purchase responsibilities:
 
 - `src/components/__tests__/UpgradeRail.test.js`
   - priority ordering (affordable, almost-there, recent)
+  - deterministic tie-breakers for equal-cost/equal-delta cases
+  - deterministic ordering for legacy saves with missing `upgradePurchaseMeta`
   - 5-icon row cap
   - expand/collapse and grouped rendering
   - buy flow updates ordering/state
