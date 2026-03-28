@@ -51,36 +51,12 @@ function toggleMute() {
 }
 
 /**
- * Reset game with confirmation
+ * Reset game with confirmation - factory reset
  */
 function resetGame() {
-  // Clear all game state
-  store.qsos = 0n
-  store.licenseLevel = 1
-  store.factoryCounts = {}
-  store.fractionalQSOs = 0
-  store.tapPrestigeAccumulator = 0n
-  store.offlineEarnings = null
-  store.migrationInfo = null
-  store.purchasedUpgrades = new Set()
-  store.lotteryState = {
-    lastTriggerTime: 0,
-    isBonusAvailable: false,
-    bonusFactoryId: null,
-    bonusEndTime: 0,
-    bonusAvailableEndTime: 0,
-    phenomenonTitle: '',
-    isSolarStorm: false,
-    solarStormEndTime: 0,
-  }
+  store.fullReset()
 
-  // Save cleared state
-  store.save()
-
-  // Hide confirmation
   showResetConfirm.value = false
-
-  // Reload page to ensure clean state
   window.location.reload()
 }
 

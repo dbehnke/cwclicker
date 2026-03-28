@@ -500,6 +500,61 @@ export const useGameStore = defineStore('game', () => {
     save()
   }
 
+  function fullReset() {
+    qsos.value = 0n
+    qsosThisRun.value = 0n
+    totalQsosEarned.value = 0n
+    prestigeLevel.value = 0n
+    prestigePoints.value = 0n
+    licenseLevel.value = 1
+    factoryCounts.value = {}
+    fractionalQSOs.value = 0
+    revealedFactoryIds.value = new Set()
+    tapPrestigeAccumulator.value = 0n
+    purchasedUpgrades.value = new Set()
+    audioSettings.value = {
+      volume: 0.5,
+      frequency: 600,
+      isMuted: false,
+      morseWpm: 5,
+    }
+    lotteryState.value = {
+      lastTriggerTime: 0,
+      isBonusAvailable: false,
+      bonusFactoryId: null,
+      bonusEndTime: 0,
+      bonusAvailableEndTime: 0,
+      phenomenonTitle: '',
+      isSolarStorm: false,
+      solarStormEndTime: 0,
+    }
+    morseChallengeState.value = {
+      isActive: false,
+      currentChar: null,
+      currentPattern: '',
+      keyedSequence: [],
+      challengeStartTime: 0,
+      state: 'idle',
+      triesRemaining: 3,
+      lastBonusAwarded: 0,
+    }
+    morseChallengeEnabled.value = true
+    morseInputDurations.value = []
+    offlineEarnings.value = null
+    migrationInfo.value = null
+    cachedEligiblePrestigeLevel = 0n
+    cachedEligiblePrestigeThreshold = PRESTIGE_QSOS_PER_LEVEL
+    if (pendingEvalTimer) {
+      clearTimeout(pendingEvalTimer)
+      pendingEvalTimer = null
+    }
+    if (pendingRetryTimer) {
+      clearTimeout(pendingRetryTimer)
+      pendingRetryTimer = null
+    }
+    save()
+  }
+
   function setTotalQsosEarned(value) {
     totalQsosEarned.value = value
     cachedEligiblePrestigeLevel = 0n
@@ -1298,6 +1353,7 @@ export const useGameStore = defineStore('game', () => {
     canPrestigeReset,
     prestigeMultiplier,
     prestigeReset,
+    fullReset,
     normalizePrestigeState,
     clearExpiredBonus,
     offlineEarnings,
