@@ -290,7 +290,9 @@ describe('Game Store - Save/Load', () => {
         store.load()
 
         expect(store.lotteryState.isSolarStorm).toBe(true)
-        expect(store.lotteryState.solarStormEndTime).toBe(now.getTime() + EXPECTED_STORM_DURATION_MS)
+        expect(store.lotteryState.solarStormEndTime).toBe(
+          now.getTime() + EXPECTED_STORM_DURATION_MS
+        )
 
         vi.useRealTimers()
       })
@@ -408,6 +410,28 @@ describe('Game Store - Save/Load', () => {
       expect(store.qsos).toBe(500n)
       expect(store.licenseLevel).toBe(2)
       expect(store.factoryCounts).toEqual({ elmer: 1 })
+    })
+
+    it('keeps pre-revealed locked-batch factories hidden after load unless owned', () => {
+      const saveData = {
+        version: '1.2.1',
+        qsos: '1000000000',
+        qsosThisRun: '1000000000',
+        totalQsosEarned: '1000000000',
+        licenseLevel: 1,
+        factoryCounts: {},
+        revealedFactoryIds: ['beam-antenna'],
+      }
+
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(saveData))
+
+      const store = useGameStore()
+      store.load()
+
+      expect(store.isFactoryUnlocked('beam-antenna')).toBe(false)
+
+      store.factoryCounts['beam-antenna'] = 1
+      expect(store.isFactoryUnlocked('beam-antenna')).toBe(true)
     })
   })
 

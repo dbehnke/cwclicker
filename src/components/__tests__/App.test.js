@@ -12,6 +12,7 @@ vi.mock('../../stores/game', () => ({
     licenseLevel: 1,
     load: vi.fn(),
     qsos: 0n,
+    revealAffordableFactories: vi.fn(),
     save: vi.fn(),
     totalQsosEarned: 0n,
   })),
@@ -117,5 +118,113 @@ describe('App.vue responsive shell', () => {
 
     await wrapper.get('#tab-bulk').trigger('click')
     expect(wrapper.text()).not.toContain('???')
+  })
+
+  it('triggers reveal progression after upgrading to General', async () => {
+    const revealAffordableFactories = vi.fn()
+    const save = vi.fn()
+
+    useGameStore.mockReturnValue({
+      audioSettings: { volume: 0.5, frequency: 600, isMuted: false },
+      buyFactory: vi.fn(),
+      factoryCounts: {},
+      getFactoryCost: () => 10n,
+      getTotalQSOsPerSecond: () => 0,
+      getBulkCost: () => 0n,
+      getUpgradeMultiplier: () => 1,
+      getLotteryMultiplier: () => 1,
+      getAvailableUpgrades: () => [],
+      isFactoryUnlocked: () => false,
+      licenseLevel: 1,
+      load: vi.fn(),
+      prestigeMultiplier: 1,
+      purchasedUpgrades: new Set(),
+      qsos: 0n,
+      revealAffordableFactories,
+      save,
+      totalQsosEarned: 50_000_000n,
+    })
+
+    const wrapper = shallowMount(App, {
+      global: {
+        stubs: {
+          ClickIndicator: true,
+          ErrorBoundary: { template: '<div><slot /></div>' },
+          FactoryCard: true,
+          GameLoop: true,
+          KeyerArea: true,
+          LicensePanel: {
+            template:
+              '<button data-testid="license-upgrade" @click="$emit(\'upgrade\')">Upgrade</button>',
+          },
+          MigrationNotification: true,
+          MultiBuyPanel: true,
+          MorseChallenge: true,
+          OfflineProgressNotification: true,
+          RareDxBonus: true,
+          SettingsPanel: true,
+          StatHeader: true,
+        },
+      },
+    })
+
+    await wrapper.get('[data-testid="license-upgrade"]').trigger('click')
+
+    expect(revealAffordableFactories).toHaveBeenCalledTimes(1)
+    expect(save).toHaveBeenCalledTimes(1)
+  })
+
+  it('triggers reveal progression after upgrading to Extra', async () => {
+    const revealAffordableFactories = vi.fn()
+    const save = vi.fn()
+
+    useGameStore.mockReturnValue({
+      audioSettings: { volume: 0.5, frequency: 600, isMuted: false },
+      buyFactory: vi.fn(),
+      factoryCounts: {},
+      getFactoryCost: () => 10n,
+      getTotalQSOsPerSecond: () => 0,
+      getBulkCost: () => 0n,
+      getUpgradeMultiplier: () => 1,
+      getLotteryMultiplier: () => 1,
+      getAvailableUpgrades: () => [],
+      isFactoryUnlocked: () => false,
+      licenseLevel: 2,
+      load: vi.fn(),
+      prestigeMultiplier: 1,
+      purchasedUpgrades: new Set(),
+      qsos: 0n,
+      revealAffordableFactories,
+      save,
+      totalQsosEarned: 500_000_000n,
+    })
+
+    const wrapper = shallowMount(App, {
+      global: {
+        stubs: {
+          ClickIndicator: true,
+          ErrorBoundary: { template: '<div><slot /></div>' },
+          FactoryCard: true,
+          GameLoop: true,
+          KeyerArea: true,
+          LicensePanel: {
+            template:
+              '<button data-testid="license-upgrade" @click="$emit(\'upgrade\')">Upgrade</button>',
+          },
+          MigrationNotification: true,
+          MultiBuyPanel: true,
+          MorseChallenge: true,
+          OfflineProgressNotification: true,
+          RareDxBonus: true,
+          SettingsPanel: true,
+          StatHeader: true,
+        },
+      },
+    })
+
+    await wrapper.get('[data-testid="license-upgrade"]').trigger('click')
+
+    expect(revealAffordableFactories).toHaveBeenCalledTimes(1)
+    expect(save).toHaveBeenCalledTimes(1)
   })
 })

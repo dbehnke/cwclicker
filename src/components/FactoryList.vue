@@ -1,19 +1,18 @@
 <script setup>
 import { computed } from 'vue'
 import { useGameStore } from '../stores/game'
-import { FACTORIES, getMaxTierForLicense } from '../constants/factories'
+import { FACTORIES } from '../constants/factories'
 import FactoryCard from './FactoryCard.vue'
 import MultiBuyPanel from './MultiBuyPanel.vue'
 
 const store = useGameStore()
 
 const availableFactories = computed(() => {
-  if (typeof store.isFactoryUnlocked === 'function') {
-    return FACTORIES.filter(factory => store.isFactoryUnlocked(factory.id))
+  if (typeof store.isFactoryUnlocked !== 'function') {
+    return []
   }
 
-  const maxTier = getMaxTierForLicense(store.licenseLevel)
-  return FACTORIES.filter(factory => factory.tier <= maxTier)
+  return FACTORIES.filter(factory => store.isFactoryUnlocked(factory.id))
 })
 
 const totalFactoryCount = computed(() => {
@@ -28,7 +27,7 @@ const totalQSOsPerSecond = computed(() => {
   return store.getTotalQSOsPerSecond()
 })
 
-const handleBuy = (event) => {
+const handleBuy = event => {
   const { factory, count } = event
   store.buyFactory(factory.id, count)
 }
@@ -57,7 +56,10 @@ const handleBuy = (event) => {
     </div>
 
     <!-- MultiBuyPanel for each factory (shown when 10+ factories owned) -->
-    <div v-if="multiBuyAvailable && availableFactories.length > 0" class="space-y-3 mt-4 sm:space-y-4">
+    <div
+      v-if="multiBuyAvailable && availableFactories.length > 0"
+      class="space-y-3 mt-4 sm:space-y-4"
+    >
       <MultiBuyPanel
         v-for="factory in availableFactories"
         :key="`multibuy-${factory.id}`"

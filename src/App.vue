@@ -51,8 +51,20 @@ const handleLicenseUpgrade = () => {
   // Extra: 500 million total QSOs earned
   if (store.licenseLevel === 1 && store.totalQsosEarned >= 50_000_000n) {
     store.licenseLevel = 2
+    if (typeof store.revealAffordableFactories === 'function') {
+      store.revealAffordableFactories()
+    }
+    if (typeof store.save === 'function') {
+      store.save()
+    }
   } else if (store.licenseLevel === 2 && store.totalQsosEarned >= 500_000_000n) {
     store.licenseLevel = 3
+    if (typeof store.revealAffordableFactories === 'function') {
+      store.revealAffordableFactories()
+    }
+    if (typeof store.save === 'function') {
+      store.save()
+    }
   }
 }
 
