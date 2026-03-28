@@ -43,6 +43,7 @@ describe('SettingsPanel.vue', () => {
       audioSettings: { volume: 0.5, frequency: 600, isMuted: false, morseWpm: 5 },
       canPrestigeReset: false,
       prestigeReset: vi.fn(),
+      fullReset: vi.fn(),
       qsos: 0n,
       licenseLevel: 1,
       factoryCounts: {},
@@ -124,7 +125,11 @@ describe('SettingsPanel.vue', () => {
   })
 
   it('clears tap prestige remainder on reset', async () => {
-    mockStore({ canPrestigeReset: true, tapPrestigeAccumulator: 42n })
+    const storeRef = { tapPrestigeAccumulator: 42n }
+    const fullReset = vi.fn(() => {
+      storeRef.tapPrestigeAccumulator = 0n
+    })
+    mockStore({ canPrestigeReset: true, tapPrestigeAccumulator: 42n, fullReset })
 
     const wrapper = mount(SettingsPanel)
 
@@ -136,7 +141,8 @@ describe('SettingsPanel.vue', () => {
       .filter(b => b.text().includes('Yes, Reset Everything'))[0]
     await confirmBtn.trigger('click')
 
-    expect(useGameStore().tapPrestigeAccumulator).toBe(0n)
+    expect(fullReset).toHaveBeenCalled()
+    expect(storeRef.tapPrestigeAccumulator).toBe(0n)
   })
 
   describe('importSave', () => {

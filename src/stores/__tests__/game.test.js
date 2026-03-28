@@ -150,6 +150,43 @@ describe('Game Store', () => {
     expect(store.canPrestigeReset).toBe(false)
   })
 
+  it('fullReset clears ALL state including prestige and audio settings', () => {
+    const store = useGameStore()
+
+    store.qsos = 100n
+    store.qsosThisRun = 50n
+    store.totalQsosEarned = 27_000_000_000n
+    store.prestigeLevel = 5n
+    store.prestigePoints = 10n
+    store.licenseLevel = 3
+    store.factoryCounts = { elmer: 10 }
+    store.fractionalQSOs = 0.5
+    store.tapPrestigeAccumulator = 42n
+    store.audioSettings = { volume: 0.8, frequency: 800, isMuted: true, morseWpm: 15 }
+    store.morseChallengeEnabled = false
+
+    store.fullReset()
+
+    expect(store.qsos).toBe(0n)
+    expect(store.qsosThisRun).toBe(0n)
+    expect(store.totalQsosEarned).toBe(0n)
+    expect(store.prestigeLevel).toBe(0n)
+    expect(store.prestigePoints).toBe(0n)
+    expect(store.licenseLevel).toBe(1)
+    expect(store.factoryCounts).toEqual({})
+    expect(store.fractionalQSOs).toBe(0)
+    expect(store.tapPrestigeAccumulator).toBe(0n)
+    expect(store.audioSettings).toEqual({
+      volume: 0.5,
+      frequency: 600,
+      isMuted: false,
+      morseWpm: 5,
+    })
+    expect(store.morseChallengeEnabled).toBe(true)
+    expect(store.canPrestigeReset).toBe(false)
+    expect(store.prestigeMultiplier).toBe(1)
+  })
+
   it('calculates prestige eligibility exactly for very large totals', () => {
     const store = useGameStore()
 
