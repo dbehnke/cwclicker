@@ -1,4 +1,6 @@
 <script setup>
+import { onMounted, ref } from 'vue'
+
 const props = defineProps({
   upgrade: {
     type: Object,
@@ -23,6 +25,11 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['close', 'buy'])
+const sheetRef = ref(null)
+
+onMounted(() => {
+  sheetRef.value?.focus()
+})
 
 function handleBuy() {
   if (!props.canAfford) {
@@ -35,6 +42,7 @@ function handleBuy() {
 
 <template>
   <section
+    ref="sheetRef"
     class="rounded border border-terminal-green/60 bg-terminal-bg/95 p-4"
     data-testid="upgrade-rail-details-sheet"
     role="dialog"
