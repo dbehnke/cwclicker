@@ -435,6 +435,30 @@ describe('Game Store - Save/Load', () => {
     })
   })
 
+  describe('reset paths', () => {
+    it('prestigeReset clears upgradePurchaseMeta to an empty object', () => {
+      const store = useGameStore()
+      store.upgradePurchaseMeta = {
+        'upgrade-elmer-5': 1700000000000,
+      }
+
+      store.prestigeReset()
+
+      expect(store.upgradePurchaseMeta).toEqual({})
+    })
+
+    it('fullReset clears upgradePurchaseMeta to an empty object', () => {
+      const store = useGameStore()
+      store.upgradePurchaseMeta = {
+        'upgrade-elmer-5': 1700000000000,
+      }
+
+      store.fullReset()
+
+      expect(store.upgradePurchaseMeta).toEqual({})
+    })
+  })
+
   describe('save schema', () => {
     it('uses correct localStorage key', () => {
       const store = useGameStore()
