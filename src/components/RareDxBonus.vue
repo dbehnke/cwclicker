@@ -232,7 +232,7 @@ function handleBonusClick() {
     >
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-2">
-          <IconRenderer icon="dx-bonus.png" type="upgrade" className="w-8 h-8" />
+          <IconRenderer icon="dx-bonus.png" type="misc" className="w-8 h-8" />
           <div>
             <p class="text-terminal-green font-bold">
               {{ phenomenonTitle }}: {{ boostedFactory.name }} 7x Boost!
@@ -263,7 +263,7 @@ function handleBonusClick() {
     <div v-if="isSolarStormActive" class="border-2 border-red-600 bg-terminal-bg p-3 rounded">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-2">
-          <IconRenderer icon="solar-storm.png" type="upgrade" className="w-8 h-8" />
+          <IconRenderer icon="solar-storm.png" type="misc" className="w-8 h-8" />
           <div>
             <p class="text-red-500 font-bold">SOLAR STORM IN PROGRESS!</p>
             <p class="text-sm text-gray-400">All factory output reduced by 50%</p>
