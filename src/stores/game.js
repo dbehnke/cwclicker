@@ -86,6 +86,20 @@ export const useGameStore = defineStore('game', () => {
     }
   }
 
+  function normalizeUpgradePurchaseMeta(meta) {
+    if (!meta || typeof meta !== 'object' || Array.isArray(meta)) {
+      return {}
+    }
+
+    const normalized = {}
+    for (const [upgradeId, value] of Object.entries(meta)) {
+      const timestamp = Number(value)
+      normalized[upgradeId] = Number.isFinite(timestamp) && timestamp >= 0 ? Math.floor(timestamp) : 0
+    }
+
+    return normalized
+  }
+
   /**
    * @returns {bigint} QSO value as BigInt
    */
@@ -100,6 +114,7 @@ export const useGameStore = defineStore('game', () => {
   const revealedFactoryIds = ref(new Set())
   const tapPrestigeAccumulator = ref(0n) // Accumulates tap prestige bonus in percentage units (scale of 100; 1 = 1%)
   const purchasedUpgrades = ref(new Set()) // Set of upgrade IDs that have been purchased
+  const upgradePurchaseMeta = ref({})
   let cachedEligiblePrestigeLevel = 0n
   let cachedEligiblePrestigeThreshold = PRESTIGE_QSOS_PER_LEVEL
 
@@ -482,6 +497,7 @@ export const useGameStore = defineStore('game', () => {
     fractionalQSOs.value = 0
     tapPrestigeAccumulator.value = 0n
     purchasedUpgrades.value = new Set()
+    upgradePurchaseMeta.value = {}
     licenseLevel.value = 1
     offlineEarnings.value = null
     lotteryState.value = {
@@ -525,6 +541,7 @@ export const useGameStore = defineStore('game', () => {
     revealedFactoryIds.value = new Set()
     tapPrestigeAccumulator.value = 0n
     purchasedUpgrades.value = new Set()
+    upgradePurchaseMeta.value = {}
     audioSettings.value = {
       volume: 0.5,
       frequency: 600,
@@ -746,6 +763,7 @@ export const useGameStore = defineStore('game', () => {
 
     qsos.value -= cost
     purchasedUpgrades.value.add(upgradeId)
+    upgradePurchaseMeta.value[upgradeId] = Date.now()
 
     return true
   }
@@ -817,6 +835,7 @@ export const useGameStore = defineStore('game', () => {
         audioSettings: audioSettings.value,
         lotteryState: lotteryState.value,
         purchasedUpgrades: Array.from(purchasedUpgrades.value),
+        upgradePurchaseMeta: upgradePurchaseMeta.value,
         lastSaveTime: Date.now(),
         offlineEarnings: offlineEarnings.value,
         morseChallengeState: morseChallengeState.value,
@@ -924,6 +943,8 @@ export const useGameStore = defineStore('game', () => {
         if (state.purchasedUpgrades) {
           purchasedUpgrades.value = new Set(state.purchasedUpgrades)
         }
+
+        upgradePurchaseMeta.value = normalizeUpgradePurchaseMeta(state.upgradePurchaseMeta)
 
         // Restore offline earnings notification if present and user hasn't dismissed it
         if (state.offlineEarnings && state.offlineEarnings.qsos > 0) {
@@ -1350,6 +1371,7 @@ export const useGameStore = defineStore('game', () => {
     lotteryState,
     morseChallengeState,
     purchasedUpgrades,
+    upgradePurchaseMeta,
     migrationInfo, // For UI to display migration message
     tapKeyer,
     addPassiveQSOs,

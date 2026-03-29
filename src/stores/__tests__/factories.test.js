@@ -1,6 +1,6 @@
 import { setActivePinia, createPinia } from 'pinia'
 import { useGameStore } from '../game'
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { FACTORIES, TIER_UNLOCK_THRESHOLDS } from '../../constants/factories'
 import { UPGRADES } from '../../constants/upgrades'
 
@@ -253,6 +253,34 @@ describe('Game Store - Factory Logic', () => {
       store.purchasedUpgrades = new Set(elmerUpgradeIds)
 
       expect(store.getUpgradeMultiplier('elmer')).toBe(8)
+    })
+
+    it('records timestamp when buyUpgrade succeeds', () => {
+      const store = useGameStore()
+      const targetUpgrade = UPGRADES.find(upgrade => upgrade.factoryId === 'elmer' && upgrade.threshold === 5)
+      const timestamp = 1700000000000
+
+      store.factoryCounts['elmer'] = 5
+      store.qsos = targetUpgrade.baseCost
+      vi.spyOn(Date, 'now').mockReturnValue(timestamp)
+
+      const result = store.buyUpgrade(targetUpgrade.id)
+
+      expect(result).toBe(true)
+      expect(store.upgradePurchaseMeta[targetUpgrade.id]).toBe(timestamp)
+    })
+
+    it('does not write metadata when buyUpgrade fails', () => {
+      const store = useGameStore()
+      const targetUpgrade = UPGRADES.find(upgrade => upgrade.factoryId === 'elmer' && upgrade.threshold === 5)
+
+      store.factoryCounts['elmer'] = 5
+      store.qsos = 0n
+
+      const result = store.buyUpgrade(targetUpgrade.id)
+
+      expect(result).toBe(false)
+      expect(store.upgradePurchaseMeta[targetUpgrade.id]).toBeUndefined()
     })
   })
 
