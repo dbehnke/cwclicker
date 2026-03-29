@@ -1,6 +1,7 @@
 <script setup>
 import { computed } from 'vue'
 import { useGameStore } from '../stores/game'
+import { UPGRADES } from '../constants/upgrades'
 import { formatNumber, formatRate } from '../utils/format'
 
 /**
@@ -57,7 +58,8 @@ const runQsos = computed(() => {
 })
 
 const qsosToUnlock = computed(() => {
-  const threshold = typeof props.factory.unlockThreshold === 'bigint' ? props.factory.unlockThreshold : 0n
+  const threshold =
+    typeof props.factory.unlockThreshold === 'bigint' ? props.factory.unlockThreshold : 0n
   const remaining = threshold - runQsos.value
   return remaining > 0n ? remaining : 0n
 })
@@ -97,6 +99,30 @@ const effectivePerFactoryRate = computed(() => {
   return props.factory.qsosPerSecond * upgradeMultiplier * prestigeMultiplier * lotteryMultiplier
 })
 
+const upgradeProgressText = computed(() => {
+  const purchased =
+    store.purchasedUpgrades instanceof Set
+      ? store.purchasedUpgrades
+      : new Set(store.purchasedUpgrades || [])
+
+  const factoryUpgrades = UPGRADES.filter(upgrade => upgrade.factoryId === props.factory.id)
+  const purchasedUpgrades = factoryUpgrades.filter(upgrade => purchased.has(upgrade.id))
+
+  if (purchasedUpgrades.length === 0) {
+    return ''
+  }
+
+  const currentUpgrade = purchasedUpgrades[purchasedUpgrades.length - 1]
+  const currentIndex = factoryUpgrades.findIndex(upgrade => upgrade.id === currentUpgrade.id)
+  const nextUpgrade = factoryUpgrades[currentIndex + 1]
+
+  if (!nextUpgrade) {
+    return `x${currentUpgrade.multiplier} - ${currentUpgrade.name} - maxed`
+  }
+
+  return `x${currentUpgrade.multiplier} - ${currentUpgrade.name} - next at ${nextUpgrade.threshold}`
+})
+
 /**
  * Calculates how many more QSOs are needed to afford this factory.
  */
@@ -113,11 +139,13 @@ const handleBuy = () => {
     emit('buy', { factory: props.factory, count: 1 })
   }
 }
-
 </script>
 
 <template>
-  <div class="rounded border-2 border-terminal-green bg-terminal-bg p-4" data-testid="factory-card-root">
+  <div
+    class="rounded border-2 border-terminal-green bg-terminal-bg p-4"
+    data-testid="factory-card-root"
+  >
     <!-- Factory header with icon -->
     <div class="mb-3 flex items-start justify-between gap-3">
       <div class="min-w-0">
@@ -142,6 +170,13 @@ const handleBuy = () => {
       <div class="text-terminal-amber font-semibold">{{ formatRate(actualOutput) }}/sec</div>
       <div class="text-sm text-gray-500">
         ({{ formatRate(effectivePerFactoryRate) }}/sec × {{ ownedCount }})
+      </div>
+      <div
+        v-if="upgradeProgressText"
+        class="text-xs text-terminal-amber"
+        data-testid="factory-upgrade-progress"
+      >
+        {{ upgradeProgressText }}
       </div>
     </div>
 

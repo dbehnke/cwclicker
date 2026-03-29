@@ -18,7 +18,7 @@ import {
  * Current game version for save data migration
  * @type {string}
  */
-const GAME_VERSION = '1.3.0'
+const GAME_VERSION = '1.3.1'
 const MORSE_CHALLENGE_ADVANCE_DELAY_MS = 5000
 const MORSE_CHALLENGE_TERMINAL_STATES = ['timeout', 'wrong', 'success']
 const MAX_BULK_PURCHASE_COUNT = 10
@@ -96,7 +96,8 @@ export const useGameStore = defineStore('game', () => {
       const timestampSource =
         value && typeof value === 'object' && !Array.isArray(value) ? value.purchasedAt : value
       const timestamp = Number(timestampSource)
-      normalized[upgradeId] = Number.isFinite(timestamp) && timestamp >= 0 ? Math.floor(timestamp) : 0
+      normalized[upgradeId] =
+        Number.isFinite(timestamp) && timestamp >= 0 ? Math.floor(timestamp) : 0
     }
 
     return normalized
