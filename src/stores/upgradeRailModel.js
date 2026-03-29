@@ -58,7 +58,14 @@ function makeDeterministicComparator() {
       return a.upgradeOrder - b.upgradeOrder
     }
 
-    return String(a.id).localeCompare(String(b.id))
+    const aId = String(a.id)
+    const bId = String(b.id)
+
+    if (aId === bId) {
+      return 0
+    }
+
+    return aId < bId ? -1 : 1
   }
 }
 
