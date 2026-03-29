@@ -200,8 +200,56 @@ describe('UpgradeRail', () => {
     await wrapper.get('[data-upgrade-id="u1"]').trigger('click')
     await wrapper.get('[data-testid="upgrade-rail-buy-cta"]').trigger('click')
 
-    expect(wrapper.text()).toContain('Upgrade state changed. Please review and try again.')
-    expect(wrapper.get('[data-testid="upgrade-rail-buy-cta"]').attributes('disabled')).toBeDefined()
+    expect(wrapper.text()).toContain('Could not purchase upgrade. Your QSOs changed.')
+    expect(wrapper.get('[data-testid="upgrade-rail-buy-cta"]').attributes('disabled')).toBeUndefined()
+  })
+
+  it('includes upgrade name, affordability status, and formatted cost in tile aria-label', () => {
+    const upgrades = [
+      makeUpgrade({
+        id: 'ready-upgrade',
+        baseCost: 1_010_000n,
+        name: 'Ready Upgrade',
+      }),
+    ]
+
+    const { wrapper } = mountTracked({
+      upgrades,
+      storeOverrides: {
+        qsos: 2_000_000n,
+      },
+    })
+
+    const tile = wrapper.get('[data-upgrade-id="ready-upgrade"]')
+    const label = tile.attributes('aria-label')
+
+    expect(label).toContain('Ready Upgrade')
+    expect(label).toContain('Affordable')
+    expect(label).toContain('1.01M')
+  })
+
+  it('maintains expand toggle aria-controls and aria-expanded contract', async () => {
+    const upgrades = [makeUpgrade({ id: 'u1', baseCost: 100n })]
+    const { wrapper } = mountTracked({ upgrades })
+
+    const toggle = wrapper.get('[data-testid="upgrade-rail-expand-toggle"]')
+    expect(toggle.attributes('aria-controls')).toBe('upgrade-rail-groups')
+    expect(toggle.attributes('aria-expanded')).toBe('false')
+
+    await toggle.trigger('click')
+    expect(toggle.attributes('aria-expanded')).toBe('true')
+    expect(wrapper.get('#upgrade-rail-groups').exists()).toBe(true)
+  })
+
+  it('renders ready/almost/recent groups only when non-empty', async () => {
+    const upgrades = [makeUpgrade({ id: 'ready-only', baseCost: 100n })]
+    const { wrapper } = mountTracked({ upgrades })
+
+    await wrapper.get('[data-testid="upgrade-rail-expand-toggle"]').trigger('click')
+
+    expect(wrapper.find('[data-testid="upgrade-rail-ready-group"]').exists()).toBe(true)
+    expect(wrapper.find('[data-testid="upgrade-rail-almost-group"]').exists()).toBe(false)
+    expect(wrapper.find('[data-testid="upgrade-rail-recent-group"]').exists()).toBe(false)
   })
 
   it('refocuses clicked tile on successful buy', async () => {

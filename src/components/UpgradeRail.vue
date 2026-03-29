@@ -22,7 +22,6 @@ const isExpanded = ref(false)
 const lockedExpanded = ref(false)
 const selectedUpgradeId = ref(null)
 const statusMessage = ref('')
-const staleFailure = ref(false)
 const lastTileElementById = ref(new Map())
 
 const model = computed(() =>
@@ -36,23 +35,27 @@ const model = computed(() =>
   })
 )
 
-const groups = computed(() => [
-  {
-    id: 'ready',
-    label: 'Ready to Buy',
-    items: model.value.readyToBuy,
-  },
-  {
-    id: 'almost',
-    label: 'Almost There',
-    items: model.value.almostThere,
-  },
-  {
-    id: 'recent',
-    label: 'Recently Purchased',
-    items: model.value.recentlyPurchased,
-  },
-])
+const groups = computed(() => {
+  const allGroups = [
+    {
+      id: 'ready',
+      label: 'Ready to Buy',
+      items: model.value.readyToBuy,
+    },
+    {
+      id: 'almost',
+      label: 'Almost There',
+      items: model.value.almostThere,
+    },
+    {
+      id: 'recent',
+      label: 'Recently Purchased',
+      items: model.value.recentlyPurchased,
+    },
+  ]
+
+  return allGroups.filter(group => group.items.length > 0)
+})
 
 const selectedUpgrade = computed(() => {
   if (!selectedUpgradeId.value) {
@@ -89,7 +92,7 @@ const detailsCanAfford = computed(() => {
     return false
   }
 
-  return !staleFailure.value && selectedUpgradeState.value.isAvailable && selectedUpgradeState.value.isAffordable
+  return selectedUpgradeState.value.isAvailable && selectedUpgradeState.value.isAffordable
 })
 
 const detailsFormattedCost = computed(() => {
@@ -136,10 +139,31 @@ function registerTileRef(upgradeId, element) {
   lastTileElementById.value.set(upgradeId, element)
 }
 
+function getUpgradeAffordabilityLabel(upgrade) {
+  if (upgrade.isPurchased) {
+    return 'Purchased'
+  }
+
+  if (!upgrade.isAvailable) {
+    return 'Locked'
+  }
+
+  if (upgrade.isAffordable) {
+    return 'Affordable'
+  }
+
+  return 'Not affordable'
+}
+
+function getUpgradeTileAriaLabel(upgrade) {
+  const status = getUpgradeAffordabilityLabel(upgrade)
+  const formattedCost = formatNumber(upgrade.baseCost)
+  return `${upgrade.name}. ${status}. Cost ${formattedCost}.`
+}
+
 function openDetails(upgradeId, event) {
   selectedUpgradeId.value = upgradeId
   statusMessage.value = ''
-  staleFailure.value = false
 
   if (event?.currentTarget) {
     registerTileRef(upgradeId, event.currentTarget)
@@ -149,7 +173,6 @@ function openDetails(upgradeId, event) {
 function closeDetails() {
   selectedUpgradeId.value = null
   statusMessage.value = ''
-  staleFailure.value = false
 }
 
 function handleKeydown(event) {
@@ -184,8 +207,7 @@ function handleBuyFromDetails() {
   const success = store.buyUpgrade(selectedUpgradeId.value)
 
   if (!success) {
-    staleFailure.value = true
-    statusMessage.value = 'Upgrade state changed. Please review and try again.'
+    statusMessage.value = 'Could not purchase upgrade. Your QSOs changed.'
     return
   }
 
@@ -213,7 +235,7 @@ function handleBuyFromDetails() {
           class="group relative rounded border border-terminal-green/50 bg-terminal-bg px-2 py-1 text-xl hover:border-terminal-green focus:outline-none focus:ring-2 focus:ring-terminal-green"
           data-testid="upgrade-rail-top-tile"
           :data-upgrade-id="upgrade.id"
-          :aria-label="`${upgrade.name} details`"
+          :aria-label="getUpgradeTileAriaLabel(upgrade)"
           @click="openDetails(upgrade.id, $event)"
           :ref="element => registerTileRef(upgrade.id, element)"
         >
@@ -260,14 +282,14 @@ function handleBuyFromDetails() {
         <div class="mt-1 flex flex-wrap gap-2" :data-testid="`upgrade-rail-${group.id}-items`">
           <button
             v-for="upgrade in group.items"
-            :key="upgrade.id"
-            type="button"
-            class="rounded border border-gray-600 px-2 py-1 text-sm text-terminal-green"
-            :data-upgrade-id="upgrade.id"
-            :aria-label="`${upgrade.name} details`"
-            @click="openDetails(upgrade.id, $event)"
-            :ref="element => registerTileRef(upgrade.id, element)"
-          >
+             :key="upgrade.id"
+             type="button"
+             class="rounded border border-gray-600 px-2 py-1 text-sm text-terminal-green"
+             :data-upgrade-id="upgrade.id"
+             :aria-label="getUpgradeTileAriaLabel(upgrade)"
+             @click="openDetails(upgrade.id, $event)"
+             :ref="element => registerTileRef(upgrade.id, element)"
+           >
             {{ upgrade.icon }} {{ upgrade.name }}
           </button>
         </div>
@@ -301,14 +323,14 @@ function handleBuyFromDetails() {
         >
           <button
             v-for="upgrade in model.lockedByThreshold"
-            :key="upgrade.id"
-            type="button"
-            class="rounded border border-gray-700 px-2 py-1 text-sm text-gray-300"
-            :data-upgrade-id="upgrade.id"
-            :aria-label="`${upgrade.name} details`"
-            @click="openDetails(upgrade.id, $event)"
-            :ref="element => registerTileRef(upgrade.id, element)"
-          >
+             :key="upgrade.id"
+             type="button"
+             class="rounded border border-gray-700 px-2 py-1 text-sm text-gray-300"
+             :data-upgrade-id="upgrade.id"
+             :aria-label="getUpgradeTileAriaLabel(upgrade)"
+             @click="openDetails(upgrade.id, $event)"
+             :ref="element => registerTileRef(upgrade.id, element)"
+           >
             {{ upgrade.icon }} {{ upgrade.name }}
           </button>
         </div>
