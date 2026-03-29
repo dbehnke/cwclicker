@@ -235,7 +235,10 @@ function handleBuyFromDetails() {
 </script>
 
 <template>
-  <section class="rounded border-2 border-terminal-green bg-terminal-bg p-3">
+  <section
+    class="rounded border-2 border-terminal-green bg-terminal-bg p-3"
+    data-testid="upgrade-rail-root"
+  >
     <div class="flex items-center justify-between gap-3">
       <div class="flex flex-wrap items-center gap-2">
         <button

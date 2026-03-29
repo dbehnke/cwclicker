@@ -10,12 +10,14 @@ import ClickIndicator from './components/ClickIndicator.vue'
 import RareDxBonus from './components/RareDxBonus.vue'
 import MorseChallenge from './components/MorseChallenge.vue'
 import FactoryCard from './components/FactoryCard.vue'
+import UpgradeRail from './components/UpgradeRail.vue'
 import MultiBuyPanel from './components/MultiBuyPanel.vue'
 import SettingsPanel from './components/SettingsPanel.vue'
 import ErrorBoundary from './components/ErrorBoundary.vue'
 import OfflineProgressNotification from './components/OfflineProgressNotification.vue'
 import MigrationNotification from './components/MigrationNotification.vue'
 import { FACTORIES } from './constants/factories'
+import { UPGRADES } from './constants/upgrades'
 import GameLoop from './components/GameLoop.vue'
 
 const store = useGameStore()
@@ -210,7 +212,7 @@ function handleTabKeydown(event, tabId) {
             aria-labelledby="tab-store"
             class="space-y-4"
           >
-            <div class="flex justify-between items-center px-2">
+            <div class="flex justify-between items-center px-2" data-testid="store-header">
               <div>
                 <h2 class="text-xl font-bold text-terminal-green">Factory Store</h2>
                 <p class="text-sm text-terminal-amber mt-1">
@@ -219,6 +221,8 @@ function handleTabKeydown(event, tabId) {
               </div>
               <span class="text-terminal-green text-lg">{{ formatNumber(store.qsos) }} QSOs</span>
             </div>
+
+            <UpgradeRail :upgrades="UPGRADES" :factories="FACTORIES" />
 
             <div class="space-y-4">
               <FactoryCard

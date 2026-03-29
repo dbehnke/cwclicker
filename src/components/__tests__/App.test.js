@@ -48,6 +48,7 @@ describe('App.vue responsive shell', () => {
           RareDxBonus: true,
           SettingsPanel: true,
           StatHeader: true,
+          UpgradeRail: true,
         },
       },
     })
@@ -106,6 +107,7 @@ describe('App.vue responsive shell', () => {
           RareDxBonus: true,
           SettingsPanel: true,
           StatHeader: true,
+          UpgradeRail: true,
         },
       },
     })
@@ -118,6 +120,68 @@ describe('App.vue responsive shell', () => {
 
     await wrapper.get('#tab-bulk').trigger('click')
     expect(wrapper.text()).not.toContain('???')
+  })
+
+  it('renders store header, upgrade rail, and factory cards in order with totals visible', () => {
+    useGameStore.mockReturnValue({
+      audioSettings: { volume: 0.5, frequency: 600, isMuted: false },
+      buyFactory: vi.fn(),
+      factoryCounts: { elmer: 1 },
+      getFactoryCost: () => 10n,
+      getTotalQSOsPerSecond: () => 12.5,
+      getBulkCost: () => 0n,
+      getUpgradeMultiplier: () => 1,
+      getLotteryMultiplier: () => 1,
+      getAvailableUpgrades: () => [],
+      isFactoryUnlocked: id => id === 'elmer',
+      licenseLevel: 1,
+      load: vi.fn(),
+      prestigeMultiplier: 1,
+      purchasedUpgrades: new Set(),
+      qsos: 345n,
+      save: vi.fn(),
+      totalQsosEarned: 0n,
+    })
+
+    const wrapper = shallowMount(App, {
+      global: {
+        stubs: {
+          ClickIndicator: true,
+          ErrorBoundary: { template: '<div><slot /></div>' },
+          FactoryCard: {
+            props: ['factory'],
+            template: '<div data-testid="factory-card-root">{{ factory.name }}</div>',
+          },
+          GameLoop: true,
+          KeyerArea: true,
+          LicensePanel: true,
+          MigrationNotification: true,
+          MultiBuyPanel: true,
+          MorseChallenge: true,
+          OfflineProgressNotification: true,
+          RareDxBonus: true,
+          SettingsPanel: true,
+          StatHeader: true,
+          UpgradeRail: {
+            template: '<div data-testid="upgrade-rail-root">Upgrade Rail</div>',
+          },
+        },
+      },
+    })
+
+    const html = wrapper.html()
+    const storeHeaderPos = html.indexOf('data-testid="store-header"')
+    const upgradeRailPos = html.indexOf('data-testid="upgrade-rail-root"')
+    const firstFactoryCardPos = html.indexOf('data-testid="factory-card-root"')
+
+    expect(storeHeaderPos).toBeGreaterThan(-1)
+    expect(upgradeRailPos).toBeGreaterThan(storeHeaderPos)
+    expect(firstFactoryCardPos).toBeGreaterThan(upgradeRailPos)
+
+    const header = wrapper.get('[data-testid="store-header"]')
+    expect(header.text()).toContain('Producing:')
+    expect(header.text()).toContain('QSOs/sec')
+    expect(header.text()).toContain('QSOs')
   })
 
   it('triggers reveal progression after upgrading to General', async () => {
@@ -164,6 +228,7 @@ describe('App.vue responsive shell', () => {
           RareDxBonus: true,
           SettingsPanel: true,
           StatHeader: true,
+          UpgradeRail: true,
         },
       },
     })
@@ -218,6 +283,7 @@ describe('App.vue responsive shell', () => {
           RareDxBonus: true,
           SettingsPanel: true,
           StatHeader: true,
+          UpgradeRail: true,
         },
       },
     })
