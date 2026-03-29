@@ -1,12 +1,16 @@
 import { setActivePinia, createPinia } from 'pinia'
 import { useGameStore } from '../game'
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { FACTORIES, TIER_UNLOCK_THRESHOLDS } from '../../constants/factories'
 import { UPGRADES } from '../../constants/upgrades'
 
 describe('Game Store - Factory Logic', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
   })
 
   describe('licenseLevel', () => {

@@ -623,6 +623,30 @@ describe('Game Store - Save/Load', () => {
       })
     })
 
+    it('load normalizes legacy nested upgrade purchase metadata objects', () => {
+      const saveData = {
+        version: '1.2.2',
+        qsos: '5000',
+        factoryCounts: {},
+        licenseLevel: 1,
+        upgradePurchaseMeta: {
+          'upgrade-elmer-5': { purchasedAt: 1700000000001 },
+          'upgrade-elmer-10': { purchasedAt: 'invalid' },
+          'upgrade-elmer-25': { purchasedAt: -25 },
+        },
+      }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(saveData))
+
+      const store = useGameStore()
+      store.load()
+
+      expect(store.upgradePurchaseMeta).toEqual({
+        'upgrade-elmer-5': 1700000000001,
+        'upgrade-elmer-10': 0,
+        'upgrade-elmer-25': 0,
+      })
+    })
+
     it('restores morseChallengeState from localStorage', () => {
       const challengeState = {
         isActive: true,

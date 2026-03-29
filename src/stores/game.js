@@ -93,7 +93,9 @@ export const useGameStore = defineStore('game', () => {
 
     const normalized = {}
     for (const [upgradeId, value] of Object.entries(meta)) {
-      const timestamp = Number(value)
+      const timestampSource =
+        value && typeof value === 'object' && !Array.isArray(value) ? value.purchasedAt : value
+      const timestamp = Number(timestampSource)
       normalized[upgradeId] = Number.isFinite(timestamp) && timestamp >= 0 ? Math.floor(timestamp) : 0
     }
 
