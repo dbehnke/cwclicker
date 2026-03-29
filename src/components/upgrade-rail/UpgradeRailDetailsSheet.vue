@@ -40,6 +40,8 @@ function handleBuy() {
     role="dialog"
     aria-modal="false"
     aria-label="Upgrade details"
+    tabindex="-1"
+    @keydown.esc="emit('close')"
   >
     <div class="flex items-start justify-between gap-4">
       <div>

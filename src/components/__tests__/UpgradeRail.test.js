@@ -174,14 +174,14 @@ describe('UpgradeRail', () => {
     expect(tooltip.text()).toContain('1.01M')
   })
 
-  it('opens details sheet on tile click and closes via sheet close action', async () => {
+  it('opens details sheet on tile click and closes via Escape', async () => {
     const upgrades = [makeUpgrade({ id: 'u1', baseCost: 100n })]
     const { wrapper } = mountTracked({ upgrades })
 
     await wrapper.get('[data-upgrade-id="u1"]').trigger('click')
     expect(wrapper.get('[data-testid="upgrade-rail-details-sheet"]').exists()).toBe(true)
 
-    await wrapper.get('[data-testid="upgrade-rail-details-close"]').trigger('click')
+    await wrapper.get('[data-testid="upgrade-rail-details-sheet"]').trigger('keydown', { key: 'Escape' })
 
     expect(wrapper.find('[data-testid="upgrade-rail-details-sheet"]').exists()).toBe(false)
   })
