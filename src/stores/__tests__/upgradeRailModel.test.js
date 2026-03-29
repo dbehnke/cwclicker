@@ -20,7 +20,7 @@ describe('buildUpgradeRailModel', () => {
       factoryCounts: { a: 1, b: 1 },
       purchasedUpgrades: new Set(['u5']),
       upgradePurchaseMeta: {
-        u5: { purchasedAt: 100 },
+        u5: 100,
       },
     })
 
@@ -62,13 +62,31 @@ describe('buildUpgradeRailModel', () => {
       factoryCounts: { 'factory-a': 1, 'factory-b': 1 },
       purchasedUpgrades: new Set(['p1', 'p2', 'p3']),
       upgradePurchaseMeta: {
-        p1: { purchasedAt: 500 },
-        p2: { purchasedAt: 'broken' },
+        p1: 500,
+        p2: 'broken',
       },
     })
 
     expect(model.recentlyPurchased.map(upgrade => upgrade.id)).toEqual(['p1', 'p3', 'p2'])
     expect(model.recentlyPurchased.map(upgrade => upgrade.purchasedAt)).toEqual([500, 0, 0])
     expect(model.priorityRowIds).toEqual(['p1', 'p3', 'p2'])
+  })
+
+  it('supports legacy nested metadata shape for compatibility', () => {
+    const factories = [{ id: 'factory-a' }]
+    const upgrades = [{ id: 'p1', factoryId: 'factory-a', threshold: 1, baseCost: 20n }]
+
+    const model = buildUpgradeRailModel({
+      upgrades,
+      factories,
+      qsos: 0n,
+      factoryCounts: { 'factory-a': 1 },
+      purchasedUpgrades: new Set(['p1']),
+      upgradePurchaseMeta: {
+        p1: { purchasedAt: 750 },
+      },
+    })
+
+    expect(model.recentlyPurchased.map(upgrade => upgrade.purchasedAt)).toEqual([750])
   })
 })

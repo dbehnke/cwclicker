@@ -1,8 +1,5 @@
 'use strict'
 
-import { FACTORIES } from '../constants/factories'
-import { UPGRADES } from '../constants/upgrades'
-
 function toBigInt(value) {
   if (typeof value === 'bigint') {
     return value
@@ -23,6 +20,20 @@ function normalizePurchasedAt(value) {
   return 0
 }
 
+function getPurchasedAt(upgradePurchaseMeta, upgradeId) {
+  const rawMeta = upgradePurchaseMeta?.[upgradeId]
+
+  if (typeof rawMeta === 'number') {
+    return normalizePurchasedAt(rawMeta)
+  }
+
+  if (rawMeta && typeof rawMeta === 'object') {
+    return normalizePurchasedAt(rawMeta.purchasedAt)
+  }
+
+  return 0
+}
+
 function buildOrderMap(items) {
   const orderMap = new Map()
 
@@ -32,9 +43,6 @@ function buildOrderMap(items) {
 
   return orderMap
 }
-
-const FACTORY_ORDER = buildOrderMap(FACTORIES)
-const UPGRADE_ORDER = buildOrderMap(UPGRADES)
 
 function makeDeterministicComparator() {
   return (a, b) => {
@@ -62,14 +70,12 @@ export function buildUpgradeRailModel({
   purchasedUpgrades = new Set(),
   upgradePurchaseMeta = {},
 }) {
-  const fallbackFactoryOrder = buildOrderMap(factories)
-  const fallbackUpgradeOrder = buildOrderMap(upgrades)
+  const factoryOrderMap = buildOrderMap(factories)
+  const upgradeOrderMap = buildOrderMap(upgrades)
 
-  const getFactoryOrder = factoryId =>
-    FACTORY_ORDER.get(factoryId) ?? fallbackFactoryOrder.get(factoryId) ?? Number.MAX_SAFE_INTEGER
+  const getFactoryOrder = factoryId => factoryOrderMap.get(factoryId) ?? Number.MAX_SAFE_INTEGER
 
-  const getUpgradeOrder = upgradeId =>
-    UPGRADE_ORDER.get(upgradeId) ?? fallbackUpgradeOrder.get(upgradeId) ?? Number.MAX_SAFE_INTEGER
+  const getUpgradeOrder = upgradeId => upgradeOrderMap.get(upgradeId) ?? Number.MAX_SAFE_INTEGER
 
   const deterministicComparator = makeDeterministicComparator()
   const availableQsos = toBigInt(qsos)
@@ -80,7 +86,7 @@ export function buildUpgradeRailModel({
     const isPurchased = purchasedUpgrades.has(upgrade.id)
     const isAvailable = ownedCount >= Number(upgrade.threshold || 0)
     const isAffordable = !isPurchased && isAvailable && availableQsos >= baseCost
-    const purchasedAt = normalizePurchasedAt(upgradePurchaseMeta?.[upgrade.id]?.purchasedAt)
+    const purchasedAt = getPurchasedAt(upgradePurchaseMeta, upgrade.id)
 
     return {
       ...upgrade,
