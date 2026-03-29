@@ -22,6 +22,7 @@ const isExpanded = ref(false)
 const lockedExpanded = ref(false)
 const selectedUpgradeId = ref(null)
 const statusMessage = ref('')
+const staleFailure = ref(false)
 const lastTileElementById = ref(new Map())
 
 const model = computed(() =>
@@ -92,7 +93,11 @@ const detailsCanAfford = computed(() => {
     return false
   }
 
-  return selectedUpgradeState.value.isAvailable && selectedUpgradeState.value.isAffordable
+  return (
+    selectedUpgradeState.value.isAvailable &&
+    selectedUpgradeState.value.isAffordable &&
+    !staleFailure.value
+  )
 })
 
 const detailsFormattedCost = computed(() => {
@@ -133,6 +138,7 @@ const detailsStatusMessage = computed(() => {
 
 function registerTileRef(upgradeId, element) {
   if (!element) {
+    lastTileElementById.value.delete(upgradeId)
     return
   }
 
@@ -164,6 +170,7 @@ function getUpgradeTileAriaLabel(upgrade) {
 function openDetails(upgradeId, event) {
   selectedUpgradeId.value = upgradeId
   statusMessage.value = ''
+  staleFailure.value = false
 
   if (event?.currentTarget) {
     registerTileRef(upgradeId, event.currentTarget)
@@ -173,6 +180,7 @@ function openDetails(upgradeId, event) {
 function closeDetails() {
   selectedUpgradeId.value = null
   statusMessage.value = ''
+  staleFailure.value = false
 }
 
 function handleKeydown(event) {
@@ -207,10 +215,12 @@ function handleBuyFromDetails() {
   const success = store.buyUpgrade(selectedUpgradeId.value)
 
   if (!success) {
+    staleFailure.value = true
     statusMessage.value = 'Could not purchase upgrade. Your QSOs changed.'
     return
   }
 
+  staleFailure.value = false
   const tile = lastTileElementById.value.get(selectedUpgradeId.value)
   closeDetails()
 

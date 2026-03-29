@@ -201,7 +201,7 @@ describe('UpgradeRail', () => {
     await wrapper.get('[data-testid="upgrade-rail-buy-cta"]').trigger('click')
 
     expect(wrapper.text()).toContain('Could not purchase upgrade. Your QSOs changed.')
-    expect(wrapper.get('[data-testid="upgrade-rail-buy-cta"]').attributes('disabled')).toBeUndefined()
+    expect(wrapper.get('[data-testid="upgrade-rail-buy-cta"]').element.disabled).toBe(true)
   })
 
   it('includes upgrade name, affordability status, and formatted cost in tile aria-label', () => {
@@ -304,7 +304,7 @@ describe('UpgradeRail', () => {
     const { wrapper } = mountTracked({
       upgrades,
       storeOverrides: {
-        qsos: 100n,
+        qsos: 10_000n,
       },
     })
 
@@ -313,6 +313,6 @@ describe('UpgradeRail', () => {
     await wrapper.get('[data-upgrade-id="u1"]').trigger('click')
     const sheetText = wrapper.get('[data-testid="upgrade-rail-details-sheet"]').text()
     expect(sheetText).toContain('1.01M')
-    expect(sheetText).toContain('1.01M')
+    expect(sheetText).toContain('1.00M')
   })
 })
