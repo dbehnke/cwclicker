@@ -327,6 +327,7 @@ function handleBuyFromDetails() {
 
     <UpgradeRailDetailsSheet
       v-if="selectedUpgrade && selectedUpgradeState"
+      :key="selectedUpgradeId"
       class="mt-3"
       :upgrade="selectedUpgrade"
       :can-afford="detailsCanAfford"

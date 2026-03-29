@@ -186,6 +186,23 @@ describe('UpgradeRail', () => {
     expect(wrapper.find('[data-testid="upgrade-rail-details-sheet"]').exists()).toBe(false)
   })
 
+  it('closes with Escape after switching selected upgrade while sheet is open', async () => {
+    const upgrades = [
+      makeUpgrade({ id: 'u1', baseCost: 100n, name: 'Upgrade One' }),
+      makeUpgrade({ id: 'u2', baseCost: 120n, name: 'Upgrade Two' }),
+    ]
+    const { wrapper } = mountTracked({ upgrades })
+
+    await wrapper.get('[data-upgrade-id="u1"]').trigger('click')
+    expect(wrapper.get('[data-testid="upgrade-rail-details-sheet"]').exists()).toBe(true)
+
+    await wrapper.get('[data-upgrade-id="u2"]').trigger('click')
+    expect(wrapper.text()).toContain('Upgrade Two')
+
+    await wrapper.get('[data-testid="upgrade-rail-details-sheet"]').trigger('keydown', { key: 'Escape' })
+    expect(wrapper.find('[data-testid="upgrade-rail-details-sheet"]').exists()).toBe(false)
+  })
+
   it('shows stale failure message and keeps CTA state tied to current affordability', async () => {
     const upgrades = [makeUpgrade({ id: 'u1', baseCost: 100n })]
     const buyUpgrade = vi.fn(() => false)
