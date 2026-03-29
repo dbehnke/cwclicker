@@ -91,16 +91,18 @@ export function buildUpgradeRailModel({
     const ownedCount = Number(factoryCounts[upgrade.factoryId] || 0)
     const baseCost = toBigInt(upgrade.baseCost)
     const isPurchased = purchasedUpgrades.has(upgrade.id)
-    const isAvailable = ownedCount >= Number(upgrade.threshold || 0)
-    const isAffordable = !isPurchased && isAvailable && availableQsos >= baseCost
+    const thresholdMet = ownedCount >= Number(upgrade.threshold || 0)
+    const isAvailable = thresholdMet && !isPurchased
+    const isAffordable = isAvailable && availableQsos >= baseCost
     const purchasedAt = getPurchasedAt(upgradePurchaseMeta, upgrade.id)
+    const costDelta = isAvailable && !isAffordable ? baseCost - availableQsos : 0n
 
     return {
       ...upgrade,
       isPurchased,
       isAvailable,
       isAffordable,
-      costDelta: baseCost - availableQsos,
+      costDelta,
       purchasedAt,
       factoryOrder: getFactoryOrder(upgrade.factoryId),
       upgradeOrder: getUpgradeOrder(upgrade.id),

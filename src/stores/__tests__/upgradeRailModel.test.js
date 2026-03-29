@@ -89,4 +89,39 @@ describe('buildUpgradeRailModel', () => {
 
     expect(model.recentlyPurchased.map(upgrade => upgrade.purchasedAt)).toEqual([750])
   })
+
+  it('treats purchased upgrades as unavailable and scopes cost delta to almost-there', () => {
+    const factories = [{ id: 'factory-a' }]
+    const upgrades = [
+      { id: 'ready', factoryId: 'factory-a', threshold: 1, baseCost: 10n },
+      { id: 'almost', factoryId: 'factory-a', threshold: 1, baseCost: 12n },
+      { id: 'locked', factoryId: 'factory-a', threshold: 3, baseCost: 20n },
+      { id: 'purchased', factoryId: 'factory-a', threshold: 1, baseCost: 15n },
+    ]
+
+    const model = buildUpgradeRailModel({
+      upgrades,
+      factories,
+      qsos: 11n,
+      factoryCounts: { 'factory-a': 1 },
+      purchasedUpgrades: new Set(['purchased']),
+      upgradePurchaseMeta: {
+        purchased: 100,
+      },
+    })
+
+    const byId = new Map(model.priorityRow.concat(model.lockedByThreshold).map(upgrade => [upgrade.id, upgrade]))
+
+    expect(byId.get('ready').isAvailable).toBe(true)
+    expect(byId.get('ready').costDelta).toBe(0n)
+
+    expect(byId.get('almost').isAvailable).toBe(true)
+    expect(byId.get('almost').costDelta).toBe(1n)
+
+    expect(byId.get('locked').isAvailable).toBe(false)
+    expect(byId.get('locked').costDelta).toBe(0n)
+
+    expect(byId.get('purchased').isAvailable).toBe(false)
+    expect(byId.get('purchased').costDelta).toBe(0n)
+  })
 })
