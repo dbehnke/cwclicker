@@ -4,6 +4,7 @@ import { createPinia, setActivePinia } from 'pinia'
 import FactoryCard from '../FactoryCard.vue'
 import { useGameStore } from '../../stores/game'
 import { FACTORIES } from '../../constants/factories'
+import { UPGRADES } from '../../constants/upgrades'
 
 // Mock the game store to control the state
 vi.mock('../../stores/game', () => ({
@@ -17,6 +18,7 @@ describe('FactoryCard.vue', () => {
     useGameStore.mockReturnValue({
       qsos: 100n,
       factoryCounts: {},
+      purchasedUpgrades: new Set(),
       getFactoryCost: () => 10n,
       isFactoryUnlocked: () => true,
       getUpgradeMultiplier: () => 1,
@@ -222,5 +224,23 @@ describe('FactoryCard.vue', () => {
 
     expect(wrapper.emitted('buy')).toBeTruthy()
     expect(wrapper.emitted('buy')[0]).toEqual([{ factory: elmerFactory, count: 1 }])
+  })
+
+  it('shows upgrade progress line with current title and next threshold', () => {
+    const elmerUpgrades = UPGRADES.filter(upgrade => upgrade.factoryId === 'elmer')
+
+    mockStore({
+      factoryCounts: { elmer: 30 },
+      purchasedUpgrades: new Set([elmerUpgrades[0].id, elmerUpgrades[1].id, elmerUpgrades[2].id]),
+      getUpgradeMultiplier: () => 8,
+    })
+
+    const wrapper = mount(FactoryCard, {
+      props: {
+        factory: elmerFactory,
+      },
+    })
+
+    expect(wrapper.text()).toContain(`x8 - ${elmerUpgrades[2].name} - next at 50`)
   })
 })
