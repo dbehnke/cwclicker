@@ -48,6 +48,7 @@ function handleBuy() {
       </div>
       <button
         type="button"
+        data-testid="upgrade-rail-details-close"
         class="rounded border border-gray-600 px-2 py-1 text-xs text-gray-300 hover:text-terminal-green"
         @click="emit('close')"
       >

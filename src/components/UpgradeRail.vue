@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onBeforeUnmount, ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useGameStore } from '../stores/game'
 import { buildUpgradeRailModel } from '../stores/upgradeRailModel'
 import { formatNumber } from '../utils/format'
@@ -22,7 +22,6 @@ const isExpanded = ref(false)
 const lockedExpanded = ref(false)
 const selectedUpgradeId = ref(null)
 const statusMessage = ref('')
-const staleFailure = ref(false)
 const lastTileElementById = ref(new Map())
 
 const model = computed(() =>
@@ -93,11 +92,7 @@ const detailsCanAfford = computed(() => {
     return false
   }
 
-  return (
-    selectedUpgradeState.value.isAvailable &&
-    selectedUpgradeState.value.isAffordable &&
-    !staleFailure.value
-  )
+  return selectedUpgradeState.value.isAvailable && selectedUpgradeState.value.isAffordable
 })
 
 const detailsFormattedCost = computed(() => {
@@ -170,7 +165,6 @@ function getUpgradeTileAriaLabel(upgrade) {
 function openDetails(upgradeId, event) {
   selectedUpgradeId.value = upgradeId
   statusMessage.value = ''
-  staleFailure.value = false
 
   if (event?.currentTarget) {
     registerTileRef(upgradeId, event.currentTarget)
@@ -180,24 +174,7 @@ function openDetails(upgradeId, event) {
 function closeDetails() {
   selectedUpgradeId.value = null
   statusMessage.value = ''
-  staleFailure.value = false
 }
-
-function handleKeydown(event) {
-  if (event.key === 'Escape' && selectedUpgradeId.value) {
-    closeDetails()
-  }
-}
-
-if (typeof window !== 'undefined') {
-  window.addEventListener('keydown', handleKeydown)
-}
-
-onBeforeUnmount(() => {
-  if (typeof window !== 'undefined') {
-    window.removeEventListener('keydown', handleKeydown)
-  }
-})
 
 function toggleExpanded() {
   isExpanded.value = !isExpanded.value
@@ -215,12 +192,10 @@ function handleBuyFromDetails() {
   const success = store.buyUpgrade(selectedUpgradeId.value)
 
   if (!success) {
-    staleFailure.value = true
     statusMessage.value = 'Could not purchase upgrade. Your QSOs changed.'
     return
   }
 
-  staleFailure.value = false
   const tile = lastTileElementById.value.get(selectedUpgradeId.value)
   closeDetails()
 

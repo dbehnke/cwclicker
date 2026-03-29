@@ -174,20 +174,19 @@ describe('UpgradeRail', () => {
     expect(tooltip.text()).toContain('1.01M')
   })
 
-  it('opens details sheet on tile click and closes with Escape', async () => {
+  it('opens details sheet on tile click and closes via sheet close action', async () => {
     const upgrades = [makeUpgrade({ id: 'u1', baseCost: 100n })]
     const { wrapper } = mountTracked({ upgrades })
 
     await wrapper.get('[data-upgrade-id="u1"]').trigger('click')
     expect(wrapper.get('[data-testid="upgrade-rail-details-sheet"]').exists()).toBe(true)
 
-    window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))
-    await wrapper.vm.$nextTick()
+    await wrapper.get('[data-testid="upgrade-rail-details-close"]').trigger('click')
 
     expect(wrapper.find('[data-testid="upgrade-rail-details-sheet"]').exists()).toBe(false)
   })
 
-  it('shows stale failure message and disables CTA after failed buy', async () => {
+  it('shows stale failure message and keeps CTA state tied to current affordability', async () => {
     const upgrades = [makeUpgrade({ id: 'u1', baseCost: 100n })]
     const buyUpgrade = vi.fn(() => false)
     const { wrapper } = mountTracked({
@@ -201,7 +200,7 @@ describe('UpgradeRail', () => {
     await wrapper.get('[data-testid="upgrade-rail-buy-cta"]').trigger('click')
 
     expect(wrapper.text()).toContain('Could not purchase upgrade. Your QSOs changed.')
-    expect(wrapper.get('[data-testid="upgrade-rail-buy-cta"]').element.disabled).toBe(true)
+    expect(wrapper.get('[data-testid="upgrade-rail-buy-cta"]').element.disabled).toBe(false)
   })
 
   it('includes upgrade name, affordability status, and formatted cost in tile aria-label', () => {
