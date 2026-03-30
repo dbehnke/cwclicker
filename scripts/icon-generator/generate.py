@@ -1,6 +1,5 @@
 import os
 import subprocess
-from rembg import remove
 from PIL import Image
 
 
@@ -24,21 +23,19 @@ def generate_image(prompt, output_filename, steps=4):
 
 
 def remove_background(input_path, output_path):
-    print(f"Removing background from {input_path}")
+    print(f"Copying icon (keeping dark background): {input_path}")
+    # Keep the black background - works well on dark UI themes
     input_image = Image.open(input_path)
-    output_image = remove(input_image)
-
-    # Save the output image
-    output_image.save(output_path, "PNG")
+    input_image.save(output_path, "PNG")
 
 
 def main():
     prompts = {
-        "../../src/assets/icons/upgrades/bronze-upgrade.png": "A bronze gear or cog. Perfect 2D pixel art style, retro 16-bit video game inventory icon, flat vibrant colors, clear dark outlines, isolated on a solid white background.",
-        "../../src/assets/icons/upgrades/silver-upgrade.png": "A silver gear or cog. Perfect 2D pixel art style, retro 16-bit video game inventory icon, flat vibrant colors, clear dark outlines, isolated on a solid white background.",
-        "../../src/assets/icons/upgrades/gold-upgrade.png": "A shiny gold gear or cog. Perfect 2D pixel art style, retro 16-bit video game inventory icon, flat vibrant colors, clear dark outlines, isolated on a solid white background.",
-        "../../src/assets/icons/misc/dx-bonus.png": "A glowing treasure chest radiating magical energy. Perfect 2D pixel art style, retro 16-bit video game inventory icon, flat vibrant colors, clear dark outlines, isolated on a solid white background.",
-        "../../src/assets/icons/misc/solar-storm.png": "A fierce solar flare or sun erupting with fire. Perfect 2D pixel art style, retro 16-bit video game inventory icon, flat vibrant colors, clear dark outlines, isolated on a solid white background.",
+        "../../src/assets/icons/upgrades/bronze-upgrade.png": "A bronze gear or cog. Perfect 2D pixel art style, retro 16-bit video game inventory icon, flat vibrant colors, clear dark outlines, on solid black background.",
+        "../../src/assets/icons/upgrades/silver-upgrade.png": "A silver gear or cog. Perfect 2D pixel art style, retro 16-bit video game inventory icon, flat vibrant colors, clear dark outlines, on solid black background.",
+        "../../src/assets/icons/upgrades/gold-upgrade.png": "A shiny gold gear or cog. Perfect 2D pixel art style, retro 16-bit video game inventory icon, flat vibrant colors, clear dark outlines, on solid black background.",
+        "../../src/assets/icons/misc/dx-bonus.png": "A glowing treasure chest radiating magical energy. Perfect 2D pixel art style, retro 16-bit video game inventory icon, flat vibrant colors, clear dark outlines, on solid black background.",
+        "../../src/assets/icons/misc/solar-storm.png": "A fierce solar flare or sun erupting with fire. Perfect 2D pixel art style, retro 16-bit video game inventory icon, flat vibrant colors, clear dark outlines, on solid black background.",
     }
 
     os.makedirs("temp", exist_ok=True)
