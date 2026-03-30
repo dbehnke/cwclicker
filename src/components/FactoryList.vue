@@ -3,34 +3,29 @@ import { computed } from 'vue'
 import { useGameStore } from '../stores/game'
 import { FACTORIES } from '../constants/factories'
 import FactoryCard from './FactoryCard.vue'
-import MultiBuyPanel from './MultiBuyPanel.vue'
 
 const store = useGameStore()
 
 const availableFactories = computed(() => {
-  if (typeof store.isFactoryUnlocked !== 'function') {
-    return []
-  }
+  return FACTORIES.filter(factory => {
+    const owned = store.factoryCounts[factory.id] || 0
+    if (owned <= 0) {
+      return false
+    }
 
-  return FACTORIES.filter(factory => store.isFactoryUnlocked(factory.id))
+    if (typeof store.isFactoryUnlocked === 'function') {
+      return store.isFactoryUnlocked(factory.id)
+    }
+
+    return true
+  })
 })
-
-const totalFactoryCount = computed(() => {
-  return Object.values(store.factoryCounts).reduce((sum, count) => sum + count, 0)
-})
-
-const multiBuyAvailable = computed(() => totalFactoryCount.value >= 10)
 
 const totalQSOsPerSecond = computed(() => {
   // Access lottery state to trigger reactivity when bonus/solar storm changes
   const lotteryState = store.lotteryState
   return store.getTotalQSOsPerSecond()
 })
-
-const handleBuy = event => {
-  const { factory, count } = event
-  store.buyFactory(factory.id, count)
-}
 </script>
 
 <template>
@@ -42,38 +37,20 @@ const handleBuy = event => {
     </div>
 
     <!-- Factory cards or empty state -->
-    <div v-if="availableFactories.length > 0" class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+    <div
+      v-if="availableFactories.length > 0"
+      class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4"
+    >
       <FactoryCard
         v-for="factory in availableFactories"
         :key="factory.id"
         :factory="factory"
-        @buy="handleBuy"
-      />
-      <!-- Mystery Factory placeholder for layout consistency -->
-      <FactoryCard
-        v-if="store.isMysteryFactoryUnlocked"
-        key="mystery"
-        :factory="{ id: 'mystery', name: '???', cost: 0, production: 0, description: 'Requires higher license...' }"
-        is-mystery
+        read-only
       />
     </div>
     <div v-else class="border-2 border-terminal-green bg-terminal-bg p-4 rounded text-center">
       <p class="text-gray-400">No factories available</p>
       <p class="text-sm text-gray-500 mt-2">Upgrade your license to unlock factories</p>
-    </div>
-
-    <!-- MultiBuyPanel for each factory (shown when 10+ factories owned) -->
-    <div
-      v-if="multiBuyAvailable && availableFactories.length > 0"
-      class="space-y-3 mt-4 sm:space-y-4"
-    >
-      <MultiBuyPanel
-        v-for="factory in availableFactories"
-        :key="`multibuy-${factory.id}`"
-        :factory="factory"
-        :multi-buy-available="multiBuyAvailable"
-        @buy="handleBuy"
-      />
     </div>
   </div>
 </template>

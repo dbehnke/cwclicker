@@ -96,6 +96,20 @@ describe('FactoryCard.vue', () => {
     expect(actionRow.text()).toContain('Buy')
   })
 
+  it('hides action row in readOnly mode', () => {
+    mockStore({ getFactoryCost: () => 15n })
+
+    const wrapper = mount(FactoryCard, {
+      props: {
+        factory: elmerFactory,
+        readOnly: true,
+      },
+    })
+
+    expect(wrapper.find('[data-testid="factory-action-row"]').exists()).toBe(false)
+    expect(wrapper.find('button').exists()).toBe(false)
+  })
+
   it('shows final rate above the breakdown line', () => {
     mockStore({
       factoryCounts: { elmer: 50 },

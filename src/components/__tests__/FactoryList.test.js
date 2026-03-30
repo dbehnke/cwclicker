@@ -35,9 +35,10 @@ describe('FactoryList.vue', () => {
   })
 
   it('renders only factories that store marks as unlocked', () => {
-    const unlockedIds = ['elmer', 'qrq-protocol', 'straight-key']
+    const unlockedIds = ['elmer', 'straight-key']
     useGameStore.mockReturnValue(
       createStoreMock({
+        factoryCounts: { elmer: 2, 'straight-key': 1, 'beam-antenna': 1 },
         isFactoryUnlocked: id => unlockedIds.includes(id),
       })
     )
@@ -48,13 +49,13 @@ describe('FactoryList.vue', () => {
       expect(wrapper.text()).toContain(factory.name)
     })
     expect(wrapper.text()).not.toContain('Beam Antenna')
-    expect(wrapper.text()).not.toContain('FT8 Bot')
+    expect(wrapper.text()).not.toContain('Paddle Key')
   })
 
-  it('hides locked factories instead of rendering ??? placeholders', () => {
+  it('hides unlocked factories that are not owned', () => {
     useGameStore.mockReturnValue(
       createStoreMock({
-        qsos: 1n,
+        factoryCounts: { elmer: 1 },
         isFactoryUnlocked: id => ['elmer', 'qrq-protocol', 'straight-key'].includes(id),
       })
     )
@@ -62,12 +63,8 @@ describe('FactoryList.vue', () => {
     const wrapper = mount(FactoryList)
 
     expect(wrapper.text()).toContain('Elmer')
-    expect(wrapper.text()).toContain('QRQ Protocol')
-    expect(wrapper.text()).toContain('Straight Key')
-    expect(wrapper.text()).not.toContain('Paddle Key')
-    expect(wrapper.text()).not.toContain('Code Practice Oscillator')
-    expect(wrapper.text()).not.toContain('Dipole Antenna')
-    expect(wrapper.text()).not.toContain('???')
+    expect(wrapper.text()).not.toContain('QRQ Protocol')
+    expect(wrapper.text()).not.toContain('Straight Key')
   })
 
   it('shows total QSOs per second', () => {
@@ -84,11 +81,9 @@ describe('FactoryList.vue', () => {
     expect(wrapper.text()).toContain('QSOs/sec: 2.5')
   })
 
-  it('shows MultiBuyPanel when 10+ total factories owned', () => {
+  it('does not render MultiBuyPanel in read-only list, even at 10+ owned', () => {
     useGameStore.mockReturnValue(
       createStoreMock({
-        qsos: 10000n,
-        licenseLevel: 2,
         factoryCounts: { elmer: 5, 'straight-key': 5 },
         getTotalQSOsPerSecond: () => 4,
         isFactoryUnlocked: id => ['elmer', 'straight-key'].includes(id),
@@ -97,15 +92,14 @@ describe('FactoryList.vue', () => {
 
     const wrapper = mount(FactoryList)
 
-    expect(wrapper.text()).toContain('Bulk Purchase')
-    expect(wrapper.text()).toContain('×1')
-    expect(wrapper.text()).toContain('×10')
+    expect(wrapper.text()).not.toContain('Bulk Purchase')
+    expect(wrapper.text()).not.toContain('×1')
+    expect(wrapper.text()).not.toContain('×10')
   })
 
-  it('hides MultiBuyPanel when less than 10 factories owned', () => {
+  it('renders FactoryCard in readOnly mode (no buy actions shown)', () => {
     useGameStore.mockReturnValue(
       createStoreMock({
-        licenseLevel: 2,
         factoryCounts: { elmer: 3, 'straight-key': 2 },
         getTotalQSOsPerSecond: () => 2,
         isFactoryUnlocked: id => ['elmer', 'straight-key'].includes(id),
@@ -114,50 +108,28 @@ describe('FactoryList.vue', () => {
 
     const wrapper = mount(FactoryList)
 
-    expect(wrapper.text()).not.toContain('Bulk Purchase')
+    expect(wrapper.findAll('[data-testid="factory-action-row"]')).toHaveLength(0)
+    expect(wrapper.findAll('button').filter(button => button.text() === 'Buy')).toHaveLength(0)
   })
 
-  it('handles buy event from FactoryCard', async () => {
-    const mockBuyFactory = vi.fn()
+  it('shows empty state when no owned factories are available', () => {
     useGameStore.mockReturnValue(
       createStoreMock({
-        getBulkCost: () => 100,
-        buyFactory: mockBuyFactory,
-        isFactoryUnlocked: id => id === 'elmer',
+        factoryCounts: {},
+        isFactoryUnlocked: () => true,
       })
     )
 
     const wrapper = mount(FactoryList)
 
-    // Find and click the first buy button
-    const buyButtons = wrapper.findAll('button')
-    const firstBuyButton = buyButtons.find(btn => btn.text() === 'Buy')
-
-    expect(firstBuyButton).toBeDefined()
-    await firstBuyButton.trigger('click')
-
-    expect(mockBuyFactory).toHaveBeenCalled()
+    expect(wrapper.text()).toContain('No factories available')
   })
 
-  it('does not render revealed locked-batch ids unless store predicate allows them', () => {
+  it('shows owned factories even when unlock predicate is missing', () => {
     useGameStore.mockReturnValue(
       createStoreMock({
-        isFactoryUnlocked: id => id === 'elmer',
-      })
-    )
-
-    const wrapper = mount(FactoryList)
-
-    expect(wrapper.text()).toContain('Elmer')
-    expect(wrapper.text()).not.toContain('Beam Antenna')
-  })
-
-  it('keeps owned factories visible when store predicate returns true', () => {
-    useGameStore.mockReturnValue(
-      createStoreMock({
-        licenseLevel: 1,
         factoryCounts: { 'beam-antenna': 1 },
-        isFactoryUnlocked: id => id === 'beam-antenna',
+        isFactoryUnlocked: undefined,
       })
     )
 

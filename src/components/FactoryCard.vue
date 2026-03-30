@@ -17,6 +17,10 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  readOnly: {
+    type: Boolean,
+    default: false,
+  },
 })
 
 /**
@@ -153,7 +157,9 @@ const handleBuy = () => {
     data-testid="factory-card-root"
   >
     <!-- Tier Label (Top Right) -->
-    <span class="absolute right-2 top-2 text-[10px] uppercase tracking-wider text-terminal-amber/60">
+    <span
+      class="absolute right-2 top-2 text-[10px] uppercase tracking-wider text-terminal-amber/60"
+    >
       Tier {{ factory.tier }}
     </span>
 
@@ -196,6 +202,7 @@ const handleBuy = () => {
 
     <!-- Action Row (Bottom) -->
     <div
+      v-if="!readOnly"
       class="mt-auto flex w-full flex-col items-center gap-2 pt-4 border-t border-terminal-green/20"
       data-testid="factory-action-row"
     >
