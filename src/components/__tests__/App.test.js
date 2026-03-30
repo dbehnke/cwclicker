@@ -84,6 +84,35 @@ describe('App.vue responsive shell', () => {
     expect(wrapper.find('[data-testid="desktop-lane-keyer"]').exists()).toBe(true)
     expect(wrapper.find('[data-testid="desktop-lane-grid"]').exists()).toBe(true)
     expect(wrapper.find('[data-testid="desktop-lane-store"]').exists()).toBe(true)
+    expect(wrapper.find('[data-testid="keyer-lane-header"]').classes()).toContain('sticky')
+  })
+
+  it('keeps settings collapsed by default and expands on toggle', async () => {
+    const wrapper = shallowMount(App, {
+      global: {
+        stubs: {
+          ClickIndicator: true,
+          ErrorBoundary: { template: '<div><slot /></div>' },
+          FactoryList: true,
+          GameLoop: true,
+          KeyerArea: true,
+          LicensePanel: true,
+          MigrationNotification: true,
+          MorseChallenge: true,
+          OfflineProgressNotification: true,
+          RareDxBonus: true,
+          SettingsPanel: { template: '<div data-testid="settings-panel-stub" />' },
+          StoreLane: true,
+          StatHeader: true,
+        },
+      },
+    })
+
+    expect(wrapper.find('[data-testid="settings-panel-stub"]').exists()).toBe(false)
+
+    await wrapper.get('[data-testid="settings-toggle"]').trigger('click')
+
+    expect(wrapper.find('[data-testid="settings-panel-stub"]').exists()).toBe(true)
   })
 
   it('shows only the active mobile tab panel', async () => {

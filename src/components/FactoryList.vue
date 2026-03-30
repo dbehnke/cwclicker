@@ -31,7 +31,10 @@ const totalQSOsPerSecond = computed(() => {
 <template>
   <div class="space-y-5 px-2 sm:px-4 lg:px-0">
     <!-- Header with title and QSOs/sec -->
-    <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+    <div
+      data-testid="factory-list-header"
+      class="sticky top-0 z-20 bg-terminal-bg/95 backdrop-blur-sm py-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
+    >
       <h2 class="text-2xl font-bold text-terminal-green">Factories</h2>
       <span class="text-terminal-green">QSOs/sec: {{ totalQSOsPerSecond }}</span>
     </div>

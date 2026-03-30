@@ -81,6 +81,20 @@ describe('FactoryList.vue', () => {
     expect(wrapper.text()).toContain('QSOs/sec: 2.5')
   })
 
+  it('keeps factory header sticky while scrolling', () => {
+    useGameStore.mockReturnValue(
+      createStoreMock({
+        factoryCounts: { elmer: 2, 'straight-key': 1 },
+        getTotalQSOsPerSecond: () => 2.5,
+        isFactoryUnlocked: id => ['elmer', 'straight-key'].includes(id),
+      })
+    )
+
+    const wrapper = mount(FactoryList)
+
+    expect(wrapper.get('[data-testid="factory-list-header"]').classes()).toContain('sticky')
+  })
+
   it('does not render MultiBuyPanel in read-only list, even at 10+ owned', () => {
     useGameStore.mockReturnValue(
       createStoreMock({

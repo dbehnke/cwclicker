@@ -19,6 +19,7 @@ import GameLoop from './components/GameLoop.vue'
 const store = useGameStore()
 const clickIndicatorRef = ref(null)
 const activeTab = ref('keyer')
+const isSettingsExpanded = ref(false)
 
 // App version from build-time injection (format: vX.Y.Z-N-SHA)
 const appVersion = __APP_VERSION__ || 'v0.0.0-0-unknown'
@@ -153,7 +154,12 @@ function handleTabKeydown(event, tabId) {
             data-testid="desktop-lane-keyer"
             class="hidden space-y-4 lg:col-span-4 lg:flex lg:flex-col lg:min-h-0 lg:overflow-y-auto"
           >
-            <StatHeader />
+            <div
+              data-testid="keyer-lane-header"
+              class="sticky top-0 z-30 bg-terminal-bg/95 backdrop-blur-sm pb-2"
+            >
+              <StatHeader />
+            </div>
             <LicensePanel @upgrade="handleLicenseUpgrade" />
             <div class="relative flex flex-col gap-2 md:gap-4">
               <div class="flex-1">
@@ -195,7 +201,9 @@ function handleTabKeydown(event, tabId) {
             aria-labelledby="tab-keyer"
             class="space-y-4 lg:hidden"
           >
-            <StatHeader />
+            <div class="sticky top-0 z-30 bg-terminal-bg/95 backdrop-blur-sm pb-2">
+              <StatHeader />
+            </div>
             <LicensePanel @upgrade="handleLicenseUpgrade" />
             <div class="relative flex flex-col gap-2 md:gap-4">
               <div class="flex-1">
@@ -238,8 +246,16 @@ function handleTabKeydown(event, tabId) {
         </div>
 
         <section class="space-y-2">
-          <h2 class="text-lg font-bold text-terminal-green">Settings</h2>
-          <SettingsPanel />
+          <button
+            data-testid="settings-toggle"
+            class="w-full flex items-center justify-between text-left text-lg font-bold text-terminal-green border border-terminal-green/50 rounded px-3 py-2 hover:bg-terminal-green/10 transition-colors"
+            :aria-expanded="isSettingsExpanded"
+            @click="isSettingsExpanded = !isSettingsExpanded"
+          >
+            <span>Settings</span>
+            <span>{{ isSettingsExpanded ? '▲' : '▼' }}</span>
+          </button>
+          <SettingsPanel v-if="isSettingsExpanded" />
         </section>
       </main>
 

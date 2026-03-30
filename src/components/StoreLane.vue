@@ -44,6 +44,13 @@ function handleBuy(event) {
     class="flex h-full flex-col gap-4 overflow-y-auto px-3 py-3 sm:px-4"
     data-testid="store-lane"
   >
+    <div
+      data-testid="store-lane-header"
+      class="sticky top-0 z-20 bg-terminal-bg/95 backdrop-blur-sm py-2"
+    >
+      <h2 class="text-2xl font-bold text-terminal-green">Store</h2>
+    </div>
+
     <div class="shrink-0" data-testid="store-lane-upgrades">
       <UpgradeRail :upgrades="UPGRADES" :factories="FACTORIES" />
     </div>

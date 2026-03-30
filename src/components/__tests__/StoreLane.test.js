@@ -83,6 +83,18 @@ describe('StoreLane.vue', () => {
     expect(renderedIds).toEqual(expectedIds)
   })
 
+  it('keeps store header sticky while scrolling', () => {
+    useGameStore.mockReturnValue(
+      createStoreMock({
+        isFactoryUnlocked: id => id === 'elmer',
+      })
+    )
+
+    const wrapper = mountStoreLane()
+
+    expect(wrapper.get('[data-testid="store-lane-header"]').classes()).toContain('sticky')
+  })
+
   it('renders zero factory items when store.isFactoryUnlocked is missing', () => {
     useGameStore.mockReturnValue(
       createStoreMock({
