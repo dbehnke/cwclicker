@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { useGameStore } from '../stores/game'
 import { UPGRADES } from '../constants/upgrades'
 import { formatNumber, formatRate } from '../utils/format'
+import IconRenderer from './IconRenderer.vue'
 
 /**
  * Props for the FactoryCard component.
@@ -150,7 +151,7 @@ const handleBuy = () => {
     <div class="mb-3 flex items-start justify-between gap-3">
       <div class="min-w-0">
         <div class="flex flex-wrap items-center gap-2">
-          <span class="text-xl">{{ factory.icon }}</span>
+          <IconRenderer :icon="factory.icon" type="factory" fallback="Radio" size="32" />
           <span
             v-if="ownedCount > 0"
             class="rounded-full border border-terminal-amber/50 px-2 py-0.5 text-xs font-semibold text-terminal-amber"
