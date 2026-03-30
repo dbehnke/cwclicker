@@ -42,12 +42,19 @@ const handleBuy = event => {
     </div>
 
     <!-- Factory cards or empty state -->
-    <div v-if="availableFactories.length > 0" class="space-y-4 sm:space-y-5">
+    <div v-if="availableFactories.length > 0" class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
       <FactoryCard
         v-for="factory in availableFactories"
         :key="factory.id"
         :factory="factory"
         @buy="handleBuy"
+      />
+      <!-- Mystery Factory placeholder for layout consistency -->
+      <FactoryCard
+        v-if="store.isMysteryFactoryUnlocked"
+        key="mystery"
+        :factory="{ id: 'mystery', name: '???', cost: 0, production: 0, description: 'Requires higher license...' }"
+        is-mystery
       />
     </div>
     <div v-else class="border-2 border-terminal-green bg-terminal-bg p-4 rounded text-center">
