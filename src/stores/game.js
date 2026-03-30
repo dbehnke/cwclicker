@@ -18,7 +18,7 @@ import {
  * Current game version for save data migration
  * @type {string}
  */
-const GAME_VERSION = '1.3.1'
+const GAME_VERSION = '1.4.0'
 const MORSE_CHALLENGE_ADVANCE_DELAY_MS = 5000
 const MORSE_CHALLENGE_TERMINAL_STATES = ['timeout', 'wrong', 'success']
 const MAX_BULK_PURCHASE_COUNT = 10
@@ -1360,6 +1360,7 @@ export const useGameStore = defineStore('game', () => {
   }
 
   return {
+    gameVersion: GAME_VERSION,
     qsos,
     qsosThisRun,
     totalQsosEarned,
