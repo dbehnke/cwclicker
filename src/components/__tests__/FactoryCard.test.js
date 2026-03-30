@@ -58,7 +58,7 @@ describe('FactoryCard.vue', () => {
   })
 
   it('shows QSOs per second', () => {
-    mockStore()
+    mockStore({ factoryCounts: { elmer: 1 } })
 
     const wrapper = mount(FactoryCard, {
       props: {
@@ -66,7 +66,7 @@ describe('FactoryCard.vue', () => {
       },
     })
 
-    expect(wrapper.text()).toContain('0.1/sec')
+    expect(wrapper.get('[data-testid="factory-production"]').text()).toContain('0.1/sec')
   })
 
   it('shows current cost', () => {

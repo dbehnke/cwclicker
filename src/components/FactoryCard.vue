@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { useGameStore } from '../stores/game'
 import { UPGRADES } from '../constants/upgrades'
 import { formatNumber, formatRate } from '../utils/format'
+import IconRenderer from './IconRenderer.vue'
 
 /**
  * Props for the FactoryCard component.
@@ -11,6 +12,10 @@ const props = defineProps({
   factory: {
     type: Object,
     required: true,
+  },
+  isMystery: {
+    type: Boolean,
+    default: false,
   },
 })
 
@@ -143,52 +148,66 @@ const handleBuy = () => {
 
 <template>
   <div
-    class="rounded border-2 border-terminal-green bg-terminal-bg p-4"
+    class="group relative flex flex-col items-center overflow-hidden rounded border-2 border-terminal-green bg-terminal-bg p-4 transition-all hover:shadow-[0_0_15px_rgba(34,197,94,0.3)]"
+    :class="{ 'opacity-50 grayscale': isMystery }"
     data-testid="factory-card-root"
   >
-    <!-- Factory header with icon -->
-    <div class="mb-3 flex items-start justify-between gap-3">
-      <div class="min-w-0">
-        <div class="flex flex-wrap items-center gap-2">
-          <span class="text-xl">{{ factory.icon }}</span>
-          <span
-            v-if="ownedCount > 0"
-            class="rounded-full border border-terminal-amber/50 px-2 py-0.5 text-xs font-semibold text-terminal-amber"
-          >
-            Owned {{ ownedCount }}
-          </span>
-        </div>
-        <h3 class="mt-1 text-xl font-bold text-terminal-green">{{ displayName }}</h3>
-      </div>
-      <span class="text-sm text-terminal-amber">[Tier {{ factory.tier }}]</span>
+    <!-- Tier Label (Top Right) -->
+    <span class="absolute right-2 top-2 text-[10px] uppercase tracking-wider text-terminal-amber/60">
+      Tier {{ factory.tier }}
+    </span>
+
+    <!-- Large Centered Icon -->
+    <div class="mb-4 mt-2 flex h-24 w-24 items-center justify-center">
+      <IconRenderer
+        :icon="factory.icon"
+        type="factory"
+        fallback="Radio"
+        size="80"
+        class="transition-transform group-hover:scale-110"
+      />
     </div>
 
-    <p class="text-sm text-gray-400 mb-3">{{ displayDescription }}</p>
+    <!-- Factory Info -->
+    <div class="mb-4 flex flex-col items-center text-center">
+      <h3 class="text-lg font-bold text-terminal-green">{{ displayName }}</h3>
+      <div v-if="ownedCount > 0" class="mt-1 text-xs font-semibold text-terminal-amber">
+        Owned {{ ownedCount }}
+      </div>
+    </div>
 
-    <!-- Production info -->
-    <div class="mb-4 space-y-1" data-testid="factory-production">
-      <div class="text-terminal-amber font-semibold">{{ formatRate(actualOutput) }}/sec</div>
-      <div class="text-sm text-gray-500">
+    <!-- Production Overlay (Desktop Hover) -->
+    <div
+      class="pointer-events-none absolute inset-x-0 top-0 flex flex-col items-center justify-center bg-terminal-bg/90 p-4 text-center opacity-0 transition-opacity duration-300 lg:group-hover:opacity-100"
+      data-testid="factory-production"
+    >
+      <p class="mb-2 text-xs leading-tight text-gray-400">{{ displayDescription }}</p>
+      <div class="font-bold text-terminal-amber">{{ formatRate(actualOutput) }}/sec</div>
+      <div v-if="ownedCount > 0" class="text-[10px] text-gray-500">
         ({{ formatRate(effectivePerFactoryRate) }}/sec × {{ ownedCount }})
       </div>
-      <div
-        v-if="upgradeProgressText"
-        class="text-xs text-terminal-amber"
-        data-testid="factory-upgrade-progress"
-      >
+      <div v-if="upgradeProgressText" class="mt-2 text-[10px] text-terminal-amber">
         {{ upgradeProgressText }}
       </div>
     </div>
 
-    <div class="mb-4 flex items-center justify-between gap-3" data-testid="factory-action-row">
-      <span class="text-terminal-green">{{ formatNumber(currentCost) }}</span>
+    <!-- Spacer to push action row to bottom -->
+    <div class="flex-grow"></div>
+
+    <!-- Action Row (Bottom) -->
+    <div
+      class="mt-auto flex w-full flex-col items-center gap-2 pt-4 border-t border-terminal-green/20"
+      data-testid="factory-action-row"
+    >
+      <span class="text-sm font-bold text-terminal-green">{{ formatNumber(currentCost) }}</span>
       <button
         @click="handleBuy"
-        :disabled="!canBuy"
-        class="rounded px-4 py-1 font-bold transition-colors touch-manipulation"
+        :disabled="!canBuy || isMystery"
+        class="w-full rounded px-4 py-2 text-sm font-bold transition-all touch-manipulation"
         :class="{
-          'bg-terminal-green text-terminal-bg hover:brightness-110 active:brightness-95': canBuy,
-          'bg-gray-700 text-gray-400 opacity-50 cursor-not-allowed': !canBuy,
+          'bg-terminal-green text-terminal-bg hover:brightness-110 active:scale-95':
+            canBuy && !isMystery,
+          'bg-gray-700 text-gray-400 opacity-50 cursor-not-allowed': !canBuy || isMystery,
         }"
       >
         Buy

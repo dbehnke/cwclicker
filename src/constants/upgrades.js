@@ -36,7 +36,6 @@ export const LICENSE_COSTS = {
  * @param {number} factoryBaseCost - Factory base cost
  * @param {string[]} upgradeNames - Array of upgrade names
  * @param {string[]} upgradeDescriptions - Array of upgrade descriptions
- * @param {string} [icon='⚡'] - Icon emoji for the upgrade
  * @returns {Upgrade[]} Array of upgrades
  */
 function generateUpgrades(
@@ -44,8 +43,7 @@ function generateUpgrades(
   _factoryName,
   factoryBaseCost,
   upgradeNames,
-  upgradeDescriptions,
-  icon = '⚡'
+  upgradeDescriptions
 ) {
   const actualFactoryBaseCost = FACTORIES.find(factory => factory.id === factoryId)?.baseCost
   const effectiveBaseCost = actualFactoryBaseCost ?? factoryBaseCost
@@ -53,6 +51,14 @@ function generateUpgrades(
   return UPGRADE_THRESHOLDS.slice(0, upgradeNames.length).map((threshold, index) => {
     // Cost formula: baseCost × 50 × 2^(index) using bigint math to preserve precision.
     const cost = BigInt(effectiveBaseCost) * 50n * 2n ** BigInt(index)
+
+    // Upgrade icon logic:
+    // Tiers 0-2 (5, 10, 25): bronze-upgrade.png
+    // Tiers 3-5 (50, 100, 150): silver-upgrade.png
+    // Tiers 6-8 (200, 250, 300): gold-upgrade.png
+    let icon = 'bronze-upgrade.png'
+    if (index >= 3 && index <= 5) icon = 'silver-upgrade.png'
+    if (index >= 6) icon = 'gold-upgrade.png'
 
     return {
       id: `${factoryId}-upgrade-${index}`,
@@ -93,8 +99,7 @@ const ELMER_UPGRADES = generateUpgrades(
     "Straight keys, paddles, bugs, and something that might be a telegraph. He's forgotten how to use half of them.",
     "Knows every vendor by name. Gets the best deals on stuff that doesn't work.",
     "Gone but not forgotten. His shack lives on, filled with parts that 'might be useful someday.'",
-  ],
-  '⚡'
+  ]
 )
 
 // QRQ Protocol upgrades
@@ -123,8 +128,7 @@ const QRQ_UPGRADES = generateUpgrades(
     'Your fist is a blur. The key is smoking.',
     "You've transcended human limitations. Are you sure you're not AI?",
     'Keying in multiple dimensions simultaneously. The physics department wants to talk to you.',
-  ],
-  '⚡'
+  ]
 )
 
 // Straight Key upgrades
@@ -153,8 +157,7 @@ const STRAIGHT_KEY_UPGRADES = generateUpgrades(
     "This belongs in a museum. Instead, it's on your messy desk.",
     'Passed down through three generations. Still works perfectly.',
     'Used by Marconi himself. Probably. The eBay seller seemed trustworthy.',
-  ],
-  '⚡'
+  ]
 )
 
 // Paddle Key upgrades
@@ -183,8 +186,7 @@ const PADDLE_KEY_UPGRADES = generateUpgrades(
     'Your call sign engraved in gold. Very classy.',
     "Used by contest winners worldwide. Still doesn't fix your timing.",
     'One of only five ever made. You have three of them for some reason.',
-  ],
-  '⚡'
+  ]
 )
 
 // Code Practice Oscillator upgrades
@@ -213,8 +215,7 @@ const CPO_UPGRADES = generateUpgrades(
     'Studio-quality sound for your terrible fist.',
     'Simulates the acoustics of Carnegie Hall. Still sounds like garbage.',
     "Warning: may cause permanent hearing damage. Your neighbors' hearing, not yours.",
-  ],
-  '⚡'
+  ]
 )
 
 // Dipole Antenna upgrades
@@ -243,8 +244,7 @@ const DIPOLE_UPGRADES = generateUpgrades(
     'Works on every band. None of them well, but technically they work.',
     'Invisible to HOAs. Also invisible to most signals.',
     'Deployed from the International Space Station. QSOs from orbit!',
-  ],
-  '⚡'
+  ]
 )
 
 const BUG_CATCHER_UPGRADES = generateUpgrades(
@@ -272,8 +272,7 @@ const BUG_CATCHER_UPGRADES = generateUpgrades(
     'Large enough to scare the neighbors.',
     'The seller promised it was only lightly cursed.',
     'Five watts of pure folklore.',
-  ],
-  '⚡'
+  ]
 )
 
 const VERTICAL_ANTENNA_UPGRADES = generateUpgrades(
@@ -301,8 +300,7 @@ const VERTICAL_ANTENNA_UPGRADES = generateUpgrades(
     'Looks invisible from the driveway. Probably.',
     'A vertical so fancy it demands a chairmanship.',
     'Pointed at the sky and still somehow embarrassing.',
-  ],
-  '⚡'
+  ]
 )
 
 const LINEAR_AMPLIFIER_UPGRADES = generateUpgrades(
@@ -330,8 +328,7 @@ const LINEAR_AMPLIFIER_UPGRADES = generateUpgrades(
     'More power than common sense requires.',
     'The breaker box has filed a complaint.',
     'Backup smoke for when the main smoke runs out.',
-  ],
-  '⚡'
+  ]
 )
 
 const BEAM_ANTENNA_UPGRADES = generateUpgrades(
@@ -359,8 +356,7 @@ const BEAM_ANTENNA_UPGRADES = generateUpgrades(
     'Turns the whole mess instead of just the antenna.',
     'You only answer the farthest stations now.',
     'All gain, no humility.',
-  ],
-  '⚡'
+  ]
 )
 
 const RAGCHEW_NET_UPGRADES = generateUpgrades(
@@ -388,8 +384,7 @@ const RAGCHEW_NET_UPGRADES = generateUpgrades(
     'Keeps the pileup of stories vaguely organized.',
     'One more anecdote before we clear up.',
     'The net ends exactly where it began.',
-  ],
-  '⚡'
+  ]
 )
 
 const TOWER_INSTALLATION_UPGRADES = generateUpgrades(
@@ -417,8 +412,7 @@ const TOWER_INSTALLATION_UPGRADES = generateUpgrades(
     'More sections, more excuses to climb.',
     'For after the antenna goes through the shingles.',
     'The view is great. The fear is better.',
-  ],
-  '⚡'
+  ]
 )
 
 const CONTEST_STATION_UPGRADES = generateUpgrades(
@@ -446,8 +440,7 @@ const CONTEST_STATION_UPGRADES = generateUpgrades(
     'For the points you will still miss.',
     'Liquid operating budget, highly volatile.',
     'The medals are imaginary; the stress is not.',
-  ],
-  '⚡'
+  ]
 )
 
 const PAPER_LOGBOOK_UPGRADES = generateUpgrades(
@@ -475,8 +468,7 @@ const PAPER_LOGBOOK_UPGRADES = generateUpgrades(
     'Double-checks every QSO and your life choices.',
     'Preserved for the next owner to decipher.',
     'More copies, same illegible notes.',
-  ],
-  '⚡'
+  ]
 )
 
 const DX_CLUSTER_UPGRADES = generateUpgrades(
@@ -504,8 +496,7 @@ const DX_CLUSTER_UPGRADES = generateUpgrades(
     'Because one cluster server was never enough.',
     'When you need to spot yourself for applause.',
     'The bands are dead, but the page keeps loading.',
-  ],
-  '⚡'
+  ]
 )
 
 const HAMFEST_UPGRADES = generateUpgrades(
@@ -533,8 +524,7 @@ const HAMFEST_UPGRADES = generateUpgrades(
     'Everything is dusty, overpriced, and irresistible.',
     'It only squeals a little when you turn it.',
     'A required symptom of every successful hamfest.',
-  ],
-  '⚡'
+  ]
 )
 
 const QSL_CARD_PRINTER_UPGRADES = generateUpgrades(
@@ -562,8 +552,7 @@ const QSL_CARD_PRINTER_UPGRADES = generateUpgrades(
     'Big enough to hold every contact from last year.',
     'Still faster than the bureau, in your dreams.',
     'You almost believe the return cards are coming.',
-  ],
-  '⚡'
+  ]
 )
 
 const REMOTE_STATION_UPGRADES = generateUpgrades(
@@ -591,8 +580,7 @@ const REMOTE_STATION_UPGRADES = generateUpgrades(
     'Keeps the station awake while you are not.',
     'Measures delay in units of regret.',
     'Paradise, if paradise had a fiber line.',
-  ],
-  '⚡'
+  ]
 )
 
 const FT8_BOT_UPGRADES = generateUpgrades(
@@ -620,8 +608,7 @@ const FT8_BOT_UPGRADES = generateUpgrades(
     'Hits the rare ones with machine precision.',
     'Just one bot, but with very strong opinions.',
     'At this point, you are mostly a power supply.',
-  ],
-  '⚡'
+  ]
 )
 
 const DIGITAL_INTERFACE_UPGRADES = generateUpgrades(
@@ -649,8 +636,7 @@ const DIGITAL_INTERFACE_UPGRADES = generateUpgrades(
     'For when a real serial port feels too human.',
     'Higher numbers, same terrible audio.',
     'If you have to ask which menu, you are already lost.',
-  ],
-  '⚡'
+  ]
 )
 
 const CLUSTER_SPOTTING_NETWORK_UPGRADES = generateUpgrades(
@@ -678,8 +664,7 @@ const CLUSTER_SPOTTING_NETWORK_UPGRADES = generateUpgrades(
     'Copies the noise so you can share it faster.',
     'Warns you when the same spot appears everywhere.',
     'The browser now qualifies as part of the station.',
-  ],
-  '⚡'
+  ]
 )
 
 const EME_MOONBOUNCE_UPGRADES = generateUpgrades(
@@ -707,8 +692,7 @@ const EME_MOONBOUNCE_UPGRADES = generateUpgrades(
     'Swaps polarization and adds unnecessary drama.',
     'Every watt comes with a monthly apology.',
     'Your signal comes back with lunar attitude.',
-  ],
-  '⚡'
+  ]
 )
 
 const LUNAR_REPEATER_UPGRADES = generateUpgrades(
@@ -736,8 +720,7 @@ const LUNAR_REPEATER_UPGRADES = generateUpgrades(
     'Shiny enough for the whole solar system.',
     'Repeats everything, eventually.',
     'Needed for the 14-month round trip.',
-  ],
-  '⚡'
+  ]
 )
 
 const SATELLITE_CONSTELLATION_UPGRADES = generateUpgrades(
@@ -765,8 +748,7 @@ const SATELLITE_CONSTELLATION_UPGRADES = generateUpgrades(
     'Essential paperwork for orbital optimism.',
     'More satellites, more overlapping excuses.',
     'Weightless pride, heavy invoices.',
-  ],
-  '⚡'
+  ]
 )
 
 const IONOSPHERIC_MODIFICATION_UPGRADES = generateUpgrades(
@@ -794,8 +776,7 @@ const IONOSPHERIC_MODIFICATION_UPGRADES = generateUpgrades(
     'The atmosphere asked for IDs, somehow.',
     'Discounted chaos from the Sun.',
     'Close enough to science for ham radio.',
-  ],
-  '⚡'
+  ]
 )
 
 const TIME_TRAVEL_DX_UPGRADES = generateUpgrades(
@@ -823,8 +804,7 @@ const TIME_TRAVEL_DX_UPGRADES = generateUpgrades(
     'Protects the timeline from your operating style.',
     'Vintage call signs with future discipline.',
     'You already know you will lose it.',
-  ],
-  '⚡'
+  ]
 )
 
 const ALTERNATE_DIMENSION_DXCC_UPGRADES = generateUpgrades(
@@ -852,8 +832,7 @@ const ALTERNATE_DIMENSION_DXCC_UPGRADES = generateUpgrades(
     'Spotted by hams you have never met and never will.',
     'Asks whether any of this is really real.',
     'Finally, a trophy large enough for every universe.',
-  ],
-  '⚡'
+  ]
 )
 
 // Combine all upgrades

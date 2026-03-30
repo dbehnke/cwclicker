@@ -1,5 +1,6 @@
 <script setup>
 import { onMounted, ref } from 'vue'
+import IconRenderer from '../IconRenderer.vue'
 
 const props = defineProps({
   upgrade: {
@@ -54,7 +55,10 @@ function handleBuy() {
     <div class="flex items-start justify-between gap-4">
       <div>
         <p class="text-xs uppercase tracking-wide text-terminal-amber">Upgrade Details</p>
-        <h3 class="mt-1 text-lg font-bold text-terminal-green">{{ upgrade.icon }} {{ upgrade.name }}</h3>
+        <h3 class="mt-1 flex items-center text-lg font-bold text-terminal-green">
+          <IconRenderer :icon="upgrade.icon" type="upgrade" class="mr-2 h-6 w-6" />
+          {{ upgrade.name }}
+        </h3>
       </div>
       <button
         type="button"

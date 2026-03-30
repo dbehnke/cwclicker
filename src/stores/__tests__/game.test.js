@@ -230,7 +230,10 @@ describe('Game Store', () => {
 
     expect(store.getLotteryMultiplier('elmer')).toBe(EXPECTED_STORM_MULTIPLIER)
     expect(store.lotteryState.solarStormEndTime).toBe(now.getTime() + EXPECTED_STORM_DURATION_MS)
+  })
 
-    vi.useRealTimers()
+  it('has the correct GAME_VERSION', () => {
+    const store = useGameStore()
+    expect(store.gameVersion).toBe('1.4.0')
   })
 })

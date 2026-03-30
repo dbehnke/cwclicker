@@ -19,7 +19,7 @@ const TIER_1_FACTORIES = [
   {
     id: 'elmer',
     name: 'Elmer',
-    icon: '👨‍🏫',
+    icon: 'elmer.png',
     baseCost: 15,
     qsosPerSecond: 0.1,
     tier: 1,
@@ -28,7 +28,7 @@ const TIER_1_FACTORIES = [
   {
     id: 'qrq-protocol',
     name: 'QRQ Protocol',
-    icon: '⏱️',
+    icon: 'qrq-protocol.png',
     baseCost: 25,
     qsosPerSecond: 0.1,
     tier: 1,
@@ -37,7 +37,7 @@ const TIER_1_FACTORIES = [
   {
     id: 'straight-key',
     name: 'Straight Key',
-    icon: '🔑',
+    icon: 'straight-key.png',
     baseCost: 75,
     qsosPerSecond: 0.3,
     tier: 1,
@@ -53,7 +53,7 @@ const TIER_2_FACTORIES = [
   {
     id: 'paddle-key',
     name: 'Paddle Key',
-    icon: '🎮',
+    icon: 'paddle-key.png',
     baseCost: 1000,
     qsosPerSecond: 1.0,
     tier: 2,
@@ -62,7 +62,7 @@ const TIER_2_FACTORIES = [
   {
     id: 'code-practice-oscillator',
     name: 'Code Practice Oscillator',
-    icon: '📻',
+    icon: 'code-practice-oscillator.png',
     baseCost: 2000,
     qsosPerSecond: 2.0,
     tier: 2,
@@ -71,7 +71,7 @@ const TIER_2_FACTORIES = [
   {
     id: 'dipole-antenna',
     name: 'Dipole Antenna',
-    icon: '🔽',
+    icon: 'dipole-antenna.png',
     baseCost: 4000,
     qsosPerSecond: 4.0,
     tier: 2,
@@ -87,7 +87,7 @@ const TIER_3_FACTORIES = [
   {
     id: 'bug-catcher',
     name: 'Bug Catcher',
-    icon: '🪲',
+    icon: 'bug-catcher.png',
     baseCost: 7000,
     qsosPerSecond: 6.0,
     tier: 3,
@@ -97,7 +97,7 @@ const TIER_3_FACTORIES = [
   {
     id: 'vertical-antenna',
     name: 'Vertical Antenna',
-    icon: '📍',
+    icon: 'vertical-antenna.png',
     baseCost: 10000,
     qsosPerSecond: 8.0,
     tier: 3,
@@ -106,7 +106,7 @@ const TIER_3_FACTORIES = [
   {
     id: 'linear-amplifier',
     name: 'Linear Amplifier',
-    icon: '🔊',
+    icon: 'linear-amplifier.png',
     baseCost: 20000,
     qsosPerSecond: 15.0,
     tier: 3,
@@ -122,7 +122,7 @@ const TIER_4_FACTORIES = [
   {
     id: 'beam-antenna',
     name: 'Beam Antenna',
-    icon: '📡',
+    icon: 'beam-antenna.png',
     baseCost: 75000,
     qsosPerSecond: 30.0,
     tier: 4,
@@ -132,7 +132,7 @@ const TIER_4_FACTORIES = [
   {
     id: 'ragchew-net',
     name: 'Ragchew Net',
-    icon: '💬',
+    icon: 'ragchew-net.png',
     baseCost: 100000,
     qsosPerSecond: 45.0,
     tier: 4,
@@ -142,7 +142,7 @@ const TIER_4_FACTORIES = [
   {
     id: 'tower-installation',
     name: 'Tower Installation',
-    icon: '🗼',
+    icon: 'tower-installation.png',
     baseCost: 150000,
     qsosPerSecond: 60.0,
     tier: 4,
@@ -159,7 +159,7 @@ const TIER_5_FACTORIES = [
   {
     id: 'contest-station',
     name: 'Contest Station',
-    icon: '🏆',
+    icon: 'contest-station.png',
     baseCost: 400000,
     qsosPerSecond: 120.0,
     tier: 5,
@@ -169,7 +169,7 @@ const TIER_5_FACTORIES = [
   {
     id: 'paper-logbook',
     name: 'Paper Logbook',
-    icon: '📓',
+    icon: 'paper-logbook.png',
     baseCost: 700000,
     qsosPerSecond: 180.0,
     tier: 5,
@@ -179,7 +179,7 @@ const TIER_5_FACTORIES = [
   {
     id: 'dx-cluster',
     name: 'DX Cluster',
-    icon: '🌍',
+    icon: 'dx-cluster.png',
     baseCost: 1000000,
     qsosPerSecond: 250.0,
     tier: 5,
@@ -195,7 +195,7 @@ const TIER_6_FACTORIES = [
   {
     id: 'hamfest',
     name: 'Hamfest',
-    icon: '🎪',
+    icon: 'hamfest.png',
     baseCost: 3000000,
     qsosPerSecond: 500.0,
     tier: 6,
@@ -205,7 +205,7 @@ const TIER_6_FACTORIES = [
   {
     id: 'qsl-card-printer',
     name: 'QSL Card Printer',
-    icon: '🖨️',
+    icon: 'qsl-card-printer.png',
     baseCost: 6000000,
     qsosPerSecond: 1000.0,
     tier: 6,
@@ -215,7 +215,7 @@ const TIER_6_FACTORIES = [
   {
     id: 'remote-station',
     name: 'Remote Station',
-    icon: '🏝️',
+    icon: 'remote-station.png',
     baseCost: 15000000,
     qsosPerSecond: 2500.0,
     tier: 6,
@@ -232,7 +232,7 @@ const TIER_7_FACTORIES = [
   {
     id: 'ft8-bot',
     name: 'FT8 Bot',
-    icon: '🤖',
+    icon: 'ft8-bot.png',
     baseCost: 40000000,
     qsosPerSecond: 5000.0,
     tier: 7,
@@ -242,7 +242,7 @@ const TIER_7_FACTORIES = [
   {
     id: 'digital-interface',
     name: 'Digital Interface',
-    icon: '💻',
+    icon: 'digital-interface.png',
     baseCost: 60000000,
     qsosPerSecond: 7500.0,
     tier: 7,
@@ -252,7 +252,7 @@ const TIER_7_FACTORIES = [
   {
     id: 'cluster-spotting-network',
     name: 'Cluster Spotting Network',
-    icon: '🌐',
+    icon: 'cluster-spotting-network.png',
     baseCost: 80000000,
     qsosPerSecond: 10000.0,
     tier: 7,
@@ -269,7 +269,7 @@ const TIER_8_FACTORIES = [
   {
     id: 'eme-moonbounce',
     name: 'EME Moonbounce',
-    icon: '🌙',
+    icon: 'eme-moonbounce.png',
     baseCost: 200000000,
     qsosPerSecond: 25000.0,
     tier: 8,
@@ -279,7 +279,7 @@ const TIER_8_FACTORIES = [
   {
     id: 'lunar-repeater',
     name: 'Lunar Repeater',
-    icon: '🌍',
+    icon: 'lunar-repeater.png',
     baseCost: 300000000,
     qsosPerSecond: 37500.0,
     tier: 8,
@@ -289,7 +289,7 @@ const TIER_8_FACTORIES = [
   {
     id: 'satellite-constellation',
     name: 'Satellite Constellation',
-    icon: '🛰️',
+    icon: 'satellite-constellation.png',
     baseCost: 400000000,
     qsosPerSecond: 50000.0,
     tier: 8,
@@ -305,7 +305,7 @@ const TIER_9_FACTORIES = [
   {
     id: 'ionospheric-modification',
     name: 'Ionospheric Modification',
-    icon: '⚡',
+    icon: 'ionospheric-modification.png',
     baseCost: 1000000000,
     qsosPerSecond: 100000.0,
     tier: 9,
@@ -314,7 +314,7 @@ const TIER_9_FACTORIES = [
   {
     id: 'time-travel-dx',
     name: 'Time Travel DX',
-    icon: '⏳',
+    icon: 'time-travel-dx.png',
     baseCost: 2500000000,
     qsosPerSecond: 250000.0,
     tier: 9,
@@ -324,7 +324,7 @@ const TIER_9_FACTORIES = [
   {
     id: 'alternate-dimension-dxcc',
     name: 'Alternate Dimension DXCC',
-    icon: '🔮',
+    icon: 'alternate-dimension-dxcc.png',
     baseCost: 5000000000,
     qsosPerSecond: 500000.0,
     tier: 9,

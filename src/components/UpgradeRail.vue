@@ -4,6 +4,7 @@ import { useGameStore } from '../stores/game'
 import { buildUpgradeRailModel } from '../stores/upgradeRailModel'
 import { formatNumber } from '../utils/format'
 import UpgradeRailDetailsSheet from './upgrade-rail/UpgradeRailDetailsSheet.vue'
+import IconRenderer from './IconRenderer.vue'
 
 const props = defineProps({
   upgrades: {
@@ -227,7 +228,7 @@ function handleBuyFromDetails() {
           @click="openDetails(upgrade.id, $event)"
           :ref="element => registerTileRef(upgrade.id, element)"
         >
-          <span>{{ upgrade.icon }}</span>
+          <IconRenderer :icon="upgrade.icon" type="upgrade" fallback="Zap" size="24" />
           <span
             class="pointer-events-none absolute left-1/2 top-full z-20 mt-2 hidden w-56 -translate-x-1/2 rounded border border-terminal-green/60 bg-terminal-bg/95 p-2 text-left text-xs text-gray-200 shadow-lg group-hover:block"
             :data-testid="`upgrade-tooltip-${upgrade.id}`"
@@ -264,31 +265,41 @@ function handleBuyFromDetails() {
         :key="group.id"
         :data-testid="`upgrade-rail-${group.id}-group`"
       >
-        <h4 class="text-sm font-semibold text-terminal-amber" data-testid="upgrade-rail-group-title">
+        <h4
+          class="text-sm font-semibold text-terminal-amber"
+          data-testid="upgrade-rail-group-title"
+        >
           {{ group.label }}
         </h4>
         <div class="mt-1 flex flex-wrap gap-2" :data-testid="`upgrade-rail-${group.id}-items`">
           <button
             v-for="upgrade in group.items"
-             :key="upgrade.id"
-             type="button"
-             class="rounded border border-gray-600 px-2 py-1 text-sm text-terminal-green"
-             :data-upgrade-id="upgrade.id"
-             :aria-label="getUpgradeTileAriaLabel(upgrade)"
-             @click="openDetails(upgrade.id, $event)"
-             :ref="element => registerTileRef(upgrade.id, element)"
-           >
-            {{ upgrade.icon }} {{ upgrade.name }}
+            :key="upgrade.id"
+            type="button"
+            class="rounded border border-gray-600 px-2 py-1 text-sm text-terminal-green"
+            :data-upgrade-id="upgrade.id"
+            :aria-label="getUpgradeTileAriaLabel(upgrade)"
+            @click="openDetails(upgrade.id, $event)"
+            :ref="element => registerTileRef(upgrade.id, element)"
+          >
+            <IconRenderer
+              :icon="upgrade.icon"
+              type="upgrade"
+              fallback="Zap"
+              size="18"
+              className="inline-block mr-1"
+            />
+            {{ upgrade.name }}
           </button>
         </div>
       </section>
 
-      <section
-        v-if="model.lockedByThreshold.length > 0"
-        data-testid="upgrade-rail-locked-group"
-      >
+      <section v-if="model.lockedByThreshold.length > 0" data-testid="upgrade-rail-locked-group">
         <div class="flex items-center justify-between gap-3">
-          <h4 class="text-sm font-semibold text-terminal-amber" data-testid="upgrade-rail-group-title">
+          <h4
+            class="text-sm font-semibold text-terminal-amber"
+            data-testid="upgrade-rail-group-title"
+          >
             Locked by Factory Count
           </h4>
           <button
@@ -311,15 +322,22 @@ function handleBuyFromDetails() {
         >
           <button
             v-for="upgrade in model.lockedByThreshold"
-             :key="upgrade.id"
-             type="button"
-             class="rounded border border-gray-700 px-2 py-1 text-sm text-gray-300"
-             :data-upgrade-id="upgrade.id"
-             :aria-label="getUpgradeTileAriaLabel(upgrade)"
-             @click="openDetails(upgrade.id, $event)"
-             :ref="element => registerTileRef(upgrade.id, element)"
-           >
-            {{ upgrade.icon }} {{ upgrade.name }}
+            :key="upgrade.id"
+            type="button"
+            class="rounded border border-gray-700 px-2 py-1 text-sm text-gray-300"
+            :data-upgrade-id="upgrade.id"
+            :aria-label="getUpgradeTileAriaLabel(upgrade)"
+            @click="openDetails(upgrade.id, $event)"
+            :ref="element => registerTileRef(upgrade.id, element)"
+          >
+            <IconRenderer
+              :icon="upgrade.icon"
+              type="upgrade"
+              fallback="Zap"
+              size="18"
+              className="inline-block mr-1"
+            />
+            {{ upgrade.name }}
           </button>
         </div>
       </section>
