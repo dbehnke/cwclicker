@@ -30,12 +30,14 @@ def remove_background(input_path, output_path):
 
 
 def main():
+    # Phase 2: Core Factories
     prompts = {
-        "../../src/assets/icons/upgrades/bronze-upgrade.png": "A bronze gear or cog. Perfect 2D pixel art style, retro 16-bit video game inventory icon, flat vibrant colors, clear dark outlines, on solid black background.",
-        "../../src/assets/icons/upgrades/silver-upgrade.png": "A silver gear or cog. Perfect 2D pixel art style, retro 16-bit video game inventory icon, flat vibrant colors, clear dark outlines, on solid black background.",
-        "../../src/assets/icons/upgrades/gold-upgrade.png": "A shiny gold gear or cog. Perfect 2D pixel art style, retro 16-bit video game inventory icon, flat vibrant colors, clear dark outlines, on solid black background.",
-        "../../src/assets/icons/misc/dx-bonus.png": "A glowing treasure chest radiating magical energy. Perfect 2D pixel art style, retro 16-bit video game inventory icon, flat vibrant colors, clear dark outlines, on solid black background.",
-        "../../src/assets/icons/misc/solar-storm.png": "A fierce solar flare or sun erupting with fire. Perfect 2D pixel art style, retro 16-bit video game inventory icon, flat vibrant colors, clear dark outlines, on solid black background.",
+        "../../src/assets/icons/factories/straight-key.png": "A classic morse code straight key made of brass and wood. Perfect 2D pixel art style, retro 16-bit video game inventory icon, flat vibrant colors, clear dark outlines, on solid black background.",
+        "../../src/assets/icons/factories/paddle-key.png": "A modern iambic paddle morse code key with chrome levers. Perfect 2D pixel art style, retro 16-bit video game inventory icon, flat vibrant colors, clear dark outlines, on solid black background.",
+        "../../src/assets/icons/factories/dipole-antenna.png": "A horizontal dipole antenna wire strung between two insulators. Perfect 2D pixel art style, retro 16-bit video game inventory icon, flat vibrant colors, clear dark outlines, on solid black background.",
+        "../../src/assets/icons/factories/vertical-antenna.png": "A tall aluminum vertical radio antenna mast. Perfect 2D pixel art style, retro 16-bit video game inventory icon, flat vibrant colors, clear dark outlines, on solid black background.",
+        "../../src/assets/icons/factories/beam-antenna.png": "A multi-element Yagi beam radio antenna on a short tower. Perfect 2D pixel art style, retro 16-bit video game inventory icon, flat vibrant colors, clear dark outlines, on solid black background.",
+        "../../src/assets/icons/factories/elmer.png": "A friendly older man wearing headphones and a radio vest, representing a mentor. Perfect 2D pixel art style, retro 16-bit video game inventory icon, flat vibrant colors, clear dark outlines, on solid black background.",
     }
 
     os.makedirs("temp", exist_ok=True)
