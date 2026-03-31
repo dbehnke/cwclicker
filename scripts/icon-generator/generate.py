@@ -1,4 +1,5 @@
 import os
+import shutil
 import subprocess
 from PIL import Image
 
@@ -6,9 +7,11 @@ from PIL import Image
 def generate_image(prompt, output_filename, steps=4):
     print(f"Generating image for prompt: '{prompt}'")
     # Using mflux-generate (FLUX.1-schnell model)
-    mflux_path = (
-        "/Users/dbehnke/openclaw-workspace/image-generation/.venv/bin/mflux-generate"
-    )
+    mflux_path = os.getenv("MFLUX_GENERATE_PATH") or shutil.which("mflux-generate")
+    if not mflux_path:
+        raise RuntimeError(
+            "Could not find mflux-generate. Set MFLUX_GENERATE_PATH or install it in PATH."
+        )
     cmd = [
         mflux_path,
         "--model",

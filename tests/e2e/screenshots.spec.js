@@ -17,7 +17,7 @@ test.describe('Signal Grid UI Screenshots', () => {
       store.totalQsosEarned = 1_000_000n
       store.licenseLevel = 3
       store.factoryCounts = {
-        ...(store.factoryCounts || {}),
+        ...store.factoryCounts,
         elmer: 1,
       }
 

@@ -114,6 +114,7 @@ export const useGameStore = defineStore('game', () => {
   const licenseLevel = ref(1)
   const factoryCounts = ref({})
   const factoryProductionTotals = ref({})
+  const factoryProductionRemainders = ref({})
   const fractionalQSOs = ref(0) // Accumulate fractional QSOs between frames
   const revealedFactoryIds = ref(new Set())
   const tapPrestigeAccumulator = ref(0n) // Accumulates tap prestige bonus in percentage units (scale of 100; 1 = 1%)
@@ -353,6 +354,7 @@ export const useGameStore = defineStore('game', () => {
     }
 
     const nextTotals = { ...factoryProductionTotals.value }
+    const nextRemainders = { ...factoryProductionRemainders.value }
 
     for (const [factoryId, count] of Object.entries(factoryCounts.value)) {
       if (!count || count <= 0) {
@@ -375,18 +377,30 @@ export const useGameStore = defineStore('game', () => {
         lotteryMultiplier *
         deltaTimeSeconds
 
+      const currentRemainder = nextRemainders[factoryId] || 0
+      const producedWithRemainder = producedThisTick + currentRemainder
+
       const safeProduced =
-        Number.isFinite(producedThisTick) && producedThisTick > 0 ? producedThisTick : 0
+        Number.isFinite(producedWithRemainder) && producedWithRemainder > 0
+          ? producedWithRemainder
+          : 0
       if (safeProduced <= 0) {
+        nextRemainders[factoryId] = 0
         continue
       }
 
       const currentTotal = nextTotals[factoryId] || 0n
-      const increment = BigInt(Math.floor(safeProduced))
-      nextTotals[factoryId] = currentTotal + increment
+      const wholeProduced = Math.floor(safeProduced)
+      nextRemainders[factoryId] = safeProduced - wholeProduced
+
+      if (wholeProduced > 0) {
+        const increment = BigInt(wholeProduced)
+        nextTotals[factoryId] = currentTotal + increment
+      }
     }
 
     factoryProductionTotals.value = nextTotals
+    factoryProductionRemainders.value = nextRemainders
   }
 
   /**
@@ -540,6 +554,7 @@ export const useGameStore = defineStore('game', () => {
     qsosThisRun.value = 0n
     factoryCounts.value = {}
     factoryProductionTotals.value = {}
+    factoryProductionRemainders.value = {}
     revealedFactoryIds.value = new Set()
     fractionalQSOs.value = 0
     tapPrestigeAccumulator.value = 0n
@@ -585,6 +600,7 @@ export const useGameStore = defineStore('game', () => {
     licenseLevel.value = 1
     factoryCounts.value = {}
     factoryProductionTotals.value = {}
+    factoryProductionRemainders.value = {}
     fractionalQSOs.value = 0
     revealedFactoryIds.value = new Set()
     tapPrestigeAccumulator.value = 0n
@@ -883,6 +899,7 @@ export const useGameStore = defineStore('game', () => {
             total.toString(),
           ])
         ),
+        factoryProductionRemainders: factoryProductionRemainders.value,
         revealedFactoryIds: Array.from(revealedFactoryIds.value),
         fractionalQSOs: fractionalQSOs.value,
         tapPrestigeAccumulator: tapPrestigeAccumulator.value.toString(),
@@ -958,11 +975,16 @@ export const useGameStore = defineStore('game', () => {
         licenseLevel.value = state.licenseLevel || 1
         factoryCounts.value = state.factoryCounts || {}
         const loadedProductionTotals = {}
+        const loadedProductionRemainders = {}
         for (const factory of FACTORIES) {
           const rawTotal = state.factoryProductionTotals?.[factory.id] ?? '0'
+          const rawRemainder = Number(state.factoryProductionRemainders?.[factory.id] ?? 0)
           loadedProductionTotals[factory.id] = parseNonNegativeBigInt(rawTotal)
+          loadedProductionRemainders[factory.id] =
+            Number.isFinite(rawRemainder) && rawRemainder >= 0 ? rawRemainder : 0
         }
         factoryProductionTotals.value = loadedProductionTotals
+        factoryProductionRemainders.value = loadedProductionRemainders
         revealedFactoryIds.value = new Set(state.revealedFactoryIds || [])
         fractionalQSOs.value = state.fractionalQSOs || 0
         tapPrestigeAccumulator.value = parseNonNegativeBigInt(state.tapPrestigeAccumulator)
@@ -1426,6 +1448,7 @@ export const useGameStore = defineStore('game', () => {
     licenseLevel,
     factoryCounts,
     factoryProductionTotals,
+    factoryProductionRemainders,
     revealedFactoryIds,
     fractionalQSOs,
     tapPrestigeAccumulator,

@@ -100,11 +100,24 @@ describe('Game Store', () => {
 
     store.incrementFactoryProductionTotals(1)
 
-    expect(store.factoryProductionTotals.elmer).toBe(0n)
+    expect(store.factoryProductionTotals.elmer ?? 0n).toBe(0n)
 
     store.incrementFactoryProductionTotals(5)
 
     expect(store.factoryProductionTotals.elmer).toBe(1n)
+  })
+
+  it('accumulates per-factory production totals across sub-1 ticks', () => {
+    const store = useGameStore()
+    store.factoryCounts = { elmer: 1 }
+
+    for (let i = 0; i < 11; i++) {
+      store.incrementFactoryProductionTotals(1)
+    }
+
+    expect(store.factoryProductionTotals.elmer).toBe(1n)
+    expect(store.factoryProductionRemainders.elmer).toBeGreaterThan(0)
+    expect(store.factoryProductionRemainders.elmer).toBeLessThan(1)
   })
 
   it('accumulates tap prestige bonus across repeated small taps', () => {
