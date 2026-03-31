@@ -59,7 +59,7 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     globals: true,
-    exclude: [...configDefaults.exclude, '.worktrees/**'],
+    exclude: [...configDefaults.exclude, '.worktrees/**', 'tests/e2e/**'],
   },
   define: {
     __APP_VERSION__: JSON.stringify(getFullVersion()),

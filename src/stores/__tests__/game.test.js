@@ -94,6 +94,32 @@ describe('Game Store', () => {
     expect(store.totalQsosEarned).toBe(2n)
   })
 
+  it('tracks per-factory production totals from passive ticks', () => {
+    const store = useGameStore()
+    store.factoryCounts = { elmer: 2 }
+
+    store.incrementFactoryProductionTotals(1)
+
+    expect(store.factoryProductionTotals.elmer ?? 0n).toBe(0n)
+
+    store.incrementFactoryProductionTotals(5)
+
+    expect(store.factoryProductionTotals.elmer).toBe(1n)
+  })
+
+  it('accumulates per-factory production totals across sub-1 ticks', () => {
+    const store = useGameStore()
+    store.factoryCounts = { elmer: 1 }
+
+    for (let i = 0; i < 11; i++) {
+      store.incrementFactoryProductionTotals(1)
+    }
+
+    expect(store.factoryProductionTotals.elmer).toBe(1n)
+    expect(store.factoryProductionRemainders.elmer).toBeGreaterThan(0)
+    expect(store.factoryProductionRemainders.elmer).toBeLessThan(1)
+  })
+
   it('accumulates tap prestige bonus across repeated small taps', () => {
     const store = useGameStore()
 
@@ -230,7 +256,10 @@ describe('Game Store', () => {
 
     expect(store.getLotteryMultiplier('elmer')).toBe(EXPECTED_STORM_MULTIPLIER)
     expect(store.lotteryState.solarStormEndTime).toBe(now.getTime() + EXPECTED_STORM_DURATION_MS)
+  })
 
-    vi.useRealTimers()
+  it('has the correct GAME_VERSION', () => {
+    const store = useGameStore()
+    expect(store.gameVersion).toBe('1.4.0')
   })
 })

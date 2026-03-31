@@ -58,7 +58,7 @@ describe('FactoryCard.vue', () => {
   })
 
   it('shows QSOs per second', () => {
-    mockStore()
+    mockStore({ factoryCounts: { elmer: 1 } })
 
     const wrapper = mount(FactoryCard, {
       props: {
@@ -66,7 +66,7 @@ describe('FactoryCard.vue', () => {
       },
     })
 
-    expect(wrapper.text()).toContain('0.1/sec')
+    expect(wrapper.get('[data-testid="factory-production"]').text()).toContain('0.1/sec')
   })
 
   it('shows current cost', () => {
@@ -94,6 +94,20 @@ describe('FactoryCard.vue', () => {
     expect(actionRow.exists()).toBe(true)
     expect(actionRow.text()).toContain('15')
     expect(actionRow.text()).toContain('Buy')
+  })
+
+  it('hides action row in readOnly mode', () => {
+    mockStore({ getFactoryCost: () => 15n })
+
+    const wrapper = mount(FactoryCard, {
+      props: {
+        factory: elmerFactory,
+        readOnly: true,
+      },
+    })
+
+    expect(wrapper.find('[data-testid="factory-action-row"]').exists()).toBe(false)
+    expect(wrapper.find('button').exists()).toBe(false)
   })
 
   it('shows final rate above the breakdown line', () => {

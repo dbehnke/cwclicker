@@ -53,6 +53,7 @@ describe('GameLoop.vue', () => {
       qsos: 0n,
       getTotalQSOsPerSecond: vi.fn().mockReturnValue(0),
       addPassiveQSOs: vi.fn(),
+      incrementFactoryProductionTotals: vi.fn(),
       save: vi.fn(),
     }
     useGameStore.mockReturnValue(mockStore)
@@ -167,5 +168,15 @@ describe('GameLoop.vue', () => {
     expect(mockStore.addPassiveQSOs).toHaveBeenLastCalledWith(expect.closeTo(1.667, 1))
 
     expect(mockStore.addPassiveQSOs).toHaveBeenCalledTimes(2)
+  })
+
+  it('tracks per-factory production totals each frame', () => {
+    mockStore.getTotalQSOsPerSecond.mockReturnValue(10)
+
+    mount(GameLoop)
+
+    window.__triggerRAF(100)
+
+    expect(mockStore.incrementFactoryProductionTotals).toHaveBeenCalledWith(0.1)
   })
 })

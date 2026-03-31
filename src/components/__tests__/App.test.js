@@ -31,157 +31,124 @@ describe('App.vue responsive shell', () => {
     setActivePinia(createPinia())
   })
 
-  it('renders responsive shell classes on the outer layout', () => {
+  it('renders mobile tabs with keyer/grid/store ids only', () => {
     const wrapper = shallowMount(App, {
       global: {
         stubs: {
           ClickIndicator: true,
           ErrorBoundary: { template: '<div><slot /></div>' },
-          KeepAlive: { template: '<slot />' },
-          FactoryCard: true,
+          FactoryList: true,
           GameLoop: true,
           KeyerArea: true,
           LicensePanel: true,
           MigrationNotification: true,
-          MultiBuyPanel: true,
-          OfflineProgressNotification: true,
-          RareDxBonus: true,
-          SettingsPanel: true,
-          StatHeader: true,
-          UpgradeRail: true,
-        },
-      },
-    })
-
-    expect(wrapper.get('.min-h-screen').classes()).toContain('px-4')
-    expect(wrapper.get('.min-h-screen').classes()).toContain('max-w-4xl')
-    expect(wrapper.get('main').classes()).toContain('space-y-6')
-    expect(wrapper.get('main + footer').exists()).toBe(true)
-  })
-
-  it('shows exactly one mystery card in Store and not in Bulk Buy', async () => {
-    useGameStore.mockReturnValue({
-      audioSettings: { volume: 0.5, frequency: 600, isMuted: false },
-      buyFactory: vi.fn(),
-      factoryCounts: {},
-      getFactoryCost: factoryId => {
-        const costs = {
-          elmer: 15n,
-          'qrq-protocol': 25n,
-          'straight-key': 75n,
-          'paddle-key': 1000n,
-        }
-        return costs[factoryId] || 999999n
-      },
-      getTotalQSOsPerSecond: () => 0,
-      getBulkCost: () => 0n,
-      getUpgradeMultiplier: () => 1,
-      getLotteryMultiplier: () => 1,
-      getAvailableUpgrades: () => [],
-      isFactoryUnlocked: id => ['elmer', 'qrq-protocol', 'straight-key'].includes(id),
-      licenseLevel: 3,
-      load: vi.fn(),
-      prestigeMultiplier: 1,
-      purchasedUpgrades: new Set(),
-      qsos: 500n,
-      save: vi.fn(),
-      totalQsosEarned: 0n,
-    })
-
-    const wrapper = shallowMount(App, {
-      global: {
-        stubs: {
-          ClickIndicator: true,
-          ErrorBoundary: { template: '<div><slot /></div>' },
-          FactoryCard: {
-            props: ['factory'],
-            template: '<div class="factory-card-stub">{{ factory.name }}</div>',
-          },
-          GameLoop: true,
-          KeyerArea: true,
-          LicensePanel: true,
-          MigrationNotification: true,
-          MultiBuyPanel: true,
           MorseChallenge: true,
           OfflineProgressNotification: true,
           RareDxBonus: true,
           SettingsPanel: true,
+          StoreLane: true,
           StatHeader: true,
-          UpgradeRail: true,
         },
       },
     })
 
-    expect(wrapper.text()).toContain('Elmer')
-    expect(wrapper.text()).toContain('QRQ Protocol')
-    expect(wrapper.text()).toContain('Straight Key')
-    expect(wrapper.text()).toContain('???')
-    expect(wrapper.text()).not.toContain('Paddle Key')
+    const tabButtons = wrapper.findAll('[role="tab"]')
+    const tabIds = tabButtons.map(tab => tab.attributes('id'))
 
-    await wrapper.get('#tab-bulk').trigger('click')
-    expect(wrapper.text()).not.toContain('???')
+    expect(tabIds).toEqual(['tab-keyer', 'tab-grid', 'tab-store'])
+    expect(wrapper.find('#tab-bulk').exists()).toBe(false)
+    expect(wrapper.find('#tab-settings').exists()).toBe(false)
   })
 
-  it('renders store header, upgrade rail, and factory cards in order with totals visible', () => {
-    useGameStore.mockReturnValue({
-      audioSettings: { volume: 0.5, frequency: 600, isMuted: false },
-      buyFactory: vi.fn(),
-      factoryCounts: { elmer: 1 },
-      getFactoryCost: () => 10n,
-      getTotalQSOsPerSecond: () => 12.5,
-      getBulkCost: () => 0n,
-      getUpgradeMultiplier: () => 1,
-      getLotteryMultiplier: () => 1,
-      getAvailableUpgrades: () => [],
-      isFactoryUnlocked: id => id === 'elmer',
-      licenseLevel: 1,
-      load: vi.fn(),
-      prestigeMultiplier: 1,
-      purchasedUpgrades: new Set(),
-      qsos: 345n,
-      save: vi.fn(),
-      totalQsosEarned: 0n,
-    })
-
+  it('renders desktop shell with three lane wrappers', () => {
     const wrapper = shallowMount(App, {
       global: {
         stubs: {
           ClickIndicator: true,
           ErrorBoundary: { template: '<div><slot /></div>' },
-          FactoryCard: {
-            props: ['factory'],
-            template: '<div data-testid="factory-card-root">{{ factory.name }}</div>',
-          },
+          FactoryList: true,
           GameLoop: true,
           KeyerArea: true,
           LicensePanel: true,
           MigrationNotification: true,
-          MultiBuyPanel: true,
           MorseChallenge: true,
           OfflineProgressNotification: true,
           RareDxBonus: true,
           SettingsPanel: true,
+          StoreLane: true,
           StatHeader: true,
-          UpgradeRail: {
-            template: '<div data-testid="upgrade-rail-root">Upgrade Rail</div>',
-          },
         },
       },
     })
 
-    const html = wrapper.html()
-    const storeHeaderPos = html.indexOf('data-testid="store-header"')
-    const upgradeRailPos = html.indexOf('data-testid="upgrade-rail-root"')
-    const firstFactoryCardPos = html.indexOf('data-testid="factory-card-root"')
+    expect(wrapper.find('[data-testid="desktop-lane-keyer"]').exists()).toBe(true)
+    expect(wrapper.find('[data-testid="desktop-lane-grid"]').exists()).toBe(true)
+    expect(wrapper.find('[data-testid="desktop-lane-store"]').exists()).toBe(true)
+    expect(wrapper.find('[data-testid="keyer-lane-header"]').classes()).toContain('sticky')
+  })
 
-    expect(storeHeaderPos).toBeGreaterThan(-1)
-    expect(upgradeRailPos).toBeGreaterThan(storeHeaderPos)
-    expect(firstFactoryCardPos).toBeGreaterThan(upgradeRailPos)
+  it('keeps settings collapsed by default and expands on toggle', async () => {
+    const wrapper = shallowMount(App, {
+      global: {
+        stubs: {
+          ClickIndicator: true,
+          ErrorBoundary: { template: '<div><slot /></div>' },
+          FactoryList: true,
+          GameLoop: true,
+          KeyerArea: true,
+          LicensePanel: true,
+          MigrationNotification: true,
+          MorseChallenge: true,
+          OfflineProgressNotification: true,
+          RareDxBonus: true,
+          SettingsPanel: { template: '<div data-testid="settings-panel-stub" />' },
+          StoreLane: true,
+          StatHeader: true,
+        },
+      },
+    })
 
-    const header = wrapper.get('[data-testid="store-header"]')
-    expect(header.text()).toContain('Producing:')
-    expect(header.text()).toContain('QSOs/sec')
-    expect(header.text()).toContain('QSOs')
+    expect(wrapper.find('[data-testid="settings-panel-stub"]').exists()).toBe(false)
+
+    await wrapper.get('[data-testid="settings-toggle"]').trigger('click')
+
+    expect(wrapper.find('[data-testid="settings-panel-stub"]').exists()).toBe(true)
+  })
+
+  it('shows only the active mobile tab panel', async () => {
+    const wrapper = shallowMount(App, {
+      global: {
+        stubs: {
+          ClickIndicator: { template: '<div data-testid="click-indicator-stub" />' },
+          ErrorBoundary: { template: '<div><slot /></div>' },
+          FactoryList: { template: '<div data-testid="factory-list-stub" />' },
+          GameLoop: true,
+          KeyerArea: { template: '<div data-testid="keyer-area-stub" />' },
+          LicensePanel: true,
+          MigrationNotification: true,
+          MorseChallenge: { template: '<div data-testid="morse-challenge-stub" />' },
+          OfflineProgressNotification: true,
+          RareDxBonus: { template: '<div data-testid="rare-dx-stub" />' },
+          SettingsPanel: true,
+          StoreLane: { template: '<div data-testid="store-lane-stub" />' },
+          StatHeader: true,
+        },
+      },
+    })
+
+    expect(wrapper.find('#panel-keyer').exists()).toBe(true)
+    expect(wrapper.find('#panel-grid').exists()).toBe(false)
+    expect(wrapper.find('#panel-store').exists()).toBe(false)
+
+    await wrapper.get('#tab-grid').trigger('click')
+    expect(wrapper.find('#panel-keyer').exists()).toBe(false)
+    expect(wrapper.find('#panel-grid').exists()).toBe(true)
+    expect(wrapper.find('#panel-store').exists()).toBe(false)
+
+    await wrapper.get('#tab-store').trigger('click')
+    expect(wrapper.find('#panel-keyer').exists()).toBe(false)
+    expect(wrapper.find('#panel-grid').exists()).toBe(false)
+    expect(wrapper.find('#panel-store').exists()).toBe(true)
   })
 
   it('triggers reveal progression after upgrading to General', async () => {
@@ -214,7 +181,7 @@ describe('App.vue responsive shell', () => {
         stubs: {
           ClickIndicator: true,
           ErrorBoundary: { template: '<div><slot /></div>' },
-          FactoryCard: true,
+          FactoryList: true,
           GameLoop: true,
           KeyerArea: true,
           LicensePanel: {
@@ -222,13 +189,12 @@ describe('App.vue responsive shell', () => {
               '<button data-testid="license-upgrade" @click="$emit(\'upgrade\')">Upgrade</button>',
           },
           MigrationNotification: true,
-          MultiBuyPanel: true,
           MorseChallenge: true,
           OfflineProgressNotification: true,
           RareDxBonus: true,
           SettingsPanel: true,
           StatHeader: true,
-          UpgradeRail: true,
+          StoreLane: true,
         },
       },
     })
@@ -269,7 +235,7 @@ describe('App.vue responsive shell', () => {
         stubs: {
           ClickIndicator: true,
           ErrorBoundary: { template: '<div><slot /></div>' },
-          FactoryCard: true,
+          FactoryList: true,
           GameLoop: true,
           KeyerArea: true,
           LicensePanel: {
@@ -277,13 +243,12 @@ describe('App.vue responsive shell', () => {
               '<button data-testid="license-upgrade" @click="$emit(\'upgrade\')">Upgrade</button>',
           },
           MigrationNotification: true,
-          MultiBuyPanel: true,
           MorseChallenge: true,
           OfflineProgressNotification: true,
           RareDxBonus: true,
           SettingsPanel: true,
           StatHeader: true,
-          UpgradeRail: true,
+          StoreLane: true,
         },
       },
     })
@@ -292,5 +257,43 @@ describe('App.vue responsive shell', () => {
 
     expect(revealAffordableFactories).toHaveBeenCalledTimes(1)
     expect(save).toHaveBeenCalledTimes(1)
+  })
+
+  it('updates document title with current QSO total', () => {
+    useGameStore.mockReturnValue({
+      audioSettings: { volume: 0.5, frequency: 600, isMuted: false },
+      factoryCounts: {},
+      getTotalQSOsPerSecond: () => 0,
+      licenseLevel: 1,
+      load: vi.fn(),
+      qsos: 12345n,
+      revealAffordableFactories: vi.fn(),
+      save: vi.fn(),
+      totalQsosEarned: 0n,
+    })
+
+    const wrapper = shallowMount(App, {
+      global: {
+        stubs: {
+          ClickIndicator: true,
+          ErrorBoundary: { template: '<div><slot /></div>' },
+          FactoryList: true,
+          GameLoop: true,
+          KeyerArea: true,
+          LicensePanel: true,
+          MigrationNotification: true,
+          MorseChallenge: true,
+          OfflineProgressNotification: true,
+          RareDxBonus: true,
+          SettingsPanel: true,
+          StatHeader: true,
+          StoreLane: true,
+        },
+      },
+    })
+
+    expect(document.title).toContain('12.3K QSOs - CW Clicker')
+
+    wrapper.unmount()
   })
 })

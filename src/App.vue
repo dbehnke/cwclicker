@@ -1,36 +1,35 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, onUnmounted, watchEffect } from 'vue'
 import { useGameStore } from './stores/game'
-import { formatNumber, formatRate } from './utils/format'
 import { audioService } from './services/audio'
+import { formatNumber } from './utils/format'
 import StatHeader from './components/StatHeader.vue'
 import LicensePanel from './components/LicensePanel.vue'
 import KeyerArea from './components/KeyerArea.vue'
 import ClickIndicator from './components/ClickIndicator.vue'
 import RareDxBonus from './components/RareDxBonus.vue'
 import MorseChallenge from './components/MorseChallenge.vue'
-import FactoryCard from './components/FactoryCard.vue'
-import UpgradeRail from './components/UpgradeRail.vue'
-import MultiBuyPanel from './components/MultiBuyPanel.vue'
+import FactoryList from './components/FactoryList.vue'
+import StoreLane from './components/StoreLane.vue'
 import SettingsPanel from './components/SettingsPanel.vue'
 import ErrorBoundary from './components/ErrorBoundary.vue'
 import OfflineProgressNotification from './components/OfflineProgressNotification.vue'
 import MigrationNotification from './components/MigrationNotification.vue'
-import { FACTORIES } from './constants/factories'
-import { UPGRADES } from './constants/upgrades'
 import GameLoop from './components/GameLoop.vue'
 
 const store = useGameStore()
 const clickIndicatorRef = ref(null)
-const activeTab = ref('store')
+const activeTab = ref('keyer')
+const isSettingsExpanded = ref(false)
+const originalDocumentTitle = typeof document !== 'undefined' ? document.title : ''
 
 // App version from build-time injection (format: vX.Y.Z-N-SHA)
 const appVersion = __APP_VERSION__ || 'v0.0.0-0-unknown'
 
 const tabs = [
+  { id: 'keyer', label: 'Keyer' },
+  { id: 'grid', label: 'Grid' },
   { id: 'store', label: 'Store' },
-  { id: 'bulk', label: 'Bulk Buy' },
-  { id: 'settings', label: 'Settings' },
 ]
 
 onMounted(() => {
@@ -45,6 +44,22 @@ onMounted(() => {
       audioService.toggleMute(true)
     }
   }
+})
+
+watchEffect(() => {
+  if (typeof document === 'undefined') {
+    return
+  }
+
+  document.title = `${formatNumber(store.qsos)} QSOs - CW Clicker`
+})
+
+onUnmounted(() => {
+  if (typeof document === 'undefined') {
+    return
+  }
+
+  document.title = originalDocumentTitle
 })
 
 const handleLicenseUpgrade = () => {
@@ -70,13 +85,6 @@ const handleLicenseUpgrade = () => {
   }
 }
 
-const handleFactoryBuy = ({ factory, count }) => {
-  const success = store.buyFactory(factory.id, count)
-  if (success) {
-    store.save()
-  }
-}
-
 const handleKeyerTap = value => {
   if (clickIndicatorRef.value) {
     clickIndicatorRef.value.addIndicator(value)
@@ -91,28 +99,6 @@ const handleLotteryActivated = factory => {
 const handleSolarStormStarted = () => {
   // Solar storm is already activated in the store
 }
-
-const availableFactories = computed(() => {
-  if (typeof store.isFactoryUnlocked !== 'function') {
-    return []
-  }
-
-  return FACTORIES.filter(factory => store.isFactoryUnlocked(factory.id))
-})
-
-const nextMysteryFactory = computed(() => {
-  if (typeof store.isFactoryUnlocked !== 'function') {
-    return null
-  }
-
-  return FACTORIES.find(factory => !store.isFactoryUnlocked(factory.id)) || null
-})
-
-const totalFactoryCount = computed(() => {
-  return Object.values(store.factoryCounts).reduce((sum, count) => sum + count, 0)
-})
-
-const multiBuyAvailable = computed(() => totalFactoryCount.value >= 10)
 
 /**
  * Handle keyboard navigation for tabs
@@ -155,30 +141,9 @@ function handleTabKeydown(event, tabId) {
     <!-- Migration Notification Modal -->
     <MigrationNotification />
 
-    <div class="min-h-screen px-4 sm:px-8 py-8 max-w-4xl mx-auto">
-      <StatHeader />
-      <LicensePanel @upgrade="handleLicenseUpgrade" />
+    <div class="min-h-screen px-4 py-8 sm:px-8 max-w-7xl mx-auto">
       <main class="space-y-6">
-        <div class="relative flex flex-col md:flex-row gap-2 md:gap-4">
-          <div class="flex-1">
-            <KeyerArea @tap="handleKeyerTap" />
-          </div>
-          <div
-            class="absolute right-0 top-0 bottom-0 pointer-events-none md:static md:pointer-events-auto"
-          >
-            <ClickIndicator ref="clickIndicatorRef" />
-          </div>
-        </div>
-
-        <RareDxBonus
-          @lottery-activated="handleLotteryActivated"
-          @solar-storm-started="handleSolarStormStarted"
-        />
-
-        <MorseChallenge />
-
-        <!-- Tab Navigation -->
-        <div class="border-b border-terminal-green">
+        <div class="border-b border-terminal-green lg:hidden">
           <nav class="flex space-x-1" role="tablist" aria-label="Game sections">
             <button
               v-for="tab in tabs"
@@ -202,122 +167,114 @@ function handleTabKeydown(event, tabId) {
           </nav>
         </div>
 
-        <!-- Tab Content -->
-        <div class="space-y-4">
-          <!-- Store Tab -->
-          <div
+        <div class="lg:grid lg:grid-cols-12 lg:gap-4 lg:h-[calc(100vh-14rem)]">
+          <section
+            data-testid="desktop-lane-keyer"
+            class="hidden space-y-4 lg:col-span-4 lg:flex lg:flex-col lg:min-h-0 lg:overflow-y-auto"
+          >
+            <div
+              data-testid="keyer-lane-header"
+              class="sticky top-0 z-30 bg-terminal-bg/95 backdrop-blur-sm pb-2"
+            >
+              <StatHeader />
+            </div>
+            <LicensePanel @upgrade="handleLicenseUpgrade" />
+            <div class="relative flex flex-col gap-2 md:gap-4">
+              <div class="flex-1">
+                <KeyerArea @tap="handleKeyerTap" />
+              </div>
+              <div
+                class="absolute right-0 top-0 bottom-0 pointer-events-none md:static md:pointer-events-auto"
+              >
+                <ClickIndicator ref="clickIndicatorRef" />
+              </div>
+            </div>
+
+            <RareDxBonus
+              @lottery-activated="handleLotteryActivated"
+              @solar-storm-started="handleSolarStormStarted"
+            />
+
+            <MorseChallenge />
+          </section>
+
+          <section
+            data-testid="desktop-lane-grid"
+            class="lg:col-span-4 lg:min-h-0 lg:overflow-y-auto hidden lg:block"
+          >
+            <FactoryList />
+          </section>
+
+          <section
+            data-testid="desktop-lane-store"
+            class="lg:col-span-4 lg:min-h-0 lg:overflow-y-auto hidden lg:block"
+          >
+            <StoreLane />
+          </section>
+
+          <section
+            v-if="activeTab === 'keyer'"
+            id="panel-keyer"
+            role="tabpanel"
+            aria-labelledby="tab-keyer"
+            class="space-y-4 lg:hidden"
+          >
+            <div class="sticky top-0 z-30 bg-terminal-bg/95 backdrop-blur-sm pb-2">
+              <StatHeader />
+            </div>
+            <LicensePanel @upgrade="handleLicenseUpgrade" />
+            <div class="relative flex flex-col gap-2 md:gap-4">
+              <div class="flex-1">
+                <KeyerArea @tap="handleKeyerTap" />
+              </div>
+              <div
+                class="absolute right-0 top-0 bottom-0 pointer-events-none md:static md:pointer-events-auto"
+              >
+                <ClickIndicator ref="clickIndicatorRef" />
+              </div>
+            </div>
+
+            <RareDxBonus
+              @lottery-activated="handleLotteryActivated"
+              @solar-storm-started="handleSolarStormStarted"
+            />
+
+            <MorseChallenge />
+          </section>
+
+          <section
+            v-if="activeTab === 'grid'"
+            id="panel-grid"
+            role="tabpanel"
+            aria-labelledby="tab-grid"
+            class="lg:hidden"
+          >
+            <FactoryList />
+          </section>
+
+          <section
             v-if="activeTab === 'store'"
             id="panel-store"
             role="tabpanel"
             aria-labelledby="tab-store"
-            class="space-y-4"
+            class="lg:hidden"
           >
-            <div class="flex justify-between items-center px-2" data-testid="store-header">
-              <div>
-                <h2 class="text-xl font-bold text-terminal-green">Factory Store</h2>
-                <p class="text-sm text-terminal-amber mt-1">
-                  Producing: {{ formatRate(store.getTotalQSOsPerSecond()) }} QSOs/sec
-                </p>
-              </div>
-              <span class="text-terminal-green text-lg">{{ formatNumber(store.qsos) }} QSOs</span>
-            </div>
-
-            <UpgradeRail :upgrades="UPGRADES" :factories="FACTORIES" />
-
-            <div class="space-y-4">
-              <FactoryCard
-                v-for="factory in availableFactories"
-                :key="factory.id"
-                :factory="factory"
-                @buy="handleFactoryBuy"
-              />
-
-              <div
-                v-if="nextMysteryFactory"
-                class="rounded border-2 border-terminal-green/60 bg-terminal-bg p-4 opacity-90"
-                data-testid="mystery-factory-card"
-              >
-                <div class="mb-3 flex items-start justify-between gap-3">
-                  <div class="min-w-0">
-                    <div class="flex flex-wrap items-center gap-2">
-                      <span class="text-xl">❓</span>
-                    </div>
-                    <h3 class="mt-1 text-xl font-bold text-terminal-green">???</h3>
-                  </div>
-                  <span class="text-sm text-terminal-amber">[Tier ?]</span>
-                </div>
-
-                <p class="text-sm text-gray-400 mb-3">
-                  A new signal source is nearby. Build your station to reveal it.
-                </p>
-
-                <div class="mb-4 space-y-1" data-testid="mystery-production">
-                  <div class="text-terminal-amber font-semibold">???/sec</div>
-                  <div class="text-sm text-gray-500">(??? × ?)</div>
-                </div>
-
-                <div
-                  class="mb-4 flex items-center justify-between gap-3"
-                  data-testid="mystery-action-row"
-                >
-                  <span class="text-terminal-green">???</span>
-                  <button
-                    disabled
-                    class="rounded px-4 py-1 font-bold transition-colors touch-manipulation bg-gray-700 text-gray-400 opacity-50 cursor-not-allowed"
-                  >
-                    Buy
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Bulk Buy Tab -->
-          <div
-            v-if="activeTab === 'bulk'"
-            id="panel-bulk"
-            role="tabpanel"
-            aria-labelledby="tab-bulk"
-            class="space-y-4"
-          >
-            <div class="flex justify-between items-center px-2">
-              <h2 class="text-xl font-bold text-terminal-green">Bulk Purchase</h2>
-              <span class="text-terminal-green">Unlocks at 10 total factories</span>
-            </div>
-
-            <div v-if="multiBuyAvailable" class="space-y-4">
-              <MultiBuyPanel
-                v-for="factory in availableFactories"
-                :key="factory.id"
-                :factory="factory"
-                :multi-buy-available="multiBuyAvailable"
-                @buy="handleFactoryBuy"
-              />
-            </div>
-            <div
-              v-else
-              class="border-2 border-terminal-green bg-terminal-bg p-4 rounded text-center"
-            >
-              <p class="text-gray-400">Bulk purchasing locked</p>
-              <p class="text-sm text-gray-500 mt-2">
-                Own {{ 10 - totalFactoryCount }} more factories to unlock bulk buying
-              </p>
-              <p class="text-xs text-terminal-amber mt-1">
-                Current: {{ totalFactoryCount }}/10 factories
-              </p>
-            </div>
-          </div>
-
-          <!-- Settings Tab -->
-          <div
-            v-if="activeTab === 'settings'"
-            id="panel-settings"
-            role="tabpanel"
-            aria-labelledby="tab-settings"
-          >
-            <SettingsPanel />
-          </div>
+            <StoreLane />
+          </section>
         </div>
+
+        <section class="space-y-2">
+          <button
+            data-testid="settings-toggle"
+            class="w-full flex items-center justify-between text-left text-lg font-bold text-terminal-green border border-terminal-green/50 rounded px-3 py-2 hover:bg-terminal-green/10 transition-colors"
+            :aria-expanded="isSettingsExpanded"
+            @click="isSettingsExpanded = !isSettingsExpanded"
+          >
+            <span>Settings</span>
+            <span>{{ isSettingsExpanded ? '▲' : '▼' }}</span>
+          </button>
+          <SettingsPanel v-if="isSettingsExpanded" />
+        </section>
       </main>
 
       <footer
