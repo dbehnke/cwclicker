@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD013 -->
+
 # Design Spec: Signal Grid UI (Factory Overhaul)
 
 **Date:** 2026-03-30

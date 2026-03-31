@@ -57,8 +57,12 @@ function generateUpgrades(
     // Tiers 3-5 (50, 100, 150): silver-upgrade.png
     // Tiers 6-8 (200, 250, 300): gold-upgrade.png
     let icon = 'bronze-upgrade.png'
-    if (index >= 3 && index <= 5) icon = 'silver-upgrade.png'
-    if (index >= 6) icon = 'gold-upgrade.png'
+    if (index >= 3 && index <= 5) {
+      icon = 'silver-upgrade.png'
+    }
+    if (index >= 6) {
+      icon = 'gold-upgrade.png'
+    }
 
     return {
       id: `${factoryId}-upgrade-${index}`,
