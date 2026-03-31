@@ -11,7 +11,7 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['buy', 'hover-start', 'hover-end'])
+const emit = defineEmits(['buy', 'hover-start', 'hover-end', 'toggle-details'])
 
 const store = useGameStore()
 
@@ -54,43 +54,61 @@ function handleMouseEnter() {
 function handleMouseLeave() {
   emit('hover-end')
 }
+
+function handleToggleDetails() {
+  emit('toggle-details', props.factory)
+}
 </script>
 
 <template>
-  <button
-    type="button"
-    class="flex w-full items-center gap-3 rounded border border-terminal-green/40 bg-terminal-bg px-3 py-2 text-left transition-all"
-    :class="{
-      'cursor-pointer hover:border-terminal-green hover:bg-terminal-green/10': canBuy,
-      'cursor-not-allowed opacity-50 grayscale': !canBuy,
-    }"
-    :disabled="!canBuy"
-    data-testid="compact-factory-item"
-    @click="handleClick"
+  <div
+    data-testid="compact-factory-row"
+    class="flex w-full items-center gap-2"
     @mouseenter="handleMouseEnter"
     @mouseleave="handleMouseLeave"
   >
-    <div class="flex h-12 w-12 shrink-0 items-center justify-center">
-      <IconRenderer :icon="factory.icon" type="factory" fallback="Radio" :size="40" />
-    </div>
-
-    <div class="min-w-0 flex-1">
-      <div
-        class="truncate text-base font-bold text-terminal-green"
-        data-testid="compact-factory-title"
-      >
-        {{ factory.name }}
-      </div>
-      <div class="text-sm text-terminal-amber" data-testid="compact-factory-cost">
-        {{ formatNumber(currentCost) }}
-      </div>
-    </div>
-
-    <div
-      class="text-right text-xl font-bold text-terminal-green"
-      data-testid="compact-factory-owned"
+    <button
+      type="button"
+      class="flex min-w-0 flex-1 items-center gap-3 rounded border border-terminal-green/40 bg-terminal-bg px-3 py-2 text-left transition-all"
+      :class="{
+        'cursor-pointer hover:border-terminal-green hover:bg-terminal-green/10': canBuy,
+        'cursor-not-allowed opacity-50 grayscale': !canBuy,
+      }"
+      :disabled="!canBuy"
+      data-testid="compact-factory-item"
+      @click="handleClick"
     >
-      {{ ownedCount }}
-    </div>
-  </button>
+      <div class="flex h-12 w-12 shrink-0 items-center justify-center">
+        <IconRenderer :icon="factory.icon" type="factory" fallback="Radio" :size="40" />
+      </div>
+
+      <div class="min-w-0 flex-1">
+        <div
+          class="truncate text-base font-bold text-terminal-green"
+          data-testid="compact-factory-title"
+        >
+          {{ factory.name }}
+        </div>
+        <div class="text-sm text-terminal-amber" data-testid="compact-factory-cost">
+          {{ formatNumber(currentCost) }}
+        </div>
+      </div>
+
+      <div
+        class="text-right text-xl font-bold text-terminal-green"
+        data-testid="compact-factory-owned"
+      >
+        {{ ownedCount }}
+      </div>
+    </button>
+
+    <button
+      type="button"
+      class="rounded border border-terminal-green/40 px-3 py-2 text-xs font-bold uppercase tracking-wide text-terminal-amber transition-all hover:border-terminal-green hover:bg-terminal-green/10"
+      data-testid="compact-factory-details-toggle"
+      @click="handleToggleDetails"
+    >
+      Details
+    </button>
+  </div>
 </template>

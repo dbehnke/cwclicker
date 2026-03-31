@@ -103,12 +103,25 @@ describe('CompactFactoryItem.vue', () => {
       props: { factory },
     })
 
-    const button = wrapper.get('[data-testid="compact-factory-item"]')
+    const container = wrapper.get('[data-testid="compact-factory-row"]')
 
-    await button.trigger('mouseenter')
-    await button.trigger('mouseleave')
+    await container.trigger('mouseenter')
+    await container.trigger('mouseleave')
 
     expect(wrapper.emitted('hover-start')).toEqual([[factory]])
     expect(wrapper.emitted('hover-end')).toEqual([[]])
+  })
+
+  it('emits toggle-details when details button is clicked', async () => {
+    mockStore({ qsos: 1000n, isFactoryUnlocked: () => true })
+
+    const wrapper = mount(CompactFactoryItem, {
+      props: { factory },
+    })
+
+    await wrapper.get('[data-testid="compact-factory-details-toggle"]').trigger('click')
+
+    expect(wrapper.emitted('toggle-details')).toEqual([[factory]])
+    expect(wrapper.emitted('buy')).toBeFalsy()
   })
 })

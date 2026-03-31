@@ -38,7 +38,7 @@ describe('StoreLane.vue', () => {
           CompactFactoryItem: {
             name: 'CompactFactoryItem',
             props: ['factory'],
-            emits: ['buy', 'hover-start', 'hover-end'],
+            emits: ['buy', 'hover-start', 'hover-end', 'toggle-details'],
             setup(_, { emit }) {
               const emitBuy = factory => {
                 if (!hasBuyPayload) {
@@ -51,11 +51,12 @@ describe('StoreLane.vue', () => {
 
               const emitHoverStart = factory => emit('hover-start', factory)
               const emitHoverEnd = () => emit('hover-end')
+              const emitToggleDetails = factory => emit('toggle-details', factory)
 
-              return { emitBuy, emitHoverStart, emitHoverEnd }
+              return { emitBuy, emitHoverStart, emitHoverEnd, emitToggleDetails }
             },
             template:
-              '<button data-testid="compact-factory-item-stub" :data-factory-id="factory.id" @click="emitBuy(factory)" @mouseenter="emitHoverStart(factory)" @mouseleave="emitHoverEnd()">{{ factory.name }}</button>',
+              '<div><button data-testid="compact-factory-item-stub" :data-factory-id="factory.id" @click="emitBuy(factory)" @mouseenter="emitHoverStart(factory)" @mouseleave="emitHoverEnd()">{{ factory.name }}</button><button data-testid="compact-factory-details-toggle-stub" :data-factory-id="factory.id" @click="emitToggleDetails(factory)">Details</button></div>',
           },
         },
       },
@@ -227,5 +228,22 @@ describe('StoreLane.vue', () => {
 
     await item.trigger('mouseleave')
     expect(wrapper.find('[data-testid="store-hover-details"]').exists()).toBe(false)
+  })
+
+  it('toggles inline details panel for selected factory', async () => {
+    useGameStore.mockReturnValue(
+      createStoreMock({
+        isFactoryUnlocked: id => id === 'elmer',
+      })
+    )
+
+    const wrapper = mountStoreLane()
+    const toggle = wrapper.get('[data-testid="compact-factory-details-toggle-stub"]')
+
+    await toggle.trigger('click')
+    expect(wrapper.find('[data-testid="store-inline-details"]').exists()).toBe(true)
+
+    await toggle.trigger('click')
+    expect(wrapper.find('[data-testid="store-inline-details"]').exists()).toBe(false)
   })
 })

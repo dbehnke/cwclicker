@@ -9,6 +9,7 @@ import CompactFactoryItem from './CompactFactoryItem.vue'
 
 const store = useGameStore()
 const hoveredFactory = ref(null)
+const expandedFactoryId = ref(null)
 
 const unlockedFactories = computed(() => {
   if (typeof store.isFactoryUnlocked === 'function') {
@@ -48,27 +49,45 @@ function handleHoverEnd() {
   hoveredFactory.value = null
 }
 
+function handleToggleDetails(factory) {
+  if (!factory || typeof factory.id !== 'string') {
+    return
+  }
+
+  expandedFactoryId.value = expandedFactoryId.value === factory.id ? null : factory.id
+}
+
+const selectedDetailsFactory = computed(() => {
+  if (!expandedFactoryId.value) {
+    return null
+  }
+
+  return FACTORIES.find(factory => factory.id === expandedFactoryId.value) || null
+})
+
+const detailsFactory = computed(() => selectedDetailsFactory.value || hoveredFactory.value)
+
 const hoveredOwned = computed(() => {
-  if (!hoveredFactory.value) {
+  if (!detailsFactory.value) {
     return 0
   }
-  return store.factoryCounts[hoveredFactory.value.id] || 0
+  return store.factoryCounts[detailsFactory.value.id] || 0
 })
 
 const hoveredPerFactoryRate = computed(() => {
-  if (!hoveredFactory.value) {
+  if (!detailsFactory.value) {
     return 0
   }
-  const upgradeMultiplier = store.getUpgradeMultiplier(hoveredFactory.value.id)
+  const upgradeMultiplier = store.getUpgradeMultiplier(detailsFactory.value.id)
   const prestigeMultiplier = store.prestigeMultiplier
-  const lotteryMultiplier = store.getLotteryMultiplier(hoveredFactory.value.id)
+  const lotteryMultiplier = store.getLotteryMultiplier(detailsFactory.value.id)
   return (
-    hoveredFactory.value.qsosPerSecond * upgradeMultiplier * prestigeMultiplier * lotteryMultiplier
+    detailsFactory.value.qsosPerSecond * upgradeMultiplier * prestigeMultiplier * lotteryMultiplier
   )
 })
 
 const hoveredTotalRate = computed(() => {
-  if (!hoveredFactory.value) {
+  if (!detailsFactory.value) {
     return 0
   }
   return hoveredPerFactoryRate.value * hoveredOwned.value
@@ -76,17 +95,17 @@ const hoveredTotalRate = computed(() => {
 
 const hoveredSharePercent = computed(() => {
   const total = store.getTotalQSOsPerSecond()
-  if (!hoveredFactory.value || total <= 0) {
+  if (!detailsFactory.value || total <= 0) {
     return 0
   }
   return (hoveredTotalRate.value / total) * 100
 })
 
 const hoveredProducedTotal = computed(() => {
-  if (!hoveredFactory.value || !store.factoryProductionTotals) {
+  if (!detailsFactory.value || !store.factoryProductionTotals) {
     return 0n
   }
-  return store.factoryProductionTotals[hoveredFactory.value.id] || 0n
+  return store.factoryProductionTotals[detailsFactory.value.id] || 0n
 })
 </script>
 
@@ -103,15 +122,34 @@ const hoveredProducedTotal = computed(() => {
     </div>
 
     <aside
-      v-if="hoveredFactory"
+      v-if="detailsFactory"
       data-testid="store-hover-details"
       class="pointer-events-none hidden lg:block rounded border border-terminal-green/70 bg-terminal-bg/95 p-3 text-sm"
     >
-      <h3 class="text-lg font-bold text-terminal-green">{{ hoveredFactory.name }}</h3>
+      <h3 class="text-lg font-bold text-terminal-green">{{ detailsFactory.name }}</h3>
       <p class="mt-1 text-xs text-terminal-amber">Owned: {{ hoveredOwned }}</p>
-      <p class="mt-2 text-gray-400 italic">"{{ hoveredFactory.description }}"</p>
+      <p class="mt-2 text-gray-400 italic">"{{ detailsFactory.description }}"</p>
 
       <ul class="mt-3 space-y-1 text-gray-300">
+        <li>• Each produces {{ formatRate(hoveredPerFactoryRate) }} QSOs/sec</li>
+        <li>
+          • {{ hoveredOwned }} producing {{ formatRate(hoveredTotalRate) }} QSOs/sec ({{
+            hoveredSharePercent.toFixed(1)
+          }}% of total)
+        </li>
+        <li>• {{ formatNumber(hoveredProducedTotal) }} QSOs produced so far</li>
+      </ul>
+    </aside>
+
+    <aside
+      v-if="selectedDetailsFactory"
+      data-testid="store-inline-details"
+      class="rounded border border-terminal-green/70 bg-terminal-bg/95 p-3 text-sm lg:hidden"
+    >
+      <h3 class="text-lg font-bold text-terminal-green">{{ selectedDetailsFactory.name }}</h3>
+      <p class="mt-1 text-xs text-terminal-amber">Owned: {{ hoveredOwned }}</p>
+      <p class="mt-2 text-gray-300 italic">"{{ selectedDetailsFactory.description }}"</p>
+      <ul class="mt-3 space-y-1 text-terminal-green/90">
         <li>• Each produces {{ formatRate(hoveredPerFactoryRate) }} QSOs/sec</li>
         <li>
           • {{ hoveredOwned }} producing {{ formatRate(hoveredTotalRate) }} QSOs/sec ({{
@@ -134,6 +172,7 @@ const hoveredProducedTotal = computed(() => {
         @buy="handleBuy"
         @hover-start="handleHoverStart"
         @hover-end="handleHoverEnd"
+        @toggle-details="handleToggleDetails"
       />
     </div>
   </section>
