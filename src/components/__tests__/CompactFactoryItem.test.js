@@ -96,22 +96,6 @@ describe('CompactFactoryItem.vue', () => {
     expect(store.getFactoryCost).toHaveBeenCalledWith(factory.id, 3)
   })
 
-  it('emits hover events on mouse enter/leave', async () => {
-    mockStore({ qsos: 1000n, isFactoryUnlocked: () => true })
-
-    const wrapper = mount(CompactFactoryItem, {
-      props: { factory },
-    })
-
-    const container = wrapper.get('[data-testid="compact-factory-row"]')
-
-    await container.trigger('mouseenter')
-    await container.trigger('mouseleave')
-
-    expect(wrapper.emitted('hover-start')).toEqual([[factory]])
-    expect(wrapper.emitted('hover-end')).toEqual([[]])
-  })
-
   it('emits toggle-details when details button is clicked', async () => {
     mockStore({ qsos: 1000n, isFactoryUnlocked: () => true })
 
@@ -123,5 +107,19 @@ describe('CompactFactoryItem.vue', () => {
 
     expect(wrapper.emitted('toggle-details')).toEqual([[factory]])
     expect(wrapper.emitted('buy')).toBeFalsy()
+  })
+
+  it('does not emit hover events anymore', async () => {
+    mockStore({ qsos: 1000n, isFactoryUnlocked: () => true })
+
+    const wrapper = mount(CompactFactoryItem, {
+      props: { factory },
+    })
+
+    await wrapper.get('[data-testid="compact-factory-item"]').trigger('mouseenter')
+    await wrapper.get('[data-testid="compact-factory-item"]').trigger('mouseleave')
+
+    expect(wrapper.emitted('hover-start')).toBeFalsy()
+    expect(wrapper.emitted('hover-end')).toBeFalsy()
   })
 })

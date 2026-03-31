@@ -38,7 +38,7 @@ describe('StoreLane.vue', () => {
           CompactFactoryItem: {
             name: 'CompactFactoryItem',
             props: ['factory'],
-            emits: ['buy', 'hover-start', 'hover-end', 'toggle-details'],
+            emits: ['buy', 'toggle-details'],
             setup(_, { emit }) {
               const emitBuy = factory => {
                 if (!hasBuyPayload) {
@@ -49,14 +49,12 @@ describe('StoreLane.vue', () => {
                 emit('buy', buyPayload)
               }
 
-              const emitHoverStart = factory => emit('hover-start', factory)
-              const emitHoverEnd = () => emit('hover-end')
               const emitToggleDetails = factory => emit('toggle-details', factory)
 
-              return { emitBuy, emitHoverStart, emitHoverEnd, emitToggleDetails }
+              return { emitBuy, emitToggleDetails }
             },
             template:
-              '<div><button data-testid="compact-factory-item-stub" :data-factory-id="factory.id" @click="emitBuy(factory)" @mouseenter="emitHoverStart(factory)" @mouseleave="emitHoverEnd()">{{ factory.name }}</button><button data-testid="compact-factory-details-toggle-stub" :data-factory-id="factory.id" @click="emitToggleDetails(factory)">Details</button></div>',
+              '<div><button data-testid="compact-factory-item-stub" :data-factory-id="factory.id" @click="emitBuy(factory)">{{ factory.name }}</button><button data-testid="compact-factory-details-toggle-stub" :data-factory-id="factory.id" @click="emitToggleDetails(factory)">Details</button></div>',
           },
         },
       },
@@ -210,26 +208,6 @@ describe('StoreLane.vue', () => {
     expect(save).not.toHaveBeenCalled()
   })
 
-  it('tracks hovered factory from compact items', async () => {
-    useGameStore.mockReturnValue(
-      createStoreMock({
-        isFactoryUnlocked: id => id === 'elmer',
-      })
-    )
-
-    const wrapper = mountStoreLane()
-    const item = wrapper.get('[data-testid="compact-factory-item-stub"]')
-
-    await item.trigger('mouseenter')
-    expect(wrapper.find('[data-testid="store-hover-details"]').exists()).toBe(true)
-    expect(wrapper.get('[data-testid="store-hover-details"]').classes()).toContain(
-      'pointer-events-none'
-    )
-
-    await item.trigger('mouseleave')
-    expect(wrapper.find('[data-testid="store-hover-details"]').exists()).toBe(false)
-  })
-
   it('toggles inline details panel for selected factory', async () => {
     useGameStore.mockReturnValue(
       createStoreMock({
@@ -242,6 +220,7 @@ describe('StoreLane.vue', () => {
 
     await toggle.trigger('click')
     expect(wrapper.find('[data-testid="store-inline-details"]').exists()).toBe(true)
+    expect(wrapper.find('[data-testid="store-hover-details"]').exists()).toBe(false)
 
     await toggle.trigger('click')
     expect(wrapper.find('[data-testid="store-inline-details"]').exists()).toBe(false)

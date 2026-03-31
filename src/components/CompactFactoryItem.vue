@@ -11,7 +11,7 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['buy', 'hover-start', 'hover-end', 'toggle-details'])
+const emit = defineEmits(['buy', 'toggle-details'])
 
 const store = useGameStore()
 
@@ -47,26 +47,13 @@ function handleClick() {
   emit('buy', { factory: props.factory, count: 1 })
 }
 
-function handleMouseEnter() {
-  emit('hover-start', props.factory)
-}
-
-function handleMouseLeave() {
-  emit('hover-end')
-}
-
 function handleToggleDetails() {
   emit('toggle-details', props.factory)
 }
 </script>
 
 <template>
-  <div
-    data-testid="compact-factory-row"
-    class="flex w-full items-center gap-2"
-    @mouseenter="handleMouseEnter"
-    @mouseleave="handleMouseLeave"
-  >
+  <div data-testid="compact-factory-row" class="flex w-full items-center gap-2">
     <button
       type="button"
       class="flex min-w-0 flex-1 items-center gap-3 rounded border border-terminal-green/40 bg-terminal-bg px-3 py-2 text-left transition-all"

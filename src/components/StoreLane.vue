@@ -8,7 +8,6 @@ import UpgradeRail from './UpgradeRail.vue'
 import CompactFactoryItem from './CompactFactoryItem.vue'
 
 const store = useGameStore()
-const hoveredFactory = ref(null)
 const expandedFactoryId = ref(null)
 
 const unlockedFactories = computed(() => {
@@ -41,14 +40,6 @@ function handleBuy(event) {
   }
 }
 
-function handleHoverStart(factory) {
-  hoveredFactory.value = factory
-}
-
-function handleHoverEnd() {
-  hoveredFactory.value = null
-}
-
 function handleToggleDetails(factory) {
   if (!factory || typeof factory.id !== 'string') {
     return
@@ -65,7 +56,7 @@ const selectedDetailsFactory = computed(() => {
   return FACTORIES.find(factory => factory.id === expandedFactoryId.value) || null
 })
 
-const detailsFactory = computed(() => selectedDetailsFactory.value || hoveredFactory.value)
+const detailsFactory = computed(() => selectedDetailsFactory.value)
 
 const hoveredOwned = computed(() => {
   if (!detailsFactory.value) {
@@ -122,29 +113,9 @@ const hoveredProducedTotal = computed(() => {
     </div>
 
     <aside
-      v-if="detailsFactory"
-      data-testid="store-hover-details"
-      class="pointer-events-none hidden lg:block rounded border border-terminal-green/70 bg-terminal-bg/95 p-3 text-sm"
-    >
-      <h3 class="text-lg font-bold text-terminal-green">{{ detailsFactory.name }}</h3>
-      <p class="mt-1 text-xs text-terminal-amber">Owned: {{ hoveredOwned }}</p>
-      <p class="mt-2 text-gray-400 italic">"{{ detailsFactory.description }}"</p>
-
-      <ul class="mt-3 space-y-1 text-gray-300">
-        <li>• Each produces {{ formatRate(hoveredPerFactoryRate) }} QSOs/sec</li>
-        <li>
-          • {{ hoveredOwned }} producing {{ formatRate(hoveredTotalRate) }} QSOs/sec ({{
-            hoveredSharePercent.toFixed(1)
-          }}% of total)
-        </li>
-        <li>• {{ formatNumber(hoveredProducedTotal) }} QSOs produced so far</li>
-      </ul>
-    </aside>
-
-    <aside
       v-if="selectedDetailsFactory"
       data-testid="store-inline-details"
-      class="rounded border border-terminal-green/70 bg-terminal-bg/95 p-3 text-sm lg:hidden"
+      class="rounded border border-terminal-green/70 bg-terminal-bg/95 p-3 text-sm"
     >
       <h3 class="text-lg font-bold text-terminal-green">{{ selectedDetailsFactory.name }}</h3>
       <p class="mt-1 text-xs text-terminal-amber">Owned: {{ hoveredOwned }}</p>
@@ -170,8 +141,6 @@ const hoveredProducedTotal = computed(() => {
         :key="factory.id"
         :factory="factory"
         @buy="handleBuy"
-        @hover-start="handleHoverStart"
-        @hover-end="handleHoverEnd"
         @toggle-details="handleToggleDetails"
       />
     </div>
