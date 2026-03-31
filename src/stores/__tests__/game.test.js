@@ -94,6 +94,19 @@ describe('Game Store', () => {
     expect(store.totalQsosEarned).toBe(2n)
   })
 
+  it('tracks per-factory production totals from passive ticks', () => {
+    const store = useGameStore()
+    store.factoryCounts = { elmer: 2 }
+
+    store.incrementFactoryProductionTotals(1)
+
+    expect(store.factoryProductionTotals.elmer).toBe(0n)
+
+    store.incrementFactoryProductionTotals(5)
+
+    expect(store.factoryProductionTotals.elmer).toBe(1n)
+  })
+
   it('accumulates tap prestige bonus across repeated small taps', () => {
     const store = useGameStore()
 

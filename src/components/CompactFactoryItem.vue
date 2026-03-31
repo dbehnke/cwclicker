@@ -11,7 +11,7 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['buy'])
+const emit = defineEmits(['buy', 'hover-start', 'hover-end'])
 
 const store = useGameStore()
 
@@ -46,6 +46,14 @@ function handleClick() {
 
   emit('buy', { factory: props.factory, count: 1 })
 }
+
+function handleMouseEnter() {
+  emit('hover-start', props.factory)
+}
+
+function handleMouseLeave() {
+  emit('hover-end')
+}
 </script>
 
 <template>
@@ -59,6 +67,8 @@ function handleClick() {
     :disabled="!canBuy"
     data-testid="compact-factory-item"
     @click="handleClick"
+    @mouseenter="handleMouseEnter"
+    @mouseleave="handleMouseLeave"
   >
     <div class="flex h-12 w-12 shrink-0 items-center justify-center">
       <IconRenderer :icon="factory.icon" type="factory" fallback="Radio" :size="40" />

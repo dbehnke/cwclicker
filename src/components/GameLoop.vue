@@ -11,20 +11,24 @@ let animationFrameId = null
 function gameLoop(currentTime) {
   const deltaTime = (currentTime - lastTime) / 1000
   lastTime = currentTime
-  
+
   const qsosPerSecond = store.getTotalQSOsPerSecond()
   const qsosToAdd = qsosPerSecond * deltaTime
-  
+
+  if (typeof store.incrementFactoryProductionTotals === 'function') {
+    store.incrementFactoryProductionTotals(deltaTime)
+  }
+
   if (qsosToAdd > 0) {
     store.addPassiveQSOs(qsosToAdd)
   }
-  
+
   saveTimer += deltaTime
   if (saveTimer >= 30) {
     store.save()
     saveTimer = 0
   }
-  
+
   animationFrameId = requestAnimationFrame(gameLoop)
 }
 

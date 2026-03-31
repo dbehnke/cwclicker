@@ -14,7 +14,12 @@ describe('StoreLane.vue', () => {
     return {
       buyFactory: vi.fn(() => true),
       factoryCounts: {},
+      factoryProductionTotals: {},
+      getLotteryMultiplier: () => 1,
+      getTotalQSOsPerSecond: () => 0,
+      getUpgradeMultiplier: () => 1,
       isFactoryUnlocked: () => false,
+      prestigeMultiplier: 1,
       save: vi.fn(),
       ...overrides,
     }
@@ -33,7 +38,7 @@ describe('StoreLane.vue', () => {
           CompactFactoryItem: {
             name: 'CompactFactoryItem',
             props: ['factory'],
-            emits: ['buy'],
+            emits: ['buy', 'hover-start', 'hover-end'],
             setup(_, { emit }) {
               const emitBuy = factory => {
                 if (!hasBuyPayload) {
@@ -44,10 +49,13 @@ describe('StoreLane.vue', () => {
                 emit('buy', buyPayload)
               }
 
-              return { emitBuy }
+              const emitHoverStart = factory => emit('hover-start', factory)
+              const emitHoverEnd = () => emit('hover-end')
+
+              return { emitBuy, emitHoverStart, emitHoverEnd }
             },
             template:
-              '<button data-testid="compact-factory-item-stub" :data-factory-id="factory.id" @click="emitBuy(factory)">{{ factory.name }}</button>',
+              '<button data-testid="compact-factory-item-stub" :data-factory-id="factory.id" @click="emitBuy(factory)" @mouseenter="emitHoverStart(factory)" @mouseleave="emitHoverEnd()">{{ factory.name }}</button>',
           },
         },
       },
@@ -199,5 +207,22 @@ describe('StoreLane.vue', () => {
 
     expect(buyFactory).not.toHaveBeenCalled()
     expect(save).not.toHaveBeenCalled()
+  })
+
+  it('tracks hovered factory from compact items', async () => {
+    useGameStore.mockReturnValue(
+      createStoreMock({
+        isFactoryUnlocked: id => id === 'elmer',
+      })
+    )
+
+    const wrapper = mountStoreLane()
+    const item = wrapper.get('[data-testid="compact-factory-item-stub"]')
+
+    await item.trigger('mouseenter')
+    expect(wrapper.find('[data-testid="store-hover-details"]').exists()).toBe(true)
+
+    await item.trigger('mouseleave')
+    expect(wrapper.find('[data-testid="store-hover-details"]').exists()).toBe(false)
   })
 })

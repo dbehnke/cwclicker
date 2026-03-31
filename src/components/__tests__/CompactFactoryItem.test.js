@@ -95,4 +95,20 @@ describe('CompactFactoryItem.vue', () => {
     expect(wrapper.emitted('buy')).toBeFalsy()
     expect(store.getFactoryCost).toHaveBeenCalledWith(factory.id, 3)
   })
+
+  it('emits hover events on mouse enter/leave', async () => {
+    mockStore({ qsos: 1000n, isFactoryUnlocked: () => true })
+
+    const wrapper = mount(CompactFactoryItem, {
+      props: { factory },
+    })
+
+    const button = wrapper.get('[data-testid="compact-factory-item"]')
+
+    await button.trigger('mouseenter')
+    await button.trigger('mouseleave')
+
+    expect(wrapper.emitted('hover-start')).toEqual([[factory]])
+    expect(wrapper.emitted('hover-end')).toEqual([[]])
+  })
 })

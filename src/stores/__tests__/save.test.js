@@ -487,6 +487,7 @@ describe('Game Store - Save/Load', () => {
       expect(saved).toHaveProperty('prestigeLevel')
       expect(saved).toHaveProperty('prestigePoints')
       expect(saved).toHaveProperty('purchasedUpgrades')
+      expect(saved).toHaveProperty('factoryProductionTotals')
 
       // Verify types (qsos is stored as string for BigInt compatibility)
       expect(typeof saved.qsos).toBe('string')
@@ -495,6 +496,65 @@ describe('Game Store - Save/Load', () => {
       expect(typeof saved.prestigeLevel).toBe('string')
       expect(typeof saved.prestigePoints).toBe('string')
       expect(Array.isArray(saved.purchasedUpgrades)).toBe(true)
+      expect(typeof saved.factoryProductionTotals).toBe('object')
+    })
+
+    it('persists factory production totals as string map', () => {
+      const store = useGameStore()
+      store.factoryProductionTotals = {
+        elmer: 12n,
+        'straight-key': 30n,
+      }
+
+      store.save()
+
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY))
+      expect(saved.factoryProductionTotals).toEqual({
+        elmer: '12',
+        'straight-key': '30',
+      })
+    })
+
+    it('restores factory production totals from save data', () => {
+      const saveData = {
+        version: '1.4.0',
+        qsos: '5000',
+        factoryCounts: { elmer: 2 },
+        licenseLevel: 1,
+        factoryProductionTotals: {
+          elmer: '100',
+          'straight-key': '200',
+        },
+      }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(saveData))
+
+      const store = useGameStore()
+      store.load()
+
+      expect(store.factoryProductionTotals.elmer).toBe(100n)
+      expect(store.factoryProductionTotals['straight-key']).toBe(200n)
+    })
+
+    it('normalizes malformed factory production totals during load', () => {
+      const saveData = {
+        version: '1.4.0',
+        qsos: '5000',
+        factoryCounts: { elmer: 2 },
+        licenseLevel: 1,
+        factoryProductionTotals: {
+          elmer: '-5',
+          'straight-key': 'bad-value',
+          unknown: '15',
+        },
+      }
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(saveData))
+
+      const store = useGameStore()
+      store.load()
+
+      expect(store.factoryProductionTotals.elmer).toBe(0n)
+      expect(store.factoryProductionTotals['straight-key']).toBe(0n)
+      expect(store.factoryProductionTotals.unknown).toBeUndefined()
     })
 
     it('persists purchased upgrades to localStorage', () => {

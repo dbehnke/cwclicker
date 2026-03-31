@@ -1,12 +1,14 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useGameStore } from '../stores/game'
 import { FACTORIES } from '../constants/factories'
 import { UPGRADES } from '../constants/upgrades'
+import { formatNumber, formatRate } from '../utils/format'
 import UpgradeRail from './UpgradeRail.vue'
 import CompactFactoryItem from './CompactFactoryItem.vue'
 
 const store = useGameStore()
+const hoveredFactory = ref(null)
 
 const unlockedFactories = computed(() => {
   if (typeof store.isFactoryUnlocked === 'function') {
@@ -37,6 +39,55 @@ function handleBuy(event) {
     store.save()
   }
 }
+
+function handleHoverStart(factory) {
+  hoveredFactory.value = factory
+}
+
+function handleHoverEnd() {
+  hoveredFactory.value = null
+}
+
+const hoveredOwned = computed(() => {
+  if (!hoveredFactory.value) {
+    return 0
+  }
+  return store.factoryCounts[hoveredFactory.value.id] || 0
+})
+
+const hoveredPerFactoryRate = computed(() => {
+  if (!hoveredFactory.value) {
+    return 0
+  }
+  const upgradeMultiplier = store.getUpgradeMultiplier(hoveredFactory.value.id)
+  const prestigeMultiplier = store.prestigeMultiplier
+  const lotteryMultiplier = store.getLotteryMultiplier(hoveredFactory.value.id)
+  return (
+    hoveredFactory.value.qsosPerSecond * upgradeMultiplier * prestigeMultiplier * lotteryMultiplier
+  )
+})
+
+const hoveredTotalRate = computed(() => {
+  if (!hoveredFactory.value) {
+    return 0
+  }
+  return hoveredPerFactoryRate.value * hoveredOwned.value
+})
+
+const hoveredSharePercent = computed(() => {
+  const total = store.getTotalQSOsPerSecond()
+  if (!hoveredFactory.value || total <= 0) {
+    return 0
+  }
+  return (hoveredTotalRate.value / total) * 100
+})
+
+const hoveredProducedTotal = computed(() => {
+  if (!hoveredFactory.value || !store.factoryProductionTotals) {
+    return 0n
+  }
+  return store.factoryProductionTotals[hoveredFactory.value.id] || 0n
+})
 </script>
 
 <template>
@@ -51,6 +102,26 @@ function handleBuy(event) {
       <h2 class="text-2xl font-bold text-terminal-green">Store</h2>
     </div>
 
+    <aside
+      v-if="hoveredFactory"
+      data-testid="store-hover-details"
+      class="hidden lg:block rounded border border-terminal-green/70 bg-terminal-bg/95 p-3 text-sm"
+    >
+      <h3 class="text-lg font-bold text-terminal-green">{{ hoveredFactory.name }}</h3>
+      <p class="mt-1 text-xs text-terminal-amber">Owned: {{ hoveredOwned }}</p>
+      <p class="mt-2 text-gray-400 italic">"{{ hoveredFactory.description }}"</p>
+
+      <ul class="mt-3 space-y-1 text-gray-300">
+        <li>• Each produces {{ formatRate(hoveredPerFactoryRate) }} QSOs/sec</li>
+        <li>
+          • {{ hoveredOwned }} producing {{ formatRate(hoveredTotalRate) }} QSOs/sec ({{
+            hoveredSharePercent.toFixed(1)
+          }}% of total)
+        </li>
+        <li>• {{ formatNumber(hoveredProducedTotal) }} QSOs produced so far</li>
+      </ul>
+    </aside>
+
     <div class="shrink-0" data-testid="store-lane-upgrades">
       <UpgradeRail :upgrades="UPGRADES" :factories="FACTORIES" />
     </div>
@@ -61,6 +132,8 @@ function handleBuy(event) {
         :key="factory.id"
         :factory="factory"
         @buy="handleBuy"
+        @hover-start="handleHoverStart"
+        @hover-end="handleHoverEnd"
       />
     </div>
   </section>
