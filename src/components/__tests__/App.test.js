@@ -258,4 +258,42 @@ describe('App.vue responsive shell', () => {
     expect(revealAffordableFactories).toHaveBeenCalledTimes(1)
     expect(save).toHaveBeenCalledTimes(1)
   })
+
+  it('updates document title with current QSO total', () => {
+    useGameStore.mockReturnValue({
+      audioSettings: { volume: 0.5, frequency: 600, isMuted: false },
+      factoryCounts: {},
+      getTotalQSOsPerSecond: () => 0,
+      licenseLevel: 1,
+      load: vi.fn(),
+      qsos: 12345n,
+      revealAffordableFactories: vi.fn(),
+      save: vi.fn(),
+      totalQsosEarned: 0n,
+    })
+
+    const wrapper = shallowMount(App, {
+      global: {
+        stubs: {
+          ClickIndicator: true,
+          ErrorBoundary: { template: '<div><slot /></div>' },
+          FactoryList: true,
+          GameLoop: true,
+          KeyerArea: true,
+          LicensePanel: true,
+          MigrationNotification: true,
+          MorseChallenge: true,
+          OfflineProgressNotification: true,
+          RareDxBonus: true,
+          SettingsPanel: true,
+          StatHeader: true,
+          StoreLane: true,
+        },
+      },
+    })
+
+    expect(document.title).toContain('12.3K QSOs - CW Clicker')
+
+    wrapper.unmount()
+  })
 })

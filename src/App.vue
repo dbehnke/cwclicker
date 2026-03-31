@@ -1,7 +1,8 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted, watchEffect } from 'vue'
 import { useGameStore } from './stores/game'
 import { audioService } from './services/audio'
+import { formatNumber } from './utils/format'
 import StatHeader from './components/StatHeader.vue'
 import LicensePanel from './components/LicensePanel.vue'
 import KeyerArea from './components/KeyerArea.vue'
@@ -20,6 +21,7 @@ const store = useGameStore()
 const clickIndicatorRef = ref(null)
 const activeTab = ref('keyer')
 const isSettingsExpanded = ref(false)
+const originalDocumentTitle = typeof document !== 'undefined' ? document.title : ''
 
 // App version from build-time injection (format: vX.Y.Z-N-SHA)
 const appVersion = __APP_VERSION__ || 'v0.0.0-0-unknown'
@@ -42,6 +44,22 @@ onMounted(() => {
       audioService.toggleMute(true)
     }
   }
+})
+
+watchEffect(() => {
+  if (typeof document === 'undefined') {
+    return
+  }
+
+  document.title = `${formatNumber(store.qsos)} QSOs - CW Clicker`
+})
+
+onUnmounted(() => {
+  if (typeof document === 'undefined') {
+    return
+  }
+
+  document.title = originalDocumentTitle
 })
 
 const handleLicenseUpgrade = () => {

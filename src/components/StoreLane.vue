@@ -105,7 +105,7 @@ const hoveredProducedTotal = computed(() => {
     <aside
       v-if="hoveredFactory"
       data-testid="store-hover-details"
-      class="hidden lg:block rounded border border-terminal-green/70 bg-terminal-bg/95 p-3 text-sm"
+      class="pointer-events-none hidden lg:block rounded border border-terminal-green/70 bg-terminal-bg/95 p-3 text-sm"
     >
       <h3 class="text-lg font-bold text-terminal-green">{{ hoveredFactory.name }}</h3>
       <p class="mt-1 text-xs text-terminal-amber">Owned: {{ hoveredOwned }}</p>

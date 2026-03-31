@@ -221,6 +221,9 @@ describe('StoreLane.vue', () => {
 
     await item.trigger('mouseenter')
     expect(wrapper.find('[data-testid="store-hover-details"]').exists()).toBe(true)
+    expect(wrapper.get('[data-testid="store-hover-details"]').classes()).toContain(
+      'pointer-events-none'
+    )
 
     await item.trigger('mouseleave')
     expect(wrapper.find('[data-testid="store-hover-details"]').exists()).toBe(false)
