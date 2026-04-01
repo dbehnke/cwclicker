@@ -260,6 +260,25 @@ describe('Game Store', () => {
 
   it('has the correct GAME_VERSION', () => {
     const store = useGameStore()
-    expect(store.gameVersion).toBe('1.4.0')
+    expect(store.gameVersion).toBe('1.4.1')
+  })
+
+  it('accumulates properly at 60 fps for low-rate factories', () => {
+    const store = useGameStore()
+    store.factoryCounts = { elmer: 1 } // elmer produces 0.1 / sec
+
+    for (let i = 0; i < 60; i++) {
+      store.incrementFactoryProductionTotals(1 / 60)
+    }
+
+    expect(store.factoryProductionTotals.elmer || 0n).toBe(0n)
+    expect(store.factoryProductionRemainders.elmer).toBeCloseTo(0.1)
+
+    for (let i = 0; i < 540; i++) {
+      store.incrementFactoryProductionTotals(1 / 60)
+    }
+
+    // total 600 frames = 10 seconds. elmer produces 0.1/s => 1 total.
+    expect(store.factoryProductionTotals.elmer || 0n).toBe(1n)
   })
 })
