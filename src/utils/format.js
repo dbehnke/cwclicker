@@ -60,7 +60,7 @@ export function formatNumber(value) {
  * @returns {string}
  */
 export function formatRate(value) {
-  if (value == null) {
+  if (value === null || value === undefined) {
     return '—'
   }
   if (!Number.isFinite(value)) {
