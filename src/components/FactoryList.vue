@@ -4,6 +4,8 @@ import { useGameStore } from '../stores/game'
 import { FACTORIES } from '../constants/factories'
 import FactoryCard from './FactoryCard.vue'
 
+import { formatRate } from '../utils/format'
+
 const store = useGameStore()
 
 const availableFactories = computed(() => {
@@ -36,7 +38,7 @@ const totalQSOsPerSecond = computed(() => {
       class="sticky top-0 z-20 bg-terminal-bg/95 backdrop-blur-sm py-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
     >
       <h2 class="text-2xl font-bold text-terminal-green">Factories</h2>
-      <span class="text-terminal-green">QSOs/sec: {{ totalQSOsPerSecond }}</span>
+      <span class="text-terminal-green">QSOs/sec: {{ formatRate(totalQSOsPerSecond) }}</span>
     </div>
 
     <!-- Factory cards or empty state -->
