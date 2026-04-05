@@ -66,6 +66,22 @@ function clearConfirmationState() {
 }
 
 /**
+ * Show reset confirmation (factory reset)
+ */
+function showReset() {
+  showResetConfirm.value = true
+  showPrestigeResetConfirm.value = false
+}
+
+/**
+ * Show prestige reset confirmation
+ */
+function showPrestigeReset() {
+  showPrestigeResetConfirm.value = true
+  showResetConfirm.value = false
+}
+
+/**
  * Reset prestige with confirmation
  */
 function resetPrestige() {
@@ -532,19 +548,13 @@ function formatPercent(value) {
 
         <div v-if="!showResetConfirm && !showPrestigeResetConfirm">
           <button
-            @click="
-              showResetConfirm = true
-              showPrestigeResetConfirm = false
-            "
+            @click="showReset()"
             class="px-6 py-3 bg-red-600 text-white font-bold rounded hover:bg-red-700 transition-colors"
           >
             ⚠️ Reset Game
           </button>
           <button
-            @click="
-              showPrestigeResetConfirm = true
-              showResetConfirm = false
-            "
+            @click="showPrestigeReset()"
             :disabled="!store.canPrestigeReset"
             class="ml-3 px-6 py-3 bg-terminal-amber text-terminal-bg font-bold rounded hover:brightness-110 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
