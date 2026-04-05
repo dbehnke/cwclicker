@@ -7,7 +7,25 @@ on:
     types: [opened, synchronize, reopened]
 
 jobs:
+  lockfile-check:
+    runs-on: ubuntu-latest
+    outputs:
+      lockfile_ok: ${{ steps.check.outcome }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js 24.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24.x
+
+      - name: Verify lockfile is in sync (npm ci --dry-run)
+        id: check
+        run: npm ci --dry-run
+
   build:
+    needs: lockfile-check
     runs-on: ubuntu-latest
 
     steps:
