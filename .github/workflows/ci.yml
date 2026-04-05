@@ -20,9 +20,9 @@ jobs:
         with:
           node-version: 24.x
 
-      - name: Verify lockfile is in sync (npm ci --dry-run)
+      - name: Verify lockfile is in sync (npm ci --dry-run --ignore-scripts)
         id: check
-        run: npm ci --dry-run
+        run: npm ci --dry-run --ignore-scripts
 
   build:
     needs: lockfile-check
