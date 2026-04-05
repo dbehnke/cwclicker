@@ -1,0 +1,129 @@
+{
+  "success": true,
+  "issues": [
+    {
+      "type": "file",
+      "name": "scripts/generate-version.js",
+      "file": "scripts/generate-version.js"
+    },
+    {
+      "type": "file",
+      "name": "src/components/AudioPanel.vue",
+      "file": "src/components/AudioPanel.vue"
+    },
+    {
+      "type": "unlisted",
+      "name": "vue-eslint-parser",
+      "file": "eslint.config.js",
+      "line": 3
+    },
+    {
+      "type": "export",
+      "name": "LICENSE_TIER_RANGES",
+      "file": "src/constants/factories.js",
+      "line": 395
+    },
+    {
+      "type": "export",
+      "name": "getUpgradeThreshold",
+      "file": "src/constants/game.js",
+      "line": 111
+    },
+    {
+      "type": "export",
+      "name": "LICENSE_COSTS",
+      "file": "src/constants/upgrades.js",
+      "line": 24
+    },
+    {
+      "type": "export",
+      "name": "getAvailableUpgrades",
+      "file": "src/constants/upgrades.js",
+      "line": 879
+    },
+    {
+      "type": "export",
+      "name": "getUpgradeThresholds",
+      "file": "src/constants/upgrades.js",
+      "line": 887
+    },
+    {
+      "type": "export",
+      "name": "MORSE_WPM",
+      "file": "src/constants/morse.js",
+      "line": 68
+    },
+    {
+      "type": "export",
+      "name": "ditDurationMs",
+      "file": "src/constants/morse.js",
+      "line": 74
+    }
+  ],
+  "unusedExports": [
+    {
+      "type": "export",
+      "name": "LICENSE_TIER_RANGES",
+      "file": "src/constants/factories.js",
+      "line": 395
+    },
+    {
+      "type": "export",
+      "name": "getUpgradeThreshold",
+      "file": "src/constants/game.js",
+      "line": 111
+    },
+    {
+      "type": "export",
+      "name": "LICENSE_COSTS",
+      "file": "src/constants/upgrades.js",
+      "line": 24
+    },
+    {
+      "type": "export",
+      "name": "getAvailableUpgrades",
+      "file": "src/constants/upgrades.js",
+      "line": 879
+    },
+    {
+      "type": "export",
+      "name": "getUpgradeThresholds",
+      "file": "src/constants/upgrades.js",
+      "line": 887
+    },
+    {
+      "type": "export",
+      "name": "MORSE_WPM",
+      "file": "src/constants/morse.js",
+      "line": 68
+    },
+    {
+      "type": "export",
+      "name": "ditDurationMs",
+      "file": "src/constants/morse.js",
+      "line": 74
+    }
+  ],
+  "unusedFiles": [
+    {
+      "type": "file",
+      "name": "scripts/generate-version.js",
+      "file": "scripts/generate-version.js"
+    },
+    {
+      "type": "file",
+      "name": "src/components/AudioPanel.vue",
+      "file": "src/components/AudioPanel.vue"
+    }
+  ],
+  "unusedDeps": [],
+  "unlistedDeps": [
+    {
+      "type": "unlisted",
+      "name": "vue-eslint-parser",
+      "file": "eslint.config.js",
+      "line": 3
+    }
+  ],
+  "summary": "Found 10 issues"
+}

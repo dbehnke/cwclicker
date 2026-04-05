@@ -9,7 +9,9 @@ import { formatNumber } from '../utils/format'
  */
 const store = useGameStore()
 
-const prestigeBonusPercent = computed(() => `+${Math.round((Number(store.prestigeMultiplier) - 1) * 100)}%`)
+const prestigeBonusPercent = computed(
+  () => `+${Math.round((Number(store.prestigeMultiplier) - 1) * 100)}%`
+)
 
 const currentPrestigeThreshold = computed(() => {
   return prestigeThresholdForLevel(store.eligiblePrestigeLevel)
@@ -24,11 +26,7 @@ const prestigeProgress = computed(() => {
   const currentThreshold = currentPrestigeThreshold.value
   const nextThreshold = nextPrestigeThreshold.value
 
-  if (
-    typeof current !== 'bigint' ||
-    nextThreshold <= currentThreshold ||
-    nextThreshold === 0n
-  ) {
+  if (typeof current !== 'bigint' || nextThreshold <= currentThreshold || nextThreshold === 0n) {
     return 0
   }
 
@@ -55,7 +53,9 @@ const prestigeProgress = computed(() => {
       <h1 class="text-2xl font-bold">CW CLICKER</h1>
       <div class="text-xl">QSOs: {{ formatNumber(store.qsos) }}</div>
     </div>
-    <div class="rounded border border-terminal-green/60 bg-terminal-bg/60 px-3 py-2 text-sm space-y-1">
+    <div
+      class="rounded border border-terminal-green/60 bg-terminal-bg/60 px-3 py-2 text-sm space-y-1"
+    >
       <div class="flex flex-wrap gap-x-4 gap-y-1 text-terminal-green">
         <span>Prestige Level {{ store.prestigeLevel }}</span>
         <span v-if="store.eligiblePrestigeLevel > store.prestigeLevel">

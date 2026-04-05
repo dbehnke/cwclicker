@@ -92,11 +92,7 @@ describe('MultiBuyPanel.vue', () => {
     })
 
     const buttons = wrapper.findAll('button')
-    expect(buttons.map(button => button.text().trim().split(':')[0])).toEqual([
-      '×1',
-      '×5',
-      '×10',
-    ])
+    expect(buttons.map(button => button.text().trim().split(':')[0])).toEqual(['×1', '×5', '×10'])
 
     for (const button of buttons) {
       expect(button.isVisible()).toBe(true)

@@ -110,7 +110,9 @@ describe('buildUpgradeRailModel', () => {
       },
     })
 
-    const byId = new Map(model.priorityRow.concat(model.lockedByThreshold).map(upgrade => [upgrade.id, upgrade]))
+    const byId = new Map(
+      model.priorityRow.concat(model.lockedByThreshold).map(upgrade => [upgrade.id, upgrade])
+    )
 
     expect(byId.get('ready').isAvailable).toBe(true)
     expect(byId.get('ready').costDelta).toBe(0n)

@@ -130,7 +130,9 @@ function isValidSaveData(data) {
   // which defaults to MIN_MORSE_WPM (5) in sanitizeSaveData
   if (
     audio.morseWpm !== undefined &&
-    (typeof audio.morseWpm !== 'number' || audio.morseWpm < MIN_MORSE_WPM || audio.morseWpm > MAX_MORSE_WPM)
+    (typeof audio.morseWpm !== 'number' ||
+      audio.morseWpm < MIN_MORSE_WPM ||
+      audio.morseWpm > MAX_MORSE_WPM)
   ) {
     return false
   }
@@ -186,7 +188,7 @@ function sanitizeSaveData(data) {
   // Sanitize qsos - ensure it's a valid numeric string, bounded to prevent DoS via huge BigInt parsing
   const MAX_BIGINT_DIGITS = GAME_CONSTANTS.SAVE.MAX_BIGINT_DIGITS
   const qsosStr = String(data.qsos).replace(/[^\d]/g, '')
-  sanitized.qsos = (qsosStr && qsosStr.length <= MAX_BIGINT_DIGITS) ? qsosStr : '0'
+  sanitized.qsos = qsosStr && qsosStr.length <= MAX_BIGINT_DIGITS ? qsosStr : '0'
 
   // Sanitize prestige fields.
   // If a prestige field is present but invalid, normalize it to "0" instead of omitting it.
@@ -201,7 +203,11 @@ function sanitizeSaveData(data) {
   for (const field of prestigeFields) {
     if (Object.prototype.hasOwnProperty.call(data, field)) {
       const rawValue = data[field]
-      if (typeof rawValue === 'string' && /^\d+$/.test(rawValue) && rawValue.length <= MAX_BIGINT_DIGITS) {
+      if (
+        typeof rawValue === 'string' &&
+        /^\d+$/.test(rawValue) &&
+        rawValue.length <= MAX_BIGINT_DIGITS
+      ) {
         sanitized[field] = rawValue
       } else {
         // Corrupt or out-of-bounds prestige values are clamped to "0"
@@ -519,20 +525,26 @@ function formatPercent(value) {
 
       <div class="space-y-4">
         <p class="text-gray-400 text-sm">
-          Resetting will permanently delete your QSOs, factories, upgrades,
-          and achievements, and will reset your license level to 1 and other current run state.
-          Prestige progress (level and points) is preserved. This cannot be undone.
+          Resetting will permanently delete your QSOs, factories, upgrades, and achievements, and
+          will reset your license level to 1 and other current run state. Prestige progress (level
+          and points) is preserved. This cannot be undone.
         </p>
 
         <div v-if="!showResetConfirm && !showPrestigeResetConfirm">
           <button
-            @click="showResetConfirm = true; showPrestigeResetConfirm = false"
+            @click="
+              showResetConfirm = true
+              showPrestigeResetConfirm = false
+            "
             class="px-6 py-3 bg-red-600 text-white font-bold rounded hover:bg-red-700 transition-colors"
           >
             ⚠️ Reset Game
           </button>
           <button
-            @click="showPrestigeResetConfirm = true; showResetConfirm = false"
+            @click="
+              showPrestigeResetConfirm = true
+              showResetConfirm = false
+            "
             :disabled="!store.canPrestigeReset"
             class="ml-3 px-6 py-3 bg-terminal-amber text-terminal-bg font-bold rounded hover:brightness-110 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
@@ -560,8 +572,13 @@ function formatPercent(value) {
           </div>
         </div>
 
-        <div v-else-if="showPrestigeResetConfirm" class="space-y-4 border-2 border-terminal-amber p-4 rounded">
-          <p class="text-terminal-amber font-bold">Prestige reset will reset your run but keep prestige progress.</p>
+        <div
+          v-else-if="showPrestigeResetConfirm"
+          class="space-y-4 border-2 border-terminal-amber p-4 rounded"
+        >
+          <p class="text-terminal-amber font-bold">
+            Prestige reset will reset your run but keep prestige progress.
+          </p>
 
           <div class="flex gap-4">
             <button

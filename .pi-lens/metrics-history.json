@@ -1,0 +1,81 @@
+{
+  "version": 1,
+  "files": {
+    "scripts/generate-version.js": {
+      "latest": {
+        "commit": "061def0",
+        "timestamp": "2026-04-05T05:16:36.382Z",
+        "mi": 59.3,
+        "cognitive": 13,
+        "nesting": 4,
+        "lines": 25,
+        "maxCyclomatic": 6,
+        "entropy": 4.66
+      },
+      "history": [
+        {
+          "commit": "061def0",
+          "timestamp": "2026-04-05T05:16:36.382Z",
+          "mi": 59.3,
+          "cognitive": 13,
+          "nesting": 4,
+          "lines": 25,
+          "maxCyclomatic": 6,
+          "entropy": 4.66
+        }
+      ],
+      "trend": "stable"
+    },
+    "src/services/audio.js": {
+      "latest": {
+        "commit": "061def0",
+        "timestamp": "2026-04-05T05:16:49.756Z",
+        "mi": 40.7,
+        "cognitive": 77,
+        "nesting": 5,
+        "lines": 133,
+        "maxCyclomatic": 12,
+        "entropy": 5.38
+      },
+      "history": [
+        {
+          "commit": "061def0",
+          "timestamp": "2026-04-05T05:16:49.756Z",
+          "mi": 40.7,
+          "cognitive": 77,
+          "nesting": 5,
+          "lines": 133,
+          "maxCyclomatic": 12,
+          "entropy": 5.38
+        }
+      ],
+      "trend": "stable"
+    },
+    "eslint.config.js": {
+      "latest": {
+        "commit": "061def0",
+        "timestamp": "2026-04-05T05:17:07.041Z",
+        "mi": 46.2,
+        "cognitive": 0,
+        "nesting": 0,
+        "lines": 60,
+        "maxCyclomatic": 1,
+        "entropy": 3.51
+      },
+      "history": [
+        {
+          "commit": "061def0",
+          "timestamp": "2026-04-05T05:17:07.041Z",
+          "mi": 46.2,
+          "cognitive": 0,
+          "nesting": 0,
+          "lines": 60,
+          "maxCyclomatic": 1,
+          "entropy": 3.51
+        }
+      ],
+      "trend": "stable"
+    }
+  },
+  "capturedAt": "2026-04-05T05:17:12.184Z"
+}

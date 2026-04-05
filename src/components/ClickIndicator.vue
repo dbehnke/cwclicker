@@ -1,10 +1,10 @@
 <script setup>
-import { ref, onUnmounted } from 'vue';
+import { ref, onUnmounted } from 'vue'
 
 /**
  * Emits events from the component.
  */
-const emit = defineEmits(['indicator-complete']);
+const emit = defineEmits(['indicator-complete'])
 
 /**
  * Track the last 5 click indicators with fade state
@@ -13,20 +13,20 @@ const emit = defineEmits(['indicator-complete']);
  * @property {number} value - QSO value (+1 or +2)
  * @property {number} opacity - Current opacity (0-1)
  */
-const indicators = ref([]);
+const indicators = ref([])
 
-const MAX_INDICATORS = 5;
-const FADE_DURATION_MS = 2000;
+const MAX_INDICATORS = 5
+const FADE_DURATION_MS = 2000
 
 // Track active animation frame IDs to prevent memory leaks
-const animationFrames = new Map();
+const animationFrames = new Map()
 
 /**
  * Generate a unique ID for each indicator
  * @returns {string} Unique identifier
  */
 function generateId() {
-  return `indicator-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  return `indicator-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
 }
 
 /**
@@ -34,23 +34,23 @@ function generateId() {
  * @param {number} value - The QSO value to display (+1 or +2)
  */
 function addIndicator(value) {
-  const id = generateId();
+  const id = generateId()
   const indicator = {
     id,
     value,
     opacity: 1,
-  };
-  
+  }
+
   // Add to beginning (newest first)
-  indicators.value.unshift(indicator);
-  
+  indicators.value.unshift(indicator)
+
   // Keep only last MAX_INDICATORS
   if (indicators.value.length > MAX_INDICATORS) {
-    indicators.value = indicators.value.slice(0, MAX_INDICATORS);
+    indicators.value = indicators.value.slice(0, MAX_INDICATORS)
   }
-  
+
   // Start fade animation
-  fadeIndicator(id);
+  fadeIndicator(id)
 }
 
 /**
@@ -58,37 +58,37 @@ function addIndicator(value) {
  * @param {string} id - The indicator ID to fade
  */
 function fadeIndicator(id) {
-  const startTime = Date.now();
+  const startTime = Date.now()
 
   const fadeStep = () => {
     // Check if this indicator's animation has been cancelled
     if (!animationFrames.has(id)) {
-      return;
+      return
     }
 
-    const elapsed = Date.now() - startTime;
-    const progress = elapsed / FADE_DURATION_MS;
+    const elapsed = Date.now() - startTime
+    const progress = elapsed / FADE_DURATION_MS
 
     if (progress >= 1) {
       // Remove fully faded indicator
-      indicators.value = indicators.value.filter(ind => ind.id !== id);
-      animationFrames.delete(id);
-      emit('indicator-complete', id);
-      return;
+      indicators.value = indicators.value.filter(ind => ind.id !== id)
+      animationFrames.delete(id)
+      emit('indicator-complete', id)
+      return
     }
 
     // Update opacity
-    const indicator = indicators.value.find(ind => ind.id === id);
+    const indicator = indicators.value.find(ind => ind.id === id)
     if (indicator) {
-      indicator.opacity = 1 - progress;
+      indicator.opacity = 1 - progress
     }
 
-    const frameId = requestAnimationFrame(fadeStep);
-    animationFrames.set(id, frameId);
-  };
+    const frameId = requestAnimationFrame(fadeStep)
+    animationFrames.set(id, frameId)
+  }
 
-  const frameId = requestAnimationFrame(fadeStep);
-  animationFrames.set(id, frameId);
+  const frameId = requestAnimationFrame(fadeStep)
+  animationFrames.set(id, frameId)
 }
 
 /**
@@ -96,10 +96,10 @@ function fadeIndicator(id) {
  * @param {string} id - The indicator ID
  */
 function cancelAnimation(id) {
-  const frameId = animationFrames.get(id);
+  const frameId = animationFrames.get(id)
   if (frameId) {
-    cancelAnimationFrame(frameId);
-    animationFrames.delete(id);
+    cancelAnimationFrame(frameId)
+    animationFrames.delete(id)
   }
 }
 
@@ -109,11 +109,11 @@ function cancelAnimation(id) {
 onUnmounted(() => {
   // Cancel all pending animation frames to prevent memory leaks
   for (const frameId of animationFrames.values()) {
-    cancelAnimationFrame(frameId);
+    cancelAnimationFrame(frameId)
   }
-  animationFrames.clear();
-  indicators.value = [];
-});
+  animationFrames.clear()
+  indicators.value = []
+})
 
 /**
  * Get the display value with sign
@@ -121,13 +121,13 @@ onUnmounted(() => {
  * @returns {string} Formatted value like "+1" or "+2"
  */
 function formatValue(value) {
-  return `+${value}`;
+  return `+${value}`
 }
 
 // Expose addIndicator method to parent
 defineExpose({
   addIndicator,
-});
+})
 </script>
 
 <template>

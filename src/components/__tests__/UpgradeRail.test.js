@@ -46,11 +46,7 @@ function makeStore(overrides = {}) {
 }
 
 function mountRail(options = {}) {
-  const {
-    storeOverrides = {},
-    upgrades = [],
-    factories = FACTORIES,
-  } = options
+  const { storeOverrides = {}, upgrades = [], factories = FACTORIES } = options
 
   const store = makeStore(storeOverrides)
   useGameStore.mockReturnValue(store)
@@ -123,7 +119,9 @@ describe('UpgradeRail', () => {
 
     await wrapper.get('[data-testid="upgrade-rail-expand-toggle"]').trigger('click')
 
-    const labels = wrapper.findAll('[data-testid="upgrade-rail-group-title"]').map(node => node.text())
+    const labels = wrapper
+      .findAll('[data-testid="upgrade-rail-group-title"]')
+      .map(node => node.text())
     expect(labels).toEqual([
       'Ready to Buy',
       'Almost There',
@@ -181,7 +179,9 @@ describe('UpgradeRail', () => {
     await wrapper.get('[data-upgrade-id="u1"]').trigger('click')
     expect(wrapper.get('[data-testid="upgrade-rail-details-sheet"]').exists()).toBe(true)
 
-    await wrapper.get('[data-testid="upgrade-rail-details-sheet"]').trigger('keydown', { key: 'Escape' })
+    await wrapper
+      .get('[data-testid="upgrade-rail-details-sheet"]')
+      .trigger('keydown', { key: 'Escape' })
 
     expect(wrapper.find('[data-testid="upgrade-rail-details-sheet"]').exists()).toBe(false)
   })
@@ -199,7 +199,9 @@ describe('UpgradeRail', () => {
     await wrapper.get('[data-upgrade-id="u2"]').trigger('click')
     expect(wrapper.text()).toContain('Upgrade Two')
 
-    await wrapper.get('[data-testid="upgrade-rail-details-sheet"]').trigger('keydown', { key: 'Escape' })
+    await wrapper
+      .get('[data-testid="upgrade-rail-details-sheet"]')
+      .trigger('keydown', { key: 'Escape' })
     expect(wrapper.find('[data-testid="upgrade-rail-details-sheet"]').exists()).toBe(false)
   })
 

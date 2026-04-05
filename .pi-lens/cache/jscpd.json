@@ -1,0 +1,600 @@
+{
+  "success": true,
+  "clones": [
+    {
+      "fileA": ".worktrees/dbehnke-20260405T004755/lane-1/src/components/upgrade-rail/UpgradeRailDetailsSheet.vue",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/src/components/upgrade-rail/UpgradeRailDetailsSheet.vue",
+      "startB": 1,
+      "lines": 113,
+      "tokens": 0
+    },
+    {
+      "fileA": ".worktrees/dbehnke-20260405T004755/lane-2/src/utils/format.js",
+      "startA": 159,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/src/utils/format.js",
+      "startB": 149,
+      "lines": 10,
+      "tokens": 0
+    },
+    {
+      "fileA": ".worktrees/dbehnke-20260405T004755/lane-2/src/components/UpgradeRail.vue",
+      "startA": 327,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/src/components/UpgradeRail.vue",
+      "startB": 279,
+      "lines": 18,
+      "tokens": 0
+    },
+    {
+      "fileA": ".worktrees/dbehnke-20260405T004755/lane-1/src/utils/format.js",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/src/utils/format.js",
+      "startB": 1,
+      "lines": 184,
+      "tokens": 0
+    },
+    {
+      "fileA": ".worktrees/dbehnke-20260405T004755/lane-1/src/stores/upgradeRailModel.js",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/src/stores/upgradeRailModel.js",
+      "startB": 1,
+      "lines": 152,
+      "tokens": 0
+    },
+    {
+      "fileA": ".worktrees/dbehnke-20260405T004755/lane-1/src/services/audio.js",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/src/services/audio.js",
+      "startB": 1,
+      "lines": 163,
+      "tokens": 0
+    },
+    {
+      "fileA": ".worktrees/dbehnke-20260405T004755/lane-1/src/constants/upgrades.js",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/src/constants/upgrades.js",
+      "startB": 1,
+      "lines": 889,
+      "tokens": 0
+    },
+    {
+      "fileA": ".worktrees/dbehnke-20260405T004755/lane-1/src/constants/morse.js",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/src/constants/morse.js",
+      "startB": 1,
+      "lines": 76,
+      "tokens": 0
+    },
+    {
+      "fileA": ".worktrees/dbehnke-20260405T004755/lane-1/src/constants/game.js",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/src/constants/game.js",
+      "startB": 1,
+      "lines": 135,
+      "tokens": 0
+    },
+    {
+      "fileA": ".worktrees/dbehnke-20260405T004755/lane-1/src/constants/factories.js",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/src/constants/factories.js",
+      "startB": 1,
+      "lines": 408,
+      "tokens": 0
+    },
+    {
+      "fileA": ".worktrees/dbehnke-20260405T004755/lane-1/src/components/UpgradeRail.vue",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/src/components/UpgradeRail.vue",
+      "startB": 1,
+      "lines": 359,
+      "tokens": 0
+    },
+    {
+      "fileA": ".worktrees/dbehnke-20260405T004755/lane-1/src/components/StoreLane.vue",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/src/components/StoreLane.vue",
+      "startB": 1,
+      "lines": 148,
+      "tokens": 0
+    },
+    {
+      "fileA": ".worktrees/dbehnke-20260405T004755/lane-1/src/components/StatHeader.vue",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/src/components/StatHeader.vue",
+      "startB": 1,
+      "lines": 85,
+      "tokens": 0
+    },
+    {
+      "fileA": ".worktrees/dbehnke-20260405T004755/lane-1/src/components/SettingsPanel.vue",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/src/components/SettingsPanel.vue",
+      "startB": 1,
+      "lines": 595,
+      "tokens": 0
+    },
+    {
+      "fileA": ".worktrees/dbehnke-20260405T004755/lane-1/src/components/RareDxBonus.vue",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/src/components/RareDxBonus.vue",
+      "startB": 1,
+      "lines": 287,
+      "tokens": 0
+    },
+    {
+      "fileA": ".worktrees/dbehnke-20260405T004755/lane-1/src/components/OfflineProgressNotification.vue",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/src/components/OfflineProgressNotification.vue",
+      "startB": 1,
+      "lines": 97,
+      "tokens": 0
+    },
+    {
+      "fileA": ".worktrees/dbehnke-20260405T004755/lane-1/src/components/MultiBuyPanel.vue",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/src/components/MultiBuyPanel.vue",
+      "startB": 1,
+      "lines": 103,
+      "tokens": 0
+    },
+    {
+      "fileA": ".worktrees/dbehnke-20260405T004755/lane-1/src/components/MorseChallenge.vue",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/src/components/MorseChallenge.vue",
+      "startB": 1,
+      "lines": 217,
+      "tokens": 0
+    },
+    {
+      "fileA": ".worktrees/dbehnke-20260405T004755/lane-1/src/components/MigrationNotification.vue",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/src/components/MigrationNotification.vue",
+      "startB": 1,
+      "lines": 106,
+      "tokens": 0
+    },
+    {
+      "fileA": ".worktrees/dbehnke-20260405T004755/lane-1/src/components/LicensePanel.vue",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/src/components/LicensePanel.vue",
+      "startB": 1,
+      "lines": 121,
+      "tokens": 0
+    },
+    {
+      "fileA": ".worktrees/dbehnke-20260405T004755/lane-1/src/components/KeyerArea.vue",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/src/components/KeyerArea.vue",
+      "startB": 1,
+      "lines": 92,
+      "tokens": 0
+    },
+    {
+      "fileA": ".worktrees/dbehnke-20260405T004755/lane-1/src/components/IconRenderer.vue",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/src/components/IconRenderer.vue",
+      "startB": 1,
+      "lines": 67,
+      "tokens": 0
+    },
+    {
+      "fileA": ".worktrees/dbehnke-20260405T004755/lane-1/src/components/GameLoop.vue",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/src/components/GameLoop.vue",
+      "startB": 1,
+      "lines": 50,
+      "tokens": 0
+    },
+    {
+      "fileA": ".worktrees/dbehnke-20260405T004755/lane-1/src/components/FactoryList.vue",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/src/components/FactoryList.vue",
+      "startB": 1,
+      "lines": 61,
+      "tokens": 0
+    },
+    {
+      "fileA": ".worktrees/dbehnke-20260405T004755/lane-1/src/components/FactoryCard.vue",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/src/components/FactoryCard.vue",
+      "startB": 1,
+      "lines": 224,
+      "tokens": 0
+    },
+    {
+      "fileA": ".worktrees/dbehnke-20260405T004755/lane-1/src/components/ErrorBoundary.vue",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/src/components/ErrorBoundary.vue",
+      "startB": 1,
+      "lines": 97,
+      "tokens": 0
+    },
+    {
+      "fileA": ".worktrees/dbehnke-20260405T004755/lane-1/src/components/CompactFactoryItem.vue",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/src/components/CompactFactoryItem.vue",
+      "startB": 1,
+      "lines": 101,
+      "tokens": 0
+    },
+    {
+      "fileA": ".worktrees/dbehnke-20260405T004755/lane-1/src/components/ClickIndicator.vue",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/src/components/ClickIndicator.vue",
+      "startB": 1,
+      "lines": 177,
+      "tokens": 0
+    },
+    {
+      "fileA": ".worktrees/dbehnke-20260405T004755/lane-1/src/components/AudioPanel.vue",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/src/components/AudioPanel.vue",
+      "startB": 1,
+      "lines": 197,
+      "tokens": 0
+    },
+    {
+      "fileA": ".worktrees/dbehnke-20260405T004755/lane-1/scripts/icon-generator/generate.py",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/scripts/icon-generator/generate.py",
+      "startB": 1,
+      "lines": 108,
+      "tokens": 0
+    },
+    {
+      "fileA": ".worktrees/dbehnke-20260405T004755/lane-2/src/App.vue",
+      "startA": 222,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/src/App.vue",
+      "startB": 178,
+      "lines": 25,
+      "tokens": 0
+    },
+    {
+      "fileA": ".worktrees/dbehnke-20260405T004755/lane-1/src/main.js",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/src/main.js",
+      "startB": 1,
+      "lines": 14,
+      "tokens": 0
+    },
+    {
+      "fileA": ".worktrees/dbehnke-20260405T004755/lane-1/src/App.vue",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/src/App.vue",
+      "startB": 1,
+      "lines": 313,
+      "tokens": 0
+    },
+    {
+      "fileA": ".worktrees/dbehnke-20260405T004755/lane-1/scripts/git-fork-workflow.sh",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/scripts/git-fork-workflow.sh",
+      "startB": 1,
+      "lines": 102,
+      "tokens": 0
+    },
+    {
+      "fileA": ".worktrees/dbehnke-20260405T004755/lane-1/scripts/generate-version.js",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/scripts/generate-version.js",
+      "startB": 1,
+      "lines": 35,
+      "tokens": 0
+    },
+    {
+      "fileA": ".worktrees/dbehnke-20260405T004755/lane-1/public/icons.svg",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/public/icons.svg",
+      "startB": 1,
+      "lines": 24,
+      "tokens": 0
+    },
+    {
+      "fileA": "src/components/upgrade-rail/UpgradeRailDetailsSheet.vue",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/src/components/upgrade-rail/UpgradeRailDetailsSheet.vue",
+      "startB": 1,
+      "lines": 113,
+      "tokens": 0
+    },
+    {
+      "fileA": ".worktrees/dbehnke-20260405T004755/lane-1/vite.config.js",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/vite.config.js",
+      "startB": 1,
+      "lines": 67,
+      "tokens": 0
+    },
+    {
+      "fileA": ".worktrees/dbehnke-20260405T004755/lane-1/tailwind.config.js",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/tailwind.config.js",
+      "startB": 1,
+      "lines": 19,
+      "tokens": 0
+    },
+    {
+      "fileA": ".worktrees/dbehnke-20260405T004755/lane-1/index.html",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/index.html",
+      "startB": 1,
+      "lines": 13,
+      "tokens": 0
+    },
+    {
+      "fileA": ".worktrees/dbehnke-20260405T004755/lane-1/eslint.config.js",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/eslint.config.js",
+      "startB": 1,
+      "lines": 66,
+      "tokens": 0
+    },
+    {
+      "fileA": "src/utils/format.js",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/src/utils/format.js",
+      "startB": 1,
+      "lines": 184,
+      "tokens": 0
+    },
+    {
+      "fileA": "src/stores/upgradeRailModel.js",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/src/stores/upgradeRailModel.js",
+      "startB": 1,
+      "lines": 152,
+      "tokens": 0
+    },
+    {
+      "fileA": "src/constants/upgrades.js",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/src/constants/upgrades.js",
+      "startB": 1,
+      "lines": 889,
+      "tokens": 0
+    },
+    {
+      "fileA": "src/constants/morse.js",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/src/constants/morse.js",
+      "startB": 1,
+      "lines": 76,
+      "tokens": 0
+    },
+    {
+      "fileA": "src/constants/game.js",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/src/constants/game.js",
+      "startB": 1,
+      "lines": 135,
+      "tokens": 0
+    },
+    {
+      "fileA": "src/constants/factories.js",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/src/constants/factories.js",
+      "startB": 1,
+      "lines": 408,
+      "tokens": 0
+    },
+    {
+      "fileA": "src/components/UpgradeRail.vue",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/src/components/UpgradeRail.vue",
+      "startB": 1,
+      "lines": 359,
+      "tokens": 0
+    },
+    {
+      "fileA": "src/components/StoreLane.vue",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/src/components/StoreLane.vue",
+      "startB": 1,
+      "lines": 148,
+      "tokens": 0
+    },
+    {
+      "fileA": "src/components/StatHeader.vue",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/src/components/StatHeader.vue",
+      "startB": 1,
+      "lines": 85,
+      "tokens": 0
+    },
+    {
+      "fileA": "src/components/SettingsPanel.vue",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/src/components/SettingsPanel.vue",
+      "startB": 1,
+      "lines": 595,
+      "tokens": 0
+    },
+    {
+      "fileA": "src/components/RareDxBonus.vue",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/src/components/RareDxBonus.vue",
+      "startB": 1,
+      "lines": 287,
+      "tokens": 0
+    },
+    {
+      "fileA": "src/components/OfflineProgressNotification.vue",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/src/components/OfflineProgressNotification.vue",
+      "startB": 1,
+      "lines": 97,
+      "tokens": 0
+    },
+    {
+      "fileA": "src/components/MultiBuyPanel.vue",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/src/components/MultiBuyPanel.vue",
+      "startB": 1,
+      "lines": 103,
+      "tokens": 0
+    },
+    {
+      "fileA": "src/components/MorseChallenge.vue",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/src/components/MorseChallenge.vue",
+      "startB": 1,
+      "lines": 217,
+      "tokens": 0
+    },
+    {
+      "fileA": "src/components/MigrationNotification.vue",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/src/components/MigrationNotification.vue",
+      "startB": 1,
+      "lines": 106,
+      "tokens": 0
+    },
+    {
+      "fileA": "src/components/LicensePanel.vue",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/src/components/LicensePanel.vue",
+      "startB": 1,
+      "lines": 121,
+      "tokens": 0
+    },
+    {
+      "fileA": "src/components/KeyerArea.vue",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/src/components/KeyerArea.vue",
+      "startB": 1,
+      "lines": 92,
+      "tokens": 0
+    },
+    {
+      "fileA": "src/components/IconRenderer.vue",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/src/components/IconRenderer.vue",
+      "startB": 1,
+      "lines": 67,
+      "tokens": 0
+    },
+    {
+      "fileA": "src/components/GameLoop.vue",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/src/components/GameLoop.vue",
+      "startB": 1,
+      "lines": 50,
+      "tokens": 0
+    },
+    {
+      "fileA": "src/components/FactoryList.vue",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/src/components/FactoryList.vue",
+      "startB": 1,
+      "lines": 61,
+      "tokens": 0
+    },
+    {
+      "fileA": "src/components/FactoryCard.vue",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/src/components/FactoryCard.vue",
+      "startB": 1,
+      "lines": 224,
+      "tokens": 0
+    },
+    {
+      "fileA": "src/components/ErrorBoundary.vue",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/src/components/ErrorBoundary.vue",
+      "startB": 1,
+      "lines": 97,
+      "tokens": 0
+    },
+    {
+      "fileA": "src/components/CompactFactoryItem.vue",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/src/components/CompactFactoryItem.vue",
+      "startB": 1,
+      "lines": 101,
+      "tokens": 0
+    },
+    {
+      "fileA": "src/components/ClickIndicator.vue",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/src/components/ClickIndicator.vue",
+      "startB": 1,
+      "lines": 177,
+      "tokens": 0
+    },
+    {
+      "fileA": "src/components/AudioPanel.vue",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/src/components/AudioPanel.vue",
+      "startB": 1,
+      "lines": 197,
+      "tokens": 0
+    },
+    {
+      "fileA": "scripts/icon-generator/generate.py",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/scripts/icon-generator/generate.py",
+      "startB": 1,
+      "lines": 108,
+      "tokens": 0
+    },
+    {
+      "fileA": "src/main.js",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/src/main.js",
+      "startB": 1,
+      "lines": 14,
+      "tokens": 0
+    },
+    {
+      "fileA": "src/App.vue",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/src/App.vue",
+      "startB": 1,
+      "lines": 313,
+      "tokens": 0
+    },
+    {
+      "fileA": "scripts/git-fork-workflow.sh",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/scripts/git-fork-workflow.sh",
+      "startB": 1,
+      "lines": 102,
+      "tokens": 0
+    },
+    {
+      "fileA": "public/icons.svg",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/public/icons.svg",
+      "startB": 1,
+      "lines": 24,
+      "tokens": 0
+    },
+    {
+      "fileA": "vite.config.js",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/vite.config.js",
+      "startB": 1,
+      "lines": 67,
+      "tokens": 0
+    },
+    {
+      "fileA": "tailwind.config.js",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/tailwind.config.js",
+      "startB": 1,
+      "lines": 19,
+      "tokens": 0
+    },
+    {
+      "fileA": "index.html",
+      "startA": 1,
+      "fileB": ".worktrees/dbehnke-20260405T004755/lane-2/index.html",
+      "startB": 1,
+      "lines": 13,
+      "tokens": 0
+    }
+  ],
+  "duplicatedLines": 11845,
+  "totalLines": 18165,
+  "percentage": 65.21
+}

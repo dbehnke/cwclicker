@@ -1,40 +1,40 @@
 <script setup>
-import { ref, computed } from 'vue';
-import { audioService } from '../services/audio';
+import { ref, computed } from 'vue'
+import { audioService } from '../services/audio'
 
 /**
  * Emits events from the component.
  */
-const emit = defineEmits(['settings-change']);
+const emit = defineEmits(['settings-change'])
 
-const isExpanded = ref(false);
+const isExpanded = ref(false)
 
-const MIN_FREQUENCY = 400;
-const MAX_FREQUENCY = 1000;
+const MIN_FREQUENCY = 400
+const MAX_FREQUENCY = 1000
 
-const volume = ref(audioService.volume);
-const frequency = ref(audioService.frequency);
-const isMuted = ref(audioService.isMuted);
+const volume = ref(audioService.volume)
+const frequency = ref(audioService.frequency)
+const isMuted = ref(audioService.isMuted)
 
 /**
  * Formatted frequency display
  */
 const formattedFrequency = computed(() => {
-  return `${frequency.value} Hz`;
-});
+  return `${frequency.value} Hz`
+})
 
 /**
  * Volume percentage for display
  */
 const volumePercent = computed(() => {
-  return `${Math.round(volume.value * 100)}%`;
-});
+  return `${Math.round(volume.value * 100)}%`
+})
 
 /**
  * Toggles the panel expansion
  */
 function togglePanel() {
-  isExpanded.value = !isExpanded.value;
+  isExpanded.value = !isExpanded.value
 }
 
 /**
@@ -42,10 +42,10 @@ function togglePanel() {
  * @param {Event} event
  */
 function handleVolumeChange(event) {
-  const newVolume = parseFloat(event.target.value);
-  volume.value = newVolume;
-  audioService.setVolume(newVolume);
-  emitSettingsChange();
+  const newVolume = parseFloat(event.target.value)
+  volume.value = newVolume
+  audioService.setVolume(newVolume)
+  emitSettingsChange()
 }
 
 /**
@@ -53,18 +53,18 @@ function handleVolumeChange(event) {
  * @param {Event} event
  */
 function handleFrequencyChange(event) {
-  const newFreq = parseInt(event.target.value, 10);
-  frequency.value = newFreq;
-  audioService.setFrequency(newFreq);
-  emitSettingsChange();
+  const newFreq = parseInt(event.target.value, 10)
+  frequency.value = newFreq
+  audioService.setFrequency(newFreq)
+  emitSettingsChange()
 }
 
 /**
  * Toggles mute state
  */
 function toggleMute() {
-  isMuted.value = audioService.toggleMute();
-  emitSettingsChange();
+  isMuted.value = audioService.toggleMute()
+  emitSettingsChange()
 }
 
 /**
@@ -75,7 +75,7 @@ function emitSettingsChange() {
     volume: volume.value,
     frequency: frequency.value,
     isMuted: isMuted.value,
-  });
+  })
 }
 
 /**
@@ -84,23 +84,23 @@ function emitSettingsChange() {
  */
 function loadSettings(settings) {
   if (settings.volume !== undefined) {
-    volume.value = settings.volume;
-    audioService.setVolume(settings.volume);
+    volume.value = settings.volume
+    audioService.setVolume(settings.volume)
   }
   if (settings.frequency !== undefined) {
-    frequency.value = settings.frequency;
-    audioService.setFrequency(settings.frequency);
+    frequency.value = settings.frequency
+    audioService.setFrequency(settings.frequency)
   }
   if (settings.isMuted !== undefined) {
-    isMuted.value = settings.isMuted;
-    audioService.toggleMute(settings.isMuted);
+    isMuted.value = settings.isMuted
+    audioService.toggleMute(settings.isMuted)
   }
 }
 
 // Expose loadSettings for parent component
 defineExpose({
   loadSettings,
-});
+})
 </script>
 
 <template>
@@ -122,10 +122,7 @@ defineExpose({
     </button>
 
     <!-- Expanded Panel -->
-    <div
-      v-show="isExpanded"
-      class="p-4 space-y-4"
-    >
+    <div v-show="isExpanded" class="p-4 space-y-4">
       <!-- Mute Toggle -->
       <div class="flex items-center justify-between">
         <span class="text-terminal-green">Mute</span>
@@ -134,7 +131,8 @@ defineExpose({
           class="px-4 py-1 rounded font-bold transition-colors touch-manipulation"
           :class="{
             'bg-terminal-amber text-terminal-bg hover:brightness-110 active:brightness-95': isMuted,
-            'bg-terminal-green text-terminal-bg hover:brightness-110 active:brightness-95': !isMuted,
+            'bg-terminal-green text-terminal-bg hover:brightness-110 active:brightness-95':
+              !isMuted,
           }"
         >
           {{ isMuted ? 'OFF' : 'ON' }}
@@ -187,11 +185,11 @@ defineExpose({
 </template>
 
 <style scoped>
-input[type="range"] {
+input[type='range'] {
   accent-color: #4af626;
 }
 
-input[type="range"]:disabled {
+input[type='range']:disabled {
   cursor: not-allowed;
 }
 </style>

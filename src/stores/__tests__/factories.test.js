@@ -261,7 +261,9 @@ describe('Game Store - Factory Logic', () => {
 
     it('records timestamp when buyUpgrade succeeds', () => {
       const store = useGameStore()
-      const targetUpgrade = UPGRADES.find(upgrade => upgrade.factoryId === 'elmer' && upgrade.threshold === 5)
+      const targetUpgrade = UPGRADES.find(
+        upgrade => upgrade.factoryId === 'elmer' && upgrade.threshold === 5
+      )
       const timestamp = 1700000000000
 
       store.factoryCounts['elmer'] = 5
@@ -276,7 +278,9 @@ describe('Game Store - Factory Logic', () => {
 
     it('does not write metadata when buyUpgrade fails', () => {
       const store = useGameStore()
-      const targetUpgrade = UPGRADES.find(upgrade => upgrade.factoryId === 'elmer' && upgrade.threshold === 5)
+      const targetUpgrade = UPGRADES.find(
+        upgrade => upgrade.factoryId === 'elmer' && upgrade.threshold === 5
+      )
 
       store.factoryCounts['elmer'] = 5
       store.qsos = 0n
