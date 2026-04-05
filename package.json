@@ -12,12 +12,22 @@
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs --fix",
     "lint:check": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "prepare": "husky install"
   },
   "dependencies": {
     "lucide-vue-next": "^1.0.0",
     "pinia": "^3.0.4",
     "vue": "^3.5.30"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,vue}": [
+      "prettier --write",
+      "eslint --fix"
+    ],
+    "*.{css,scss,md,json}": [
+      "prettier --write"
+    ]
   },
   "devDependencies": {
     "@playwright/test": "^1.58.2",
@@ -29,6 +39,8 @@
     "eslint": "^9.23.0",
     "eslint-plugin-vue": "^10.0.0",
     "globals": "^15.14.0",
+    "husky": "^8.0.3",
+    "lint-staged": "^13.2.1",
     "jsdom": "^29.0.0",
     "postcss": "^8.5.8",
     "prettier": "^3.2.5",
