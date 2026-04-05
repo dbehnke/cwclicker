@@ -27,3 +27,7 @@ node-compile-cache/
 test-results/
 playwright-report/
 playwright/.cache/
+
+# pi artifacts
+.pi/
+.pi-lens/
