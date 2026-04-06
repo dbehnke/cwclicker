@@ -1,284 +1,291 @@
-import { setActivePinia, createPinia } from 'pinia'
-import { useGameStore } from '../game'
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { createPinia, setActivePinia } from "pinia";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { useGameStore } from "../game";
 
-describe('Game Store', () => {
-  beforeEach(() => {
-    setActivePinia(createPinia())
-  })
+describe("Game Store", () => {
+	beforeEach(() => {
+		setActivePinia(createPinia());
+	});
 
-  it('initializes with 0 QSOs', () => {
-    const store = useGameStore()
-    expect(store.qsos).toBe(0n)
-    expect(store.qsosThisRun).toBe(0n)
-  })
+	it("initializes with 0 QSOs", () => {
+		const store = useGameStore();
+		expect(store.qsos).toBe(0n);
+		expect(store.qsosThisRun).toBe(0n);
+	});
 
-  it('adds QSOs when keyer is tapped (dit = 1)', () => {
-    const store = useGameStore()
-    store.tapKeyer('dit')
-    expect(store.qsos).toBe(1n)
-  })
+	it("adds QSOs when keyer is tapped (dit = 1)", () => {
+		const store = useGameStore();
+		store.tapKeyer("dit");
+		expect(store.qsos).toBe(1n);
+	});
 
-  it('adds QSOs when keyer is tapped (dah = 2)', () => {
-    const store = useGameStore()
-    store.tapKeyer('dah')
-    expect(store.qsos).toBe(2n)
-  })
+	it("adds QSOs when keyer is tapped (dah = 2)", () => {
+		const store = useGameStore();
+		store.tapKeyer("dah");
+		expect(store.qsos).toBe(2n);
+	});
 
-  it('warns on invalid keyer tap type and does not add QSOs', () => {
-    const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
-    const store = useGameStore()
+	it("warns on invalid keyer tap type and does not add QSOs", () => {
+		const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+		const store = useGameStore();
 
-    store.tapKeyer('dot')
+		store.tapKeyer("dot");
 
-    expect(consoleSpy).toHaveBeenCalledWith('Invalid keyer tap type: dot')
-    expect(store.qsos).toBe(0n)
+		expect(consoleSpy).toHaveBeenCalledWith("Invalid keyer tap type: dot");
+		expect(store.qsos).toBe(0n);
 
-    consoleSpy.mockRestore()
-  })
+		consoleSpy.mockRestore();
+	});
 
-  it('exposes prestige eligibility and multiplier from earned QSOs', () => {
-    const store = useGameStore()
+	it("exposes prestige eligibility and multiplier from earned QSOs", () => {
+		const store = useGameStore();
 
-    expect(store.canPrestigeReset).toBe(false)
-    expect(store.prestigeMultiplier).toBe(1)
+		expect(store.canPrestigeReset).toBe(false);
+		expect(store.prestigeMultiplier).toBe(1);
 
-    store.totalQsosEarned = 27_000_000_000n
+		store.totalQsosEarned = 27_000_000_000n;
 
-    expect(store.canPrestigeReset).toBe(true)
-    expect(store.prestigeMultiplier).toBe(1)
+		expect(store.canPrestigeReset).toBe(true);
+		expect(store.prestigeMultiplier).toBe(1);
 
-    store.prestigeLevel = 3n
+		store.prestigeLevel = 3n;
 
-    expect(store.canPrestigeReset).toBe(false)
-    expect(store.prestigeMultiplier).toBeCloseTo(1.15)
-  })
+		expect(store.canPrestigeReset).toBe(false);
+		expect(store.prestigeMultiplier).toBeCloseTo(1.15);
+	});
 
-  it('does not recompute prestige eligibility until earned QSOs cross the next threshold', () => {
-    const store = useGameStore()
+	it("does not recompute prestige eligibility until earned QSOs cross the next threshold", () => {
+		const store = useGameStore();
 
-    store.totalQsosEarned = 27_000_000_000n
-    store.prestigeLevel = 3n
+		store.totalQsosEarned = 27_000_000_000n;
+		store.prestigeLevel = 3n;
 
-    const initialEligible = store.eligiblePrestigeLevel
-    store.tapKeyer('dit')
+		const initialEligible = store.eligiblePrestigeLevel;
+		store.tapKeyer("dit");
 
-    expect(store.eligiblePrestigeLevel).toBe(initialEligible)
-    expect(store.canPrestigeReset).toBe(false)
-  })
+		expect(store.eligiblePrestigeLevel).toBe(initialEligible);
+		expect(store.canPrestigeReset).toBe(false);
+	});
 
-  it('applies prestige multiplier to keyer taps with remainder accumulation', () => {
-    const store = useGameStore()
+	it("applies prestige multiplier to keyer taps with remainder accumulation", () => {
+		const store = useGameStore();
 
-    store.totalQsosEarned = 27_000_000_000n
-    store.prestigeLevel = 3n
+		store.totalQsosEarned = 27_000_000_000n;
+		store.prestigeLevel = 3n;
 
-    store.tapKeyer('dit')
-    expect(store.qsos).toBe(1n)
-    expect(store.qsosThisRun).toBe(1n)
-    expect(store.totalQsosEarned).toBe(27_000_000_001n)
+		store.tapKeyer("dit");
+		expect(store.qsos).toBe(1n);
+		expect(store.qsosThisRun).toBe(1n);
+		expect(store.totalQsosEarned).toBe(27_000_000_001n);
 
-    store.tapKeyer('dah')
-    expect(store.qsos).toBe(3n)
-    expect(store.qsosThisRun).toBe(3n)
-    expect(store.totalQsosEarned).toBe(27_000_000_003n)
-  })
+		store.tapKeyer("dah");
+		expect(store.qsos).toBe(3n);
+		expect(store.qsosThisRun).toBe(3n);
+		expect(store.totalQsosEarned).toBe(27_000_000_003n);
+	});
 
-  it('tracks passive factory earnings in qsosThisRun', () => {
-    const store = useGameStore()
+	it("tracks passive factory earnings in qsosThisRun", () => {
+		const store = useGameStore();
 
-    store.addPassiveQSOs(2.4)
+		store.addPassiveQSOs(2.4);
 
-    expect(store.qsos).toBe(2n)
-    expect(store.qsosThisRun).toBe(2n)
-    expect(store.totalQsosEarned).toBe(2n)
-  })
+		expect(store.qsos).toBe(2n);
+		expect(store.qsosThisRun).toBe(2n);
+		expect(store.totalQsosEarned).toBe(2n);
+	});
 
-  it('tracks per-factory production totals from passive ticks', () => {
-    const store = useGameStore()
-    store.factoryCounts = { elmer: 2 }
+	it("tracks per-factory production totals from passive ticks", () => {
+		const store = useGameStore();
+		store.factoryCounts = { elmer: 2 };
 
-    store.incrementFactoryProductionTotals(1)
+		store.incrementFactoryProductionTotals(1);
 
-    expect(store.factoryProductionTotals.elmer ?? 0n).toBe(0n)
+		expect(store.factoryProductionTotals.elmer ?? 0n).toBe(0n);
 
-    store.incrementFactoryProductionTotals(5)
+		store.incrementFactoryProductionTotals(5);
 
-    expect(store.factoryProductionTotals.elmer).toBe(1n)
-  })
+		expect(store.factoryProductionTotals.elmer).toBe(1n);
+	});
 
-  it('accumulates per-factory production totals across sub-1 ticks', () => {
-    const store = useGameStore()
-    store.factoryCounts = { elmer: 1 }
+	it("accumulates per-factory production totals across sub-1 ticks", () => {
+		const store = useGameStore();
+		store.factoryCounts = { elmer: 1 };
 
-    for (let i = 0; i < 11; i++) {
-      store.incrementFactoryProductionTotals(1)
-    }
+		for (let i = 0; i < 11; i++) {
+			store.incrementFactoryProductionTotals(1);
+		}
 
-    expect(store.factoryProductionTotals.elmer).toBe(1n)
-    expect(store.factoryProductionRemainders.elmer).toBeGreaterThan(0)
-    expect(store.factoryProductionRemainders.elmer).toBeLessThan(1)
-  })
+		expect(store.factoryProductionTotals.elmer).toBe(1n);
+		expect(store.factoryProductionRemainders.elmer).toBeGreaterThan(0);
+		expect(store.factoryProductionRemainders.elmer).toBeLessThan(1);
+	});
 
-  it('accumulates tap prestige bonus across repeated small taps', () => {
-    const store = useGameStore()
+	it("accumulates tap prestige bonus across repeated small taps", () => {
+		const store = useGameStore();
 
-    store.totalQsosEarned = 27_000_000_000n
-    store.prestigeLevel = 3n
+		store.totalQsosEarned = 27_000_000_000n;
+		store.prestigeLevel = 3n;
 
-    for (let i = 0; i < 20; i++) {
-      store.tapKeyer('dit')
-    }
+		for (let i = 0; i < 20; i++) {
+			store.tapKeyer("dit");
+		}
 
-    expect(store.qsos).toBeGreaterThan(20n)
-    expect(store.totalQsosEarned).toBeGreaterThan(27_000_000_020n)
-    expect(store.qsos).toBe(store.totalQsosEarned - 27_000_000_000n)
-  })
+		expect(store.qsos).toBeGreaterThan(20n);
+		expect(store.totalQsosEarned).toBeGreaterThan(27_000_000_020n);
+		expect(store.qsos).toBe(store.totalQsosEarned - 27_000_000_000n);
+	});
 
-  it('prestige reset awards only newly earned points and clears run state', () => {
-    const store = useGameStore()
+	it("prestige reset awards only newly earned points and clears run state", () => {
+		const store = useGameStore();
 
-    store.totalQsosEarned = 27_000_000_000n
-    store.prestigeLevel = 1n
-    store.prestigePoints = 4n
-    store.qsos = 123n
-    store.qsosThisRun = 456n
-    store.factoryCounts = { cwkeyer: 2 }
-    store.fractionalQSOs = 0.75
-    store.licenseLevel = 4
-    store.purchasedUpgrades = new Set(['upgrade-1'])
-    store.offlineEarnings = { qsos: 10, hours: 1, rate: 2 }
-    store.morseChallengeState = {
-      isActive: true,
-      currentChar: 'K',
-      currentPattern: '−·−',
-      keyedSequence: ['dit', 'dah'],
-      challengeStartTime: 1700000000000,
-      state: 'active',
-    }
+		store.totalQsosEarned = 27_000_000_000n;
+		store.prestigeLevel = 1n;
+		store.prestigePoints = 4n;
+		store.qsos = 123n;
+		store.qsosThisRun = 456n;
+		store.factoryCounts = { cwkeyer: 2 };
+		store.fractionalQSOs = 0.75;
+		store.licenseLevel = 4;
+		store.purchasedUpgrades = new Set(["upgrade-1"]);
+		store.offlineEarnings = { qsos: 10, hours: 1, rate: 2 };
+		store.morseChallengeState = {
+			isActive: true,
+			currentChar: "K",
+			currentPattern: "−·−",
+			keyedSequence: ["dit", "dah"],
+			challengeStartTime: 1700000000000,
+			state: "active",
+		};
 
-    store.prestigeReset()
+		store.prestigeReset();
 
-    expect(store.prestigeLevel).toBe(3n)
-    expect(store.prestigePoints).toBe(6n)
-    expect(store.totalQsosEarned).toBe(27_000_000_000n)
-    expect(store.qsos).toBe(0n)
-    expect(store.qsosThisRun).toBe(0n)
-    expect(store.factoryCounts).toEqual({})
-    expect(store.fractionalQSOs).toBe(0)
-    expect(store.licenseLevel).toBe(1)
-    expect(store.purchasedUpgrades).toEqual(new Set())
-    expect(store.offlineEarnings).toBe(null)
-    expect(store.morseChallengeState.isActive).toBe(false)
-    expect(store.morseChallengeState.state).toBe('idle')
-    expect(store.morseChallengeState.triesRemaining).toBe(3)
-    expect(store.morseChallengeState.lastBonusAwarded).toBe(0)
-    expect(store.canPrestigeReset).toBe(false)
-  })
+		expect(store.prestigeLevel).toBe(3n);
+		expect(store.prestigePoints).toBe(6n);
+		expect(store.totalQsosEarned).toBe(27_000_000_000n);
+		expect(store.qsos).toBe(0n);
+		expect(store.qsosThisRun).toBe(0n);
+		expect(store.factoryCounts).toEqual({});
+		expect(store.fractionalQSOs).toBe(0);
+		expect(store.licenseLevel).toBe(1);
+		expect(store.purchasedUpgrades).toEqual(new Set());
+		expect(store.offlineEarnings).toBe(null);
+		expect(store.morseChallengeState.isActive).toBe(false);
+		expect(store.morseChallengeState.state).toBe("idle");
+		expect(store.morseChallengeState.triesRemaining).toBe(3);
+		expect(store.morseChallengeState.lastBonusAwarded).toBe(0);
+		expect(store.canPrestigeReset).toBe(false);
+	});
 
-  it('fullReset clears ALL state including prestige and audio settings', () => {
-    const store = useGameStore()
+	it("fullReset clears ALL state including prestige and audio settings", () => {
+		const store = useGameStore();
 
-    store.qsos = 100n
-    store.qsosThisRun = 50n
-    store.totalQsosEarned = 27_000_000_000n
-    store.prestigeLevel = 5n
-    store.prestigePoints = 10n
-    store.licenseLevel = 3
-    store.factoryCounts = { elmer: 10 }
-    store.fractionalQSOs = 0.5
-    store.tapPrestigeAccumulator = 42n
-    store.audioSettings = { volume: 0.8, frequency: 800, isMuted: true, morseWpm: 15 }
-    store.morseChallengeEnabled = false
+		store.qsos = 100n;
+		store.qsosThisRun = 50n;
+		store.totalQsosEarned = 27_000_000_000n;
+		store.prestigeLevel = 5n;
+		store.prestigePoints = 10n;
+		store.licenseLevel = 3;
+		store.factoryCounts = { elmer: 10 };
+		store.fractionalQSOs = 0.5;
+		store.tapPrestigeAccumulator = 42n;
+		store.audioSettings = {
+			volume: 0.8,
+			frequency: 800,
+			isMuted: true,
+			morseWpm: 15,
+		};
+		store.morseChallengeEnabled = false;
 
-    store.fullReset()
+		store.fullReset();
 
-    expect(store.qsos).toBe(0n)
-    expect(store.qsosThisRun).toBe(0n)
-    expect(store.totalQsosEarned).toBe(0n)
-    expect(store.prestigeLevel).toBe(0n)
-    expect(store.prestigePoints).toBe(0n)
-    expect(store.licenseLevel).toBe(1)
-    expect(store.factoryCounts).toEqual({})
-    expect(store.fractionalQSOs).toBe(0)
-    expect(store.tapPrestigeAccumulator).toBe(0n)
-    expect(store.audioSettings).toEqual({
-      volume: 0.5,
-      frequency: 600,
-      isMuted: false,
-      morseWpm: 5,
-    })
-    expect(store.morseChallengeEnabled).toBe(true)
-    expect(store.canPrestigeReset).toBe(false)
-    expect(store.prestigeMultiplier).toBe(1)
-  })
+		expect(store.qsos).toBe(0n);
+		expect(store.qsosThisRun).toBe(0n);
+		expect(store.totalQsosEarned).toBe(0n);
+		expect(store.prestigeLevel).toBe(0n);
+		expect(store.prestigePoints).toBe(0n);
+		expect(store.licenseLevel).toBe(1);
+		expect(store.factoryCounts).toEqual({});
+		expect(store.fractionalQSOs).toBe(0);
+		expect(store.tapPrestigeAccumulator).toBe(0n);
+		expect(store.audioSettings).toEqual({
+			volume: 0.5,
+			frequency: 600,
+			isMuted: false,
+			morseWpm: 5,
+		});
+		expect(store.morseChallengeEnabled).toBe(true);
+		expect(store.canPrestigeReset).toBe(false);
+		expect(store.prestigeMultiplier).toBe(1);
+	});
 
-  it('calculates prestige eligibility exactly for very large totals', () => {
-    const store = useGameStore()
+	it("calculates prestige eligibility exactly for very large totals", () => {
+		const store = useGameStore();
 
-    const root = 1_234_567n
-    const normalized = root ** 3n - 1n
-    store.totalQsosEarned = 1_000_000_000n * normalized
+		const root = 1_234_567n;
+		const normalized = root ** 3n - 1n;
+		store.totalQsosEarned = 1_000_000_000n * normalized;
 
-    expect(store.eligiblePrestigeLevel).toBe(root - 1n)
-  })
+		expect(store.eligiblePrestigeLevel).toBe(root - 1n);
+	});
 
-  it('caps extreme passive output to Number.MAX_SAFE_INTEGER', () => {
-    const store = useGameStore()
+	it("caps extreme passive output to Number.MAX_SAFE_INTEGER", () => {
+		const store = useGameStore();
 
-    store.factoryCounts = { elmer: Number.MAX_SAFE_INTEGER }
-    store.prestigeLevel = 9007199254740991n
+		store.factoryCounts = { elmer: Number.MAX_SAFE_INTEGER };
+		store.prestigeLevel = 9007199254740991n;
 
-    expect(store.getTotalQSOsPerSecond()).toBe(Number.MAX_SAFE_INTEGER)
-  })
+		expect(store.getTotalQSOsPerSecond()).toBe(Number.MAX_SAFE_INTEGER);
+	});
 
-  it('applies solar storm multiplier after load-time reset', () => {
-    const EXPECTED_STORM_MULTIPLIER = 0.5
-    const EXPECTED_STORM_DURATION_MS = 77000
-    vi.useFakeTimers()
-    const now = new Date('2026-03-27T12:00:00.000Z')
-    vi.setSystemTime(now)
+	it("applies solar storm multiplier after load-time reset", () => {
+		const EXPECTED_STORM_MULTIPLIER = 0.5;
+		const EXPECTED_STORM_DURATION_MS = 77000;
+		vi.useFakeTimers();
+		const now = new Date("2026-03-27T12:00:00.000Z");
+		vi.setSystemTime(now);
 
-    const saveData = {
-      version: '1.1.8',
-      qsos: '10',
-      factoryCounts: { elmer: 1 },
-      licenseLevel: 1,
-      lotteryState: {
-        isSolarStorm: true,
-        solarStormEndTime: now.getTime() + 1000,
-      },
-    }
-    localStorage.setItem('cw-keyer-game', JSON.stringify(saveData))
+		const saveData = {
+			version: "1.1.8",
+			qsos: "10",
+			factoryCounts: { elmer: 1 },
+			licenseLevel: 1,
+			lotteryState: {
+				isSolarStorm: true,
+				solarStormEndTime: now.getTime() + 1000,
+			},
+		};
+		localStorage.setItem("cw-keyer-game", JSON.stringify(saveData));
 
-    const store = useGameStore()
-    store.load()
+		const store = useGameStore();
+		store.load();
 
-    expect(store.getLotteryMultiplier('elmer')).toBe(EXPECTED_STORM_MULTIPLIER)
-    expect(store.lotteryState.solarStormEndTime).toBe(now.getTime() + EXPECTED_STORM_DURATION_MS)
-  })
+		expect(store.getLotteryMultiplier("elmer")).toBe(EXPECTED_STORM_MULTIPLIER);
+		expect(store.lotteryState.solarStormEndTime).toBe(
+			now.getTime() + EXPECTED_STORM_DURATION_MS,
+		);
+	});
 
-  it('has the correct GAME_VERSION', () => {
-    const store = useGameStore()
-    expect(store.gameVersion).toBe('1.4.1')
-  })
+	it("has the correct GAME_VERSION", () => {
+		const store = useGameStore();
+		expect(store.gameVersion).toBe("1.4.2");
+	});
 
-  it('accumulates properly at 60 fps for low-rate factories', () => {
-    const store = useGameStore()
-    store.factoryCounts = { elmer: 1 } // elmer produces 0.1 / sec
+	it("accumulates properly at 60 fps for low-rate factories", () => {
+		const store = useGameStore();
+		store.factoryCounts = { elmer: 1 }; // elmer produces 0.1 / sec
 
-    for (let i = 0; i < 60; i++) {
-      store.incrementFactoryProductionTotals(1 / 60)
-    }
+		for (let i = 0; i < 60; i++) {
+			store.incrementFactoryProductionTotals(1 / 60);
+		}
 
-    expect(store.factoryProductionTotals.elmer || 0n).toBe(0n)
-    expect(store.factoryProductionRemainders.elmer).toBeCloseTo(0.1)
+		expect(store.factoryProductionTotals.elmer || 0n).toBe(0n);
+		expect(store.factoryProductionRemainders.elmer).toBeCloseTo(0.1);
 
-    for (let i = 0; i < 540; i++) {
-      store.incrementFactoryProductionTotals(1 / 60)
-    }
+		for (let i = 0; i < 540; i++) {
+			store.incrementFactoryProductionTotals(1 / 60);
+		}
 
-    // total 600 frames = 10 seconds. elmer produces 0.1/s => 1 total.
-    expect(store.factoryProductionTotals.elmer || 0n).toBe(1n)
-  })
-})
+		// total 600 frames = 10 seconds. elmer produces 0.1/s => 1 total.
+		expect(store.factoryProductionTotals.elmer || 0n).toBe(1n);
+	});
+});
