@@ -1,7 +1,7 @@
 # CW Clicker - Factory & License System Design
 
 **Date:** 2025-03-19  
-**Status:** Ready for Implementation  
+**Status:** Ready for Implementation
 
 ---
 
@@ -18,15 +18,19 @@ Implementation of all 21 factories across 3 tiers (Technician, General, Extra) w
 **21 Factories total, organized by tier:**
 
 **Tier 1-2: Technician License** (Elmer through Beam Antenna)
+
 - 9 factories with 0.1 - 30 QSOs/sec rates
 
 **Tier 3-5: General License** (Tower through DX Cluster)
+
 - 9 factories with 60 - 250 QSOs/sec rates
 
 **Tier 6-7: Extra License** (FT8 Bot through Alternate Dimension)
+
 - 3 factories with 5,000 - 500,000 QSOs/sec rates
 
 **Factory Object Structure:**
+
 ```javascript
 {
   id: 'elmer',
@@ -47,11 +51,13 @@ Cost of Factory N = baseCost × (1 + tierMultiplier)^(owned)
 ```
 
 **Tier multipliers:**
+
 - Tiers 1-2: 10% per factory → `baseCost × 1.10^owned`
 - Tiers 3-5: 7% per factory → `baseCost × 1.07^owned`
 - Tiers 6-7: 5% per factory → `baseCost × 1.05^owned`
 
 **Example Calculations:**
+
 - **Elmer (Tier 1, cost 10):** 10, 11, 12, 14, 15... (10% scaling)
 - **Paddle Key (Tier 2, cost 500):** 500, 535, 572, 613, 656... (10% scaling)
 - **Tower (Tier 4, cost 50,000):** 50,000, 53,500, 57,245, 61,252, 65,740... (7% scaling)
@@ -62,12 +68,14 @@ Cost of Factory N = baseCost × (1 + tierMultiplier)^(owned)
 **Unlocks at:** 10 total factories owned (across all types)
 
 **Buttons:**
+
 - **×1:** Buy 1 factory (standard price)
 - **×10:** Buy 10 at once (5% discount)
 - **×100:** Buy 100 at once (5% discount)
 - **MAX:** Buy as many as affordable (5% discount)
 
 **Bulk Cost Formula:**
+
 ```javascript
 function calculateBulkCost(factory, count) {
   let total = 0
@@ -83,13 +91,14 @@ function calculateBulkCost(factory, count) {
 
 **Three license tiers:**
 
-| License | Cost (QSOs) | Unlocks | Requirements |
-|---------|-------------|---------|--------------|
-| **Technician** | Free (start) | Tiers 1-2 | — |
-| **General** | 500 QSOs total | Tiers 3-5 | Earn 500 QSOs |
-| **Extra** | 5,000 QSOs total | Tiers 6-7 | Earn 5,000 QSOs |
+| License        | Cost (QSOs)      | Unlocks   | Requirements    |
+| -------------- | ---------------- | --------- | --------------- |
+| **Technician** | Free (start)     | Tiers 1-2 | —               |
+| **General**    | 500 QSOs total   | Tiers 3-5 | Earn 500 QSOs   |
+| **Extra**      | 5,000 QSOs total | Tiers 6-7 | Earn 5,000 QSOs |
 
 **License UI:**
+
 - Display current license prominently
 - Show progress bar: "250/500 QSOs earned"
 - Locked buttons show cost and requirements
@@ -99,26 +108,24 @@ function calculateBulkCost(factory, count) {
 
 ```javascript
 // Factory management
-- buyFactory(factoryId, count = 1)
-- getFactoryCost(factoryId, owned)
-- getBulkCost(factoryId, count)
-
-// License management  
-- upgradeLicense(licenseType)
-
-// Derived values
-- getTotalQSOsPerSecond()
-- isMultiBuyUnlocked()
-- canAffordFactory(factoryId)
-
-// Save integration
-- save()
-- load()
+;-buyFactory(factoryId, (count = 1)) -
+  getFactoryCost(factoryId, owned) -
+  getBulkCost(factoryId, count) -
+  // License management
+  upgradeLicense(licenseType) -
+  // Derived values
+  getTotalQSOsPerSecond() -
+  isMultiBuyUnlocked() -
+  canAffordFactory(factoryId) -
+  // Save integration
+  save() -
+  load()
 ```
 
 ### 6. Component Structure
 
 **New Components:**
+
 - `FactoryList.vue`: Scrolling container for all factories
 - `FactoryCard.vue`: Individual factory display with purchase buttons
 - `MultiBuyPanel.vue`: ×1/×10/×100/MAX controls (unlocks at 10 factories)
@@ -127,6 +134,7 @@ function calculateBulkCost(factory, count) {
 - `FactoryTests.vue`: Comprehensive test suite
 
 **Updated Components:**
+
 - `App.vue`: Integrate LicensePanel and FactoryList into main layout
 - `KeyerArea.vue`: Already has keyer functionality (no changes needed)
 
@@ -138,7 +146,7 @@ function calculateBulkCost(factory, count) {
 // In useGameStore
 function tick(deltaSeconds) {
   const qsosToAdd = factoryTotalQSOsPerSecond × deltaSeconds
-  
+
   if (qsosToAdd > 0) {
     qsos.value += qsosToAdd
     save()
@@ -147,6 +155,7 @@ function tick(deltaSeconds) {
 ```
 
 **Implementation:**
+
 - `requestAnimationFrame` calls `tick()` every frame
 - Accumulates delta time between frames
 - Converts to QSOs per second
@@ -163,20 +172,20 @@ function tick(deltaSeconds) {
   qsos: "12345678901234567890",  // String for BigInt
   currentLicense: "technician",  // technician|general|extra
   licenseLevel: 1,               // 1=Technician, 2=General, 3=Extra
-  
+
   factories: {
     "elmer": { owned: 42, totalProduced: 999999 },
     "straight-key": { owned: 5, totalProduced: 150 },
     "paddle-key": { owned: 2, totalProduced: 5000 },
     // ... all 21 factories
   },
-  
+
   stats: {
     totalClicks: 9999,
     totalTimePlayed: 3600,
     // (future achievements tracking)
   },
-  
+
   settings: {
     volume: 0.7,
     frequency: 600
@@ -187,6 +196,7 @@ function tick(deltaSeconds) {
 ### 9. Testing Strategy
 
 **Store Tests:**
+
 - Factory purchase adds correct amount
 - Cost scaling applies tier multiplier
 - Multi-buy calculates 5% discount
@@ -195,6 +205,7 @@ function tick(deltaSeconds) {
 - Save/load preserves all state
 
 **Component Tests:**
+
 - FactoryCard renders with correct data
 - Disabled button shows "Need X more QSOs"
 - Multi-buy panel visible when 10 factories owned
@@ -202,6 +213,7 @@ function tick(deltaSeconds) {
 - LicensePanel shows upgrade progress
 
 **Integration Tests:**
+
 - Game loop adds factory QSOs
 - UI updates reactively when state changes
 - Multi-buy buttons update cost dynamically
@@ -212,6 +224,7 @@ function tick(deltaSeconds) {
 **All 21 Factories with Tier & QSOs/sec:**
 
 **Tier 1-2 (Technician):**
+
 1. Elmer (Tier 1) - 0.1 QSOs/sec, cost 10
 2. Straight Key (Tier 1) - 0.3 QSOs/sec, cost 50
 3. Novice License Holder (Tier 1) - 0.5 QSOs/sec, cost 100
@@ -219,24 +232,9 @@ function tick(deltaSeconds) {
 5. Code Practice Oscillator (Tier 2) - 2.0 QSOs/sec, cost 1,000
 6. Dipole Antenna (Tier 2) - 4.0 QSOs/sec, cost 2,000
 
-**Tier 3-5 (General - Unlocked at 500 QSOs):**
-7. Vertical Antenna (Tier 3) - 8.0 QSOs/sec, cost 5,000
-8. Linear Amplifier (Tier 3) - 15.0 QSOs/sec, cost 10,000
-9. Beam Antenna (Tier 3) - 30.0 QSOs/sec, cost 25,000
-10. Tower Installation (Tier 4) - 60.0 QSOs/sec, cost 50,000
-11. Contest Station (Tier 4) - 120.0 QSOs/sec, cost 100,000
-12. DX Cluster (Tier 5) - 250.0 QSOs/sec, cost 250,000
+**Tier 3-5 (General - Unlocked at 500 QSOs):** 7. Vertical Antenna (Tier 3) - 8.0 QSOs/sec, cost 5,000 8. Linear Amplifier (Tier 3) - 15.0 QSOs/sec, cost 10,000 9. Beam Antenna (Tier 3) - 30.0 QSOs/sec, cost 25,000 10. Tower Installation (Tier 4) - 60.0 QSOs/sec, cost 50,000 11. Contest Station (Tier 4) - 120.0 QSOs/sec, cost 100,000 12. DX Cluster (Tier 5) - 250.0 QSOs/sec, cost 250,000
 
-**Tier 6-7 (Extra - Unlocked at 5,000 QSOs):**
-13. Hamfest (Tier 6) - 500.0 QSOs/sec, cost 500,000
-14. QSL Card Printer (Tier 6) - 1,000.0 QSOs/sec, cost 1,000,000
-15. Remote Station (Tier 6) - 2,500.0 QSOs/sec, cost 2,500,000
-16. FT8 Bot (Tier 6) - 5,000.0 QSOs/sec, cost 5,000,000
-17. Cluster Spotting Network (Tier 7) - 10,000.0 QSOs/sec, cost 10,000,000
-18. EME (Moonbounce) (Tier 7) - 25,000.0 QSOs/sec, cost 25,000,000
-19. Satellite Constellation (Tier 7) - 50,000.0 QSOs/sec, cost 50,000,000
-20. Ionospheric Modification (Tier 7) - 100,000.0 QSOs/sec, cost 100,000,000
-21. Alternate Dimension DXCC (Tier 7) - 500,000.0 QSOs/sec, cost 500,000,000
+**Tier 6-7 (Extra - Unlocked at 5,000 QSOs):** 13. Hamfest (Tier 6) - 500.0 QSOs/sec, cost 500,000 14. QSL Card Printer (Tier 6) - 1,000.0 QSOs/sec, cost 1,000,000 15. Remote Station (Tier 6) - 2,500.0 QSOs/sec, cost 2,500,000 16. FT8 Bot (Tier 6) - 5,000.0 QSOs/sec, cost 5,000,000 17. Cluster Spotting Network (Tier 7) - 10,000.0 QSOs/sec, cost 10,000,000 18. EME (Moonbounce) (Tier 7) - 25,000.0 QSOs/sec, cost 25,000,000 19. Satellite Constellation (Tier 7) - 50,000.0 QSOs/sec, cost 50,000,000 20. Ionospheric Modification (Tier 7) - 100,000.0 QSOs/sec, cost 100,000,000 21. Alternate Dimension DXCC (Tier 7) - 500,000.0 QSOs/sec, cost 500,000,000
 
 ---
 
@@ -245,6 +243,7 @@ function tick(deltaSeconds) {
 **Tech Stack:** Vue 3 (Composition API), Pinia, Tailwind CSS
 
 **File Structure:**
+
 ```
 src/
 ├── constants/
@@ -261,6 +260,7 @@ src/
 ```
 
 **Data Flow:**
+
 1. Factory definition constant → FactoryCard component → User clicks buy
 2. Click triggers store.buyFactory() → Updates factory counts → Recalculates costs
 3. Recalculate costs → UI updates reactive values automatically

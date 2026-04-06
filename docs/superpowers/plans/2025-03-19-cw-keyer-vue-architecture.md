@@ -15,6 +15,7 @@
 ### Task 1: Scaffold Vite Project & Install Dependencies
 
 **Files:**
+
 - Create: `package.json`
 - Create: `vite.config.js`
 - Create: `index.html`
@@ -22,29 +23,30 @@
 - Create: `src/App.vue`
 
 - [ ] **Step 1: Scaffold Vite Vue project**
+
 ```bash
 npm create vite@latest . -- --template vue --force
 ```
 
 - [ ] **Step 2: Install dependencies**
+
 ```bash
 npm install pinia
 npm install -D tailwindcss postcss autoprefixer vitest @vue/test-utils jsdom
 ```
 
 - [ ] **Step 3: Initialize Tailwind**
+
 ```bash
 npx tailwindcss init -p
 ```
 
 - [ ] **Step 4: Configure Tailwind**
-Modify `tailwind.config.js`:
+      Modify `tailwind.config.js`:
+
 ```javascript
 export default {
-  content: [
-    "./index.html",
-    "./src/**/*.{vue,js,ts,jsx,tsx}",
-  ],
+  content: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}'],
   theme: {
     extend: {
       colors: {
@@ -53,8 +55,8 @@ export default {
         'terminal-amber': '#ffb000',
       },
       fontFamily: {
-        'mono': ['Courier', 'ui-monospace', 'SFMono-Regular', 'monospace'],
-      }
+        mono: ['Courier', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+      },
     },
   },
   plugins: [],
@@ -62,7 +64,8 @@ export default {
 ```
 
 - [ ] **Step 5: Setup global CSS**
-Create `src/style.css`:
+      Create `src/style.css`:
+
 ```css
 @tailwind base;
 @tailwind components;
@@ -74,7 +77,8 @@ body {
 ```
 
 - [ ] **Step 6: Configure Vite and package scripts**
-Modify `vite.config.js`:
+      Modify `vite.config.js`:
+
 ```javascript
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
@@ -83,11 +87,13 @@ export default defineConfig({
   plugins: [vue()],
   test: {
     environment: 'jsdom',
-    globals: true
-  }
+    globals: true,
+  },
 })
 ```
+
 Add to `package.json` scripts:
+
 ```json
 "scripts": {
   "dev": "vite",
@@ -98,7 +104,8 @@ Add to `package.json` scripts:
 ```
 
 - [ ] **Step 7: Update main.js**
-Modify `src/main.js`:
+      Modify `src/main.js`:
+
 ```javascript
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
@@ -113,12 +120,15 @@ app.mount('#app')
 ```
 
 - [ ] **Step 8: Verify build and tests**
+
 ```bash
 npm run build
 ```
+
 Expected: PASS
 
 - [ ] **Step 9: Commit**
+
 ```bash
 git add .
 git commit -m "chore: scaffold vue vite project with pinia and tailwind"
@@ -129,11 +139,13 @@ git commit -m "chore: scaffold vue vite project with pinia and tailwind"
 ### Task 2: Pinia Game Store
 
 **Files:**
+
 - Create: `src/stores/game.js`
 - Create: `src/stores/__tests__/game.test.js`
 
 - [ ] **Step 1: Write the failing test**
-Create `src/stores/__tests__/game.test.js`:
+      Create `src/stores/__tests__/game.test.js`:
+
 ```javascript
 import { setActivePinia, createPinia } from 'pinia'
 import { useGameStore } from '../game'
@@ -164,20 +176,23 @@ describe('Game Store', () => {
 ```
 
 - [ ] **Step 2: Run test to verify it fails**
+
 ```bash
 npm run test -- src/stores/__tests__/game.test.js --run
 ```
+
 Expected: FAIL (useGameStore not defined)
 
 - [ ] **Step 3: Write minimal implementation**
-Create `src/stores/game.js`:
+      Create `src/stores/game.js`:
+
 ```javascript
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 
 export const useGameStore = defineStore('game', () => {
   const qsos = ref(0)
-  
+
   function tapKeyer(type) {
     if (type === 'dit') {
       qsos.value += 1
@@ -188,18 +203,21 @@ export const useGameStore = defineStore('game', () => {
 
   return {
     qsos,
-    tapKeyer
+    tapKeyer,
   }
 })
 ```
 
 - [ ] **Step 4: Run test to verify it passes**
+
 ```bash
 npm run test -- src/stores/__tests__/game.test.js --run
 ```
+
 Expected: PASS
 
 - [ ] **Step 5: Commit**
+
 ```bash
 git add src/stores/
 git commit -m "feat: implement core pinia game store for qsos"
@@ -210,11 +228,13 @@ git commit -m "feat: implement core pinia game store for qsos"
 ### Task 3: Audio Service Module
 
 **Files:**
+
 - Create: `src/services/audio.js`
 - Create: `src/services/__tests__/audio.test.js`
 
 - [ ] **Step 1: Write the failing test**
-Create `src/services/__tests__/audio.test.js`:
+      Create `src/services/__tests__/audio.test.js`:
+
 ```javascript
 import { describe, it, expect, vi } from 'vitest'
 import { AudioService } from '../audio'
@@ -228,14 +248,14 @@ global.window = {
       connect: vi.fn(),
       start: vi.fn(),
       stop: vi.fn(),
-      disconnect: vi.fn()
+      disconnect: vi.fn(),
     }),
     createGain: vi.fn().mockReturnValue({
       gain: { setValueAtTime: vi.fn() },
-      connect: vi.fn()
+      connect: vi.fn(),
     }),
-    destination: {}
-  }))
+    destination: {},
+  })),
 }
 
 describe('AudioService', () => {
@@ -249,13 +269,16 @@ describe('AudioService', () => {
 ```
 
 - [ ] **Step 2: Run test to verify it fails**
+
 ```bash
 npm run test -- src/services/__tests__/audio.test.js --run
 ```
+
 Expected: FAIL
 
 - [ ] **Step 3: Write minimal implementation**
-Create `src/services/audio.js`:
+      Create `src/services/audio.js`:
+
 ```javascript
 export class AudioService {
   constructor() {
@@ -278,27 +301,27 @@ export class AudioService {
 
   playTone() {
     if (!this.isInitialized) this.init()
-    
+
     this.oscillator = this.context.createOscillator()
     this.oscillator.type = 'sine'
     this.oscillator.frequency.setValueAtTime(this.frequency, this.context.currentTime)
-    
+
     this.oscillator.connect(this.gainNode)
     this.oscillator.start()
-    
+
     // Quick fade in to prevent clicks
     this.gainNode.gain.setTargetAtTime(0.1, this.context.currentTime, 0.01)
   }
 
   stopTone() {
     if (!this.oscillator) return
-    
+
     // Quick fade out
     this.gainNode.gain.setTargetAtTime(0, this.context.currentTime, 0.01)
-    
+
     const osc = this.oscillator
     this.oscillator = null
-    
+
     setTimeout(() => {
       osc.stop()
       osc.disconnect()
@@ -310,12 +333,15 @@ export const audioService = new AudioService()
 ```
 
 - [ ] **Step 4: Run test to verify it passes**
+
 ```bash
 npm run test -- src/services/__tests__/audio.test.js --run
 ```
+
 Expected: PASS
 
 - [ ] **Step 5: Commit**
+
 ```bash
 git add src/services/
 git commit -m "feat: create web audio api service for sidetone"
@@ -326,13 +352,15 @@ git commit -m "feat: create web audio api service for sidetone"
 ### Task 4: UI Components
 
 **Files:**
+
 - Create: `src/components/StatHeader.vue`
 - Create: `src/components/KeyerArea.vue`
 - Create: `src/components/__tests__/KeyerArea.test.js`
 - Modify: `src/App.vue`
 
 - [ ] **Step 1: Write the failing test**
-Create `src/components/__tests__/KeyerArea.test.js`:
+      Create `src/components/__tests__/KeyerArea.test.js`:
+
 ```javascript
 import { mount } from '@vue/test-utils'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
@@ -343,8 +371,8 @@ import { useGameStore } from '../../stores/game'
 vi.mock('../../services/audio', () => ({
   audioService: {
     playTone: vi.fn(),
-    stopTone: vi.fn()
-  }
+    stopTone: vi.fn(),
+  },
 }))
 
 describe('KeyerArea.vue', () => {
@@ -355,10 +383,10 @@ describe('KeyerArea.vue', () => {
   it('triggers tap on mousedown/mouseup', async () => {
     const wrapper = mount(KeyerArea)
     const store = useGameStore()
-    
+
     await wrapper.trigger('mousedown')
     await wrapper.trigger('mouseup')
-    
+
     // Fast click = dit
     expect(store.qsos).toBe(1)
   })
@@ -366,16 +394,19 @@ describe('KeyerArea.vue', () => {
 ```
 
 - [ ] **Step 2: Run test to verify it fails**
+
 ```bash
 npm run test -- src/components/__tests__/KeyerArea.test.js --run
 ```
+
 Expected: FAIL
 
 - [ ] **Step 3: Write minimal implementation**
-Create `src/components/KeyerArea.vue`:
+      Create `src/components/KeyerArea.vue`:
+
 ```vue
 <template>
-  <div 
+  <div
     class="w-full h-48 border-2 border-terminal-green rounded flex items-center justify-center cursor-pointer select-none"
     @mousedown="handleDown"
     @mouseup="handleUp"
@@ -383,9 +414,7 @@ Create `src/components/KeyerArea.vue`:
     @touchstart.prevent="handleDown"
     @touchend.prevent="handleUp"
   >
-    <span class="text-2xl font-bold uppercase tracking-widest">
-      [ CW KEYER ]
-    </span>
+    <span class="text-2xl font-bold uppercase tracking-widest"> [ CW KEYER ] </span>
   </div>
 </template>
 
@@ -409,7 +438,7 @@ const handleUp = () => {
   if (!isDown.value) return
   isDown.value = false
   audioService.stopTone()
-  
+
   const duration = Date.now() - startTime.value
   const type = duration < 200 ? 'dit' : 'dah'
   store.tapKeyer(type)
@@ -418,7 +447,8 @@ const handleUp = () => {
 ```
 
 - [ ] **Step 4: Create StatHeader component**
-Create `src/components/StatHeader.vue`:
+      Create `src/components/StatHeader.vue`:
+
 ```vue
 <template>
   <header class="mb-8 flex justify-between border-b border-terminal-green pb-4">
@@ -434,7 +464,8 @@ const store = useGameStore()
 ```
 
 - [ ] **Step 5: Wire components into App.vue**
-Modify `src/App.vue`:
+      Modify `src/App.vue`:
+
 ```vue
 <template>
   <div class="min-h-screen p-8 max-w-4xl mx-auto">
@@ -452,12 +483,15 @@ import KeyerArea from './components/KeyerArea.vue'
 ```
 
 - [ ] **Step 6: Run tests**
+
 ```bash
 npm run test -- src/components/__tests__/KeyerArea.test.js --run
 ```
+
 Expected: PASS
 
 - [ ] **Step 7: Commit**
+
 ```bash
 git add src/components/ src/App.vue
 git commit -m "feat: implement StatHeader and KeyerArea components"

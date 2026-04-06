@@ -114,7 +114,9 @@ export function buildUpgradeRailModel({
     upgrade => !upgrade.isPurchased && upgrade.isAvailable && !upgrade.isAffordable
   )
   const recentlyPurchased = normalized.filter(upgrade => upgrade.isPurchased)
-  const lockedByThreshold = normalized.filter(upgrade => !upgrade.isPurchased && !upgrade.isAvailable)
+  const lockedByThreshold = normalized.filter(
+    upgrade => !upgrade.isPurchased && !upgrade.isAvailable
+  )
 
   readyToBuy.sort(deterministicComparator)
   almostThere.sort((a, b) => {

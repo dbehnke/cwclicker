@@ -10,10 +10,14 @@ function getVersion() {
     // Get the git describe output
     let describe
     try {
-      describe = execSync('git describe --tags --long', { encoding: 'utf-8' }).trim()
+      describe = execSync('git describe --tags --long', {
+        encoding: 'utf-8',
+      }).trim()
     } catch {
       // If no tags exist, use v0.0.0 as base
-      const sha = execSync('git rev-parse --short HEAD', { encoding: 'utf-8' }).trim()
+      const sha = execSync('git rev-parse --short HEAD', {
+        encoding: 'utf-8',
+      }).trim()
       describe = `v0.0.0-0-g${sha}`
     }
 
@@ -32,4 +36,4 @@ function getVersion() {
   }
 }
 
-console.log(getVersion())
+console.warn(getVersion())

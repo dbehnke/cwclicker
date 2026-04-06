@@ -21,6 +21,7 @@
 ## Chunk 1: Add Remaining Upgrade Chains
 
 **Files:**
+
 - Modify: `src/constants/upgrades.js`
 
 ### Task 1: Extend the upgrade constants
@@ -32,6 +33,7 @@ Review the existing `ELMER_UPGRADES` block in `src/constants/upgrades.js` and mi
 - [ ] **Step 1: Write the missing upgrade sets**
 
 Add 9 upgrades each for:
+
 - `bug-catcher`, `vertical-antenna`, `linear-amplifier`
 - `beam-antenna`, `ragchew-net`, `tower-installation`
 - `contest-station`, `paper-logbook`, `dx-cluster`
@@ -59,6 +61,7 @@ git commit -m "feat: add upgrades for remaining factories"
 ## Chunk 2: Update Coverage Tests
 
 **Files:**
+
 - Modify: `src/stores/__tests__/factories.test.js`
 - Modify: `src/components/__tests__/FactoryCard.test.js` if a spot-check is needed
 
@@ -96,6 +99,7 @@ git commit -m "test: cover upgrade availability for all factories"
 ## Chunk 3: Final Verification
 
 **Files:**
+
 - All modified files from prior chunks
 
 ### Task 3: Verify the full expansion

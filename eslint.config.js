@@ -1,10 +1,10 @@
-import globals from 'globals'
 import pluginVue from 'eslint-plugin-vue'
+import globals from 'globals'
 import vueParser from 'vue-eslint-parser'
 
 export default [
   {
-    ignores: ['node_modules/**', 'dist/**', '.git/**'],
+    ignores: ['node_modules/**', 'dist/**', '.git/**', '.worktrees/**'],
   },
   {
     files: ['**/*.vue'],

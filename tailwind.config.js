@@ -1,8 +1,5 @@
 export default {
-  content: [
-    "./index.html",
-    "./src/**/*.{vue,js,ts,jsx,tsx}",
-  ],
+  content: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}'],
   theme: {
     extend: {
       colors: {
@@ -11,8 +8,8 @@ export default {
         'terminal-amber': '#ffb000',
       },
       fontFamily: {
-        'mono': ['Courier', 'ui-monospace', 'SFMono-Regular', 'monospace'],
-      }
+        mono: ['Courier', 'ui-monospace', 'SFMono-Regular', 'monospace'],
+      },
     },
   },
   plugins: [],

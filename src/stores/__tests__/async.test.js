@@ -50,7 +50,7 @@ describe('Game Store - Async/Timer Tests', () => {
   describe('Passive QSO Accumulation', () => {
     it('accumulates fractional QSOs correctly', () => {
       const store = useGameStore()
-      store.factoryCounts = { 'elmer': 1 } // 0.1/sec
+      store.factoryCounts = { elmer: 1 } // 0.1/sec
 
       // Add small amount multiple times
       store.addPassiveQSOs(0.05)
@@ -71,7 +71,7 @@ describe('Game Store - Async/Timer Tests', () => {
 
     it('handles multiple fractional accumulations', () => {
       const store = useGameStore()
-      store.factoryCounts = { 'elmer': 1 } // 0.1/sec
+      store.factoryCounts = { elmer: 1 } // 0.1/sec
 
       // Simulate 60 frames at 60fps (1 second)
       for (let i = 0; i < 60; i++) {
@@ -90,15 +90,15 @@ describe('Game Store - Async/Timer Tests', () => {
       const store = useGameStore()
       store.qsos = 100n
       store.licenseLevel = 2
-      store.factoryCounts = { 'elmer': 5 }
+      store.factoryCounts = { elmer: 5 }
 
       // Manual save should work
       store.save()
-      
+
       const saved = JSON.parse(localStorage.getItem('cw-keyer-game'))
       expect(saved.qsos).toBe('100')
       expect(saved.licenseLevel).toBe(2)
-      expect(saved.factoryCounts).toEqual({ 'elmer': 5 })
+      expect(saved.factoryCounts).toEqual({ elmer: 5 })
     })
   })
 
@@ -133,7 +133,7 @@ describe('Game Store - Async/Timer Tests', () => {
       const store = useGameStore()
       store.lotteryState.bonusEndTime = Date.now() + 125000 // 2:05
 
-      const formatTime = (seconds) => {
+      const formatTime = seconds => {
         if (seconds >= 60) {
           const mins = Math.floor(seconds / 60)
           const secs = seconds % 60
@@ -164,7 +164,7 @@ describe('Game Store - Async/Timer Tests', () => {
         id: 'test-1',
         value: 1,
         opacity: 1,
-        startTime: Date.now()
+        startTime: Date.now(),
       }
 
       const FADE_DURATION_MS = 2000

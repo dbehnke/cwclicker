@@ -11,6 +11,7 @@
 ## Overview
 
 This plan implements the complete factory and license system for Phase 2+3:
+
 - 21 factories with tier-based scaling
 - Technician → General → Extra license progression
 - Multi-buy system (×1/×10/×100/MAX) unlocked at 10 factories
@@ -22,6 +23,7 @@ This plan implements the complete factory and license system for Phase 2+3:
 ## Task 1: Create Factory Data Constants
 
 **Files:**
+
 - Create: `src/constants/factories.js`
 - Create: `src/constants/__tests__/factories.test.js`
 
@@ -33,10 +35,11 @@ This plan implements the complete factory and license system for Phase 2+3:
 4. Commit
 
 **Factory Structure:**
+
 ```javascript
 {
   id: 'elmer',
-  name: 'Elmer', 
+  name: 'Elmer',
   baseCost: 10,
   qsosPerSecond: 0.1,
   tier: 1,
@@ -45,8 +48,9 @@ This plan implements the complete factory and license system for Phase 2+3:
 ```
 
 **Tiers:**
+
 - Tiers 1-2 (Technician): 10% cost scaling per factory
-- Tiers 3-5 (General): 7% cost scaling per factory  
+- Tiers 3-5 (General): 7% cost scaling per factory
 - Tiers 6-7 (Extra): 5% cost scaling per factory
 
 ---
@@ -54,10 +58,12 @@ This plan implements the complete factory and license system for Phase 2+3:
 ## Task 2: Extend Game Store
 
 **Files:**
+
 - Modify: `src/stores/game.js`
 - Create: `src/stores/__tests__/factories.test.js`
 
 **Add to store:**
+
 - `licenseLevel` ref (starts at 1)
 - `factoryCounts` object ref
 - `getFactoryCost(factoryId, owned)` - calculates cost with tier multiplier
@@ -66,6 +72,7 @@ This plan implements the complete factory and license system for Phase 2+3:
 - `getBulkCost(factoryId, count)` - calculates bulk purchase with 5% discount
 
 **Cost Formula:**
+
 ```javascript
 const multiplier = factory.tier <= 2 ? 1.1 : factory.tier <= 5 ? 1.07 : 1.05
 return Math.floor(factory.baseCost * Math.pow(multiplier, owned))
@@ -76,10 +83,12 @@ return Math.floor(factory.baseCost * Math.pow(multiplier, owned))
 ## Task 3: Create FactoryCard Component
 
 **Files:**
+
 - Create: `src/components/FactoryCard.vue`
 - Create: `src/components/__tests__/FactoryCard.test.js`
 
 **Features:**
+
 - Display factory name, description, QSOs/sec
 - Show current cost (calculated from store)
 - Buy button (disabled if can't afford)
@@ -90,9 +99,11 @@ return Math.floor(factory.baseCost * Math.pow(multiplier, owned))
 ## Task 4: Create MultiBuyPanel Component
 
 **Files:**
+
 - Create: `src/components/MultiBuyPanel.vue`
 
 **Features:**
+
 - Shows only when 10+ total factories owned
 - ×1, ×10, ×100, MAX buttons
 - Disabled state when can't afford
@@ -103,9 +114,11 @@ return Math.floor(factory.baseCost * Math.pow(multiplier, owned))
 ## Task 5: Create LicensePanel Component
 
 **Files:**
+
 - Create: `src/components/LicensePanel.vue`
 
 **Features:**
+
 - Shows current license (Technician/General/Extra)
 - Progress bar to next license
 - Upgrade button (disabled until requirements met)
@@ -116,9 +129,11 @@ return Math.floor(factory.baseCost * Math.pow(multiplier, owned))
 ## Task 6: Create FactoryList Component
 
 **Files:**
+
 - Create: `src/components/FactoryList.vue`
 
 **Features:**
+
 - Filters factories by current license tier
 - Renders FactoryCard for each available factory
 - Shows MultiBuyPanel when unlocked
@@ -129,9 +144,11 @@ return Math.floor(factory.baseCost * Math.pow(multiplier, owned))
 ## Task 7: Create GameLoop Component
 
 **Files:**
+
 - Create: `src/components/GameLoop.vue`
 
 **Features:**
+
 - Uses requestAnimationFrame
 - Calls `getTotalQSOsPerSecond()` each tick
 - Adds QSOs to store
@@ -142,9 +159,11 @@ return Math.floor(factory.baseCost * Math.pow(multiplier, owned))
 ## Task 8: Update App.vue
 
 **Files:**
+
 - Modify: `src/App.vue`
 
 **Changes:**
+
 - Add LicensePanel
 - Add FactoryList
 - Add GameLoop component
@@ -155,16 +174,19 @@ return Math.floor(factory.baseCost * Math.pow(multiplier, owned))
 ## Task 9: Add Save/Load System
 
 **Files:**
+
 - Modify: `src/stores/game.js`
 - Modify: `src/main.js`
 
 **Add:**
+
 - `save()` - persists to localStorage
 - `load()` - restores from localStorage
 - Call `load()` on app startup
 - Auto-save every 30 seconds in GameLoop
 
 **Save Schema:**
+
 ```javascript
 {
   qsos: "12345",
@@ -178,18 +200,21 @@ return Math.floor(factory.baseCost * Math.pow(multiplier, owned))
 ## Testing Strategy
 
 **Store Tests:**
+
 - Factory cost calculation with tier multipliers
 - Buy factory deducts correct QSOs
 - getTotalQSOsPerSecond sums correctly
 - Save/load preserves all state
 
 **Component Tests:**
+
 - FactoryCard renders and emits buy event
 - LicensePanel shows correct progress
 - MultiBuyPanel visibility based on factory count
 - FactoryList filters by license tier
 
 **Integration:**
+
 - Game loop adds QSOs from factories
 - UI updates reactively
 - Save/load works end-to-end

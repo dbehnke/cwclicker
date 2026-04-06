@@ -19,7 +19,9 @@ export class AudioService {
    * Initializes the AudioContext upon user interaction.
    */
   init() {
-    if (this.isInitialized) return
+    if (this.isInitialized) {
+      return
+    }
     const AudioContext = window.AudioContext || window.webkitAudioContext
     if (!AudioContext) {
       console.warn('Web Audio API not supported in this browser')
@@ -41,9 +43,15 @@ export class AudioService {
    * Stops any existing oscillator first to prevent orphaned oscillators.
    */
   async playTone() {
-    if (!this.isInitialized) this.init()
-    if (!this.context) return
-    if (this.isMuted) return
+    if (!this.isInitialized) {
+      this.init()
+    }
+    if (!this.context) {
+      return
+    }
+    if (this.isMuted) {
+      return
+    }
 
     // Mobile browsers suspend AudioContext until user interaction
     // We need to resume it if it's suspended
@@ -90,7 +98,9 @@ export class AudioService {
    * Ensures oscillator is fully cleaned up to prevent memory leaks.
    */
   stopTone() {
-    if (!this.oscillator) return
+    if (!this.oscillator) {
+      return
+    }
 
     const osc = this.oscillator
     this.oscillator = null
@@ -107,7 +117,7 @@ export class AudioService {
       osc.disconnect()
     } catch (e) {
       // Oscillator might already be stopped, ignore error
-      console.debug('AudioService: Error stopping oscillator:', e)
+      console.warn('AudioService: Error stopping oscillator:', e)
     }
   }
 
