@@ -15,6 +15,9 @@
     "format:check": "prettier --check .",
     "prepare": "husky install"
   },
+  "engines": {
+    "node": ">=24 <25"
+  },
   "dependencies": {
     "lucide-vue-next": "^1.0.0",
     "pinia": "^3.0.4",
