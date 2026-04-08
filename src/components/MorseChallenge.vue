@@ -88,8 +88,8 @@ onMounted(() => {
 
   const s = morseState.value.state
   // Start a fresh challenge when: not yet active, or stuck in a terminal state
-  // (timeout/wrong/success) whose advance timer was lost on page reload
-  if (!morseState.value.isActive || ['timeout', 'wrong', 'success'].includes(s)) {
+  // (timeout/wrong/success/wrong-retry) whose advance timer was lost on page reload
+  if (!morseState.value.isActive || ['timeout', 'wrong', 'success', 'wrong-retry'].includes(s)) {
     store.startMorseChallenge()
   }
 })
