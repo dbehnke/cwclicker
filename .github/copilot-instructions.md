@@ -30,6 +30,7 @@ npm run build       # Production build
 **Instead use:** `context-mode_ctx_fetch_and_index(url, source)` and `context-mode_ctx_execute(language, code)`
 
 **Tool selection hierarchy:**
+
 1. `context-mode_ctx_batch_execute(commands, queries)` — run + search in one call
 2. `context-mode_ctx_search(queries: [...])` — query indexed content
 3. `context-mode_ctx_execute(language, code)` — sandbox execution
@@ -64,7 +65,7 @@ gh pr create --base main --head trinity-ai-agent:feat/my-feature --fill --web
 ### Key Conventions
 
 - `·` ( middot / center dot U+00B7 ) for dit in morse representations
-- `−` ( hyphen-minus U+002D ) for dah in morse representations  
+- `−` ( hyphen-minus U+002D ) for dah in morse representations
 - Morese patterns stored as strings like `"·−·−−"` (A = dit-dah-dit-dit-dah)
 - BigInt used for QSO counts (can reach trillions)
 - State managed via composables; persistence via localStorage
@@ -103,23 +104,27 @@ tests/                  # Vitest unit tests (mirrors src structure)
 ### Key Systems
 
 #### CW Keyer / Manual Sending
+
 - Short press → 1 QSO + short tone
 - Long press → 2 QSOs + extended tone (threshold ~300ms)
 - Tone: 700Hz standard offset
 
 #### Morse Challenge Mini-game
+
 - Random letter appears with morse pattern
 - Key the exact pattern within 5 seconds for bonus QSOs
 - Bonus = current QRQ factory output per second
 - **Known issues:** Issue #32 — Challenge can get stuck and not reset properly on edge cases. Track `morseChallengeActive` and `currentLetter` state carefully. Check `onMounted` recovery logic for `wrong-retry` state.
 
 #### Factories & Upgrades
+
 - Prices scale by tier using powers-of-two progression
 - Multipliers increase output 2x per upgrade
 - Factory tiers unlocked by license class (Novice → Extra)
 - Only next affordable factory revealed at a time
 
 #### Licenses
+
 - Unlock tiers: Novice → Technician → General → Extra
 - Progressive reveal of factory types
 - Full reset on prestige
