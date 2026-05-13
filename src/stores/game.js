@@ -1168,6 +1168,11 @@ export const useGameStore = defineStore("game", () => {
 							}
 						}
 					}
+				} else {
+					// One-time migration: seed lastSaveTime for saves created before this
+					// field was introduced. No offline earnings for this gap (we have no
+					// baseline), but future loads will calculate correctly.
+					save();
 				}
 
 				revealAffordableFactories();

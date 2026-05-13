@@ -433,6 +433,52 @@ describe('Game Store - Save/Load', () => {
       store.factoryCounts['beam-antenna'] = 1
       expect(store.isFactoryUnlocked('beam-antenna')).toBe(true)
     })
+
+    it('seeds lastSaveTime on load when missing from save data', () => {
+      // Simulate a save from before the lastSaveTime field existed
+      const saveData = {
+        version: '1.1.0',
+        qsos: '500',
+        qsosThisRun: '500',
+        totalQsosEarned: '500',
+        prestigeLevel: '0',
+        prestigePoints: '0',
+        licenseLevel: 1,
+        factoryCounts: { elmer: 3 },
+        factoryProductionTotals: { elmer: '0' },
+        factoryProductionRemainders: { elmer: 0 },
+        revealedFactoryIds: ['elmer'],
+        fractionalQSOs: 0,
+        tapPrestigeAccumulator: '0',
+        audioSettings: { volume: 0.5, frequency: 600, isMuted: false, morseWpm: 5 },
+        lotteryState: { lastTriggerTime: 0, isBonusAvailable: false, bonusFactoryId: null, bonusEndTime: 0, bonusAvailableEndTime: 0, phenomenonTitle: '', isSolarStorm: false, solarStormEndTime: 0 },
+        purchasedUpgrades: [],
+        upgradePurchaseMeta: {},
+        // lastSaveTime is intentionally missing
+        offlineEarnings: null,
+        morseChallengeState: { isActive: false, currentChar: null, currentPattern: '', keyedSequence: [], challengeStartTime: 0, state: 'idle', triesRemaining: 3, lastBonusAwarded: 0 },
+        morseChallengeEnabled: true,
+      }
+
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(saveData))
+
+      const store = useGameStore()
+      vi.useFakeTimers()
+      vi.setSystemTime(new Date('2025-01-15T12:00:00Z'))
+
+      store.load()
+
+      // The current load should NOT calculate offline earnings (no baseline)
+      expect(store.offlineEarnings).toBeNull()
+      // QSOs should remain as loaded from save
+      expect(store.qsos).toBe(500n)
+
+      // But load() should have called save() to seed lastSaveTime
+      const savedAfterLoad = JSON.parse(localStorage.getItem(STORAGE_KEY))
+      expect(savedAfterLoad).toHaveProperty('lastSaveTime')
+      expect(typeof savedAfterLoad.lastSaveTime).toBe('number')
+      expect(savedAfterLoad.lastSaveTime).toBe(Date.now())
+    })
   })
 
   describe('reset paths', () => {
