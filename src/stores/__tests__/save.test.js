@@ -451,12 +451,30 @@ describe('Game Store - Save/Load', () => {
         fractionalQSOs: 0,
         tapPrestigeAccumulator: '0',
         audioSettings: { volume: 0.5, frequency: 600, isMuted: false, morseWpm: 5 },
-        lotteryState: { lastTriggerTime: 0, isBonusAvailable: false, bonusFactoryId: null, bonusEndTime: 0, bonusAvailableEndTime: 0, phenomenonTitle: '', isSolarStorm: false, solarStormEndTime: 0 },
+        lotteryState: {
+          lastTriggerTime: 0,
+          isBonusAvailable: false,
+          bonusFactoryId: null,
+          bonusEndTime: 0,
+          bonusAvailableEndTime: 0,
+          phenomenonTitle: '',
+          isSolarStorm: false,
+          solarStormEndTime: 0,
+        },
         purchasedUpgrades: [],
         upgradePurchaseMeta: {},
         // lastSaveTime is intentionally missing
         offlineEarnings: null,
-        morseChallengeState: { isActive: false, currentChar: null, currentPattern: '', keyedSequence: [], challengeStartTime: 0, state: 'idle', triesRemaining: 3, lastBonusAwarded: 0 },
+        morseChallengeState: {
+          isActive: false,
+          currentChar: null,
+          currentPattern: '',
+          keyedSequence: [],
+          challengeStartTime: 0,
+          state: 'idle',
+          triesRemaining: 3,
+          lastBonusAwarded: 0,
+        },
         morseChallengeEnabled: true,
       }
 
